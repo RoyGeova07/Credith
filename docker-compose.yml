@@ -1,0 +1,14 @@
+services:
+  pagila:
+    image: postgres:17
+    container_name: credith_db
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_USER: postgres
+      POSTGRES_DB: credith
+    volumes:
+      - ./db-scripts/1-schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+    expose:
+      - 5432
+    ports:
+      - 5432:5432 
