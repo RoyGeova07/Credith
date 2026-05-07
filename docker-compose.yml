@@ -1,5 +1,5 @@
 services:
-  pagila:
+  credith_db:
     image: postgres:17
     container_name: credith_db
     environment:
