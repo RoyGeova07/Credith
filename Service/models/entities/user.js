@@ -2,12 +2,12 @@ const Sequelize = require('sequelize');
 const DataType = Sequelize.DataTypes;
 const Model = Sequelize.Model;
 
-class Employee extends Model { }
+class User extends Model { }
 
 function initialize(sequelize, _) {
-    return Employee.init(
+    return User.init(
         {
-            employeeId: {
+            userId: {
                 type: DataType.UUID,
                 primaryKey: true,
                 defaultValue: DataType.UUIDV4
@@ -39,6 +39,6 @@ function initialize(sequelize, _) {
 }
 
 module.exports = {
-    Employees: Employee,
+    Users: User,
     initialize
 }

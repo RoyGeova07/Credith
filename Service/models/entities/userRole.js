@@ -1,15 +1,15 @@
 const Sequelize = require('sequelize');
 const Model = Sequelize.Model;
 
-class EmplyeeRole extends Model { }
+class UserRole extends Model { }
 
 function initialize(sequelize, _) {
-    return EmplyeeRole.init(
+    return UserRole.init(
         {
         },
         {
             sequelize: sequelize,
-            tableName: 'employee_role',
+            tableName: 'user_role',
             schema: 'cd',
             timestamps: false,
             underscored: true
@@ -18,6 +18,6 @@ function initialize(sequelize, _) {
 }
 
 module.exports = {
-    EmplyeesRoles: EmplyeeRole,
+    UsersRoles: UserRole,
     initialize
 }

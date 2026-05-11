@@ -8,30 +8,30 @@ const { Bills } = require('./entities/bill')
 const { Cais } = require('./entities/cai')
 const { BillsPaymentPlans } = require('./entities/billPaymentPlan')
 const { MonthlyPayments } = require('./entities/monthlyPayment')
-const { Employees } = require('./entities/employee')
+const { Users } = require('./entities/user')
 const { Roles } = require('./entities/role')
-const { EmplyeesRoles } = require('./entities/emplyeeRole')
+const { UsersRoles } = require('./entities/userRole')
 const { BillDetails } = require('./entities/billDetail')
 const { Clients } = require('./entities/clients')
 
 function createFKs() {
-    Stores.hasMany(Employees, {
+    Stores.hasMany(Users, {
         foreignKey: 'storeId',
         as: 'employees'
     });
 
-    Employees.belongsTo(Stores, {
+    Users.belongsTo(Stores, {
         foreignKey: 'storeId',
         as: 'store'
     })
 
-    Employees.belongsToMany(Roles, {
-        through: EmplyeesRoles,
+    Users.belongsToMany(Roles, {
+        through: UsersRoles,
         as: 'roles'
     })
 
-    Roles.belongsToMany(Employees, {
-        through: EmplyeesRoles,
+    Roles.belongsToMany(Users, {
+        through: UsersRoles,
         as: 'employee'
     })
 
@@ -65,8 +65,8 @@ function createFKs() {
         as: 'bills'
     })
 
-    Employees.hasMany(Bills, {
-        foreignKey: 'employeeId',
+    Users.hasMany(Bills, {
+        foreignKey: 'userId',
         as: 'bills'
     })
 
@@ -85,9 +85,9 @@ function createFKs() {
         as: 'stores'
     })
 
-    Bills.belongsTo(Employees, {
-        foreignKey: 'employeeId',
-        as: 'employees'
+    Bills.belongsTo(Users, {
+        foreignKey: 'userId',
+        as: 'users'
     })
 
     Bills.belongsTo(Clients, {
@@ -135,14 +135,14 @@ function createFKs() {
         as: 'billDetails'
     })
 
-    Employees.hasOne(CheckoutMachines, {
-        foreignKey: 'employeeId',
+    Users.hasOne(CheckoutMachines, {
+        foreignKey: 'userId',
         as: 'checkoutMachine'
     })
 
-    CheckoutMachines.belongsTo(Employees, {
-        foreignKey: 'employeeId',
-        as: 'employee'
+    CheckoutMachines.belongsTo(Users, {
+        foreignKey: 'userId',
+        as: 'users'
     })
 }
 
