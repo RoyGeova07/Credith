@@ -13,6 +13,7 @@ const { Roles } = require('./entities/role')
 const { UsersRoles } = require('./entities/userRole')
 const { BillDetails } = require('./entities/billDetail')
 const { Clients } = require('./entities/clients')
+const { CaiRanges } = require('./entities/caiRange')
 
 function createFKs() {
     Stores.hasMany(Users, {
@@ -143,6 +144,16 @@ function createFKs() {
     CheckoutMachines.belongsTo(Users, {
         foreignKey: 'userId',
         as: 'users'
+    })
+
+    Cais.hasMany(CaiRanges, {
+        foreignKey: 'caiId',
+        as: 'caiRanges'
+    })
+
+    CaiRanges.belongsTo(Cais, {
+        foreignKey: 'caiId',
+        as: 'Cai'
     })
 }
 

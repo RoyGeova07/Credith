@@ -2,18 +2,22 @@ const Sequelize = require('sequelize');
 const DataTypes = Sequelize.DataTypes;
 const Model = Sequelize.Model;
 
-class Cai extends Model { }
+class CaiRange extends Model { }
 
 function initialize(sequelize, _) {
-    return Cai.init(
+    return CaiRange.init(
         {
-            caiId: {
+            caiRangeId: {
                 type: DataTypes.UUID,
                 primaryKey: true,
                 defaultValue: DataTypes.UUIDV4
             },
-            governmentId: {
-                type: DataTypes.STRING(75),
+            minRange: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+            maxRange: {
+                type: DataTypes.INTEGER,
                 allowNull: false,
             },
             expirationDate: {
@@ -33,8 +37,7 @@ function initialize(sequelize, _) {
             omitNull: true,
             indexes: [
                 {
-                    unique: true,
-                    fields: ['government_id']
+                    fields: ['expiration_date']
                 }
             ]
         }
@@ -42,6 +45,6 @@ function initialize(sequelize, _) {
 }
 
 module.exports = {
-    Cais: Cai,
+    CaiRanges: CaiRange,
     initialize
 };

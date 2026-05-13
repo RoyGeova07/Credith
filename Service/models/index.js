@@ -19,6 +19,10 @@ if (config.use_env_variable) {
     sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
+sequelize.authenticate()
+    .then(() => console.log('Success'))
+    .catch((reason) => console.log(reason))
+
 sequelize.createSchema('cd')
     .catch((reason) => console.log(`Failed to create schema cause: ${reason}`));
 
@@ -44,8 +48,6 @@ Object.keys(db).forEach(modelName => {
         db[modelName].associate(db);
     }
 });
-
-sequelize.sync({ alter: true });
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
