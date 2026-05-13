@@ -8,7 +8,7 @@ module.exports=
   {
     
     //eliminar columna vieja
-    //await queryInterface.removeColumn({tableName:'users',schema:'cd'},'name')
+    await queryInterface.removeColumn({tableName:'users',schema:'cd'},'name')
 
     //nuevas columnas 
     await queryInterface.addColumn({tableName:'users',schema:'cd'},'first_name',{type:Sequelize.STRING(100),allowNull:false,defaultValue:''})
