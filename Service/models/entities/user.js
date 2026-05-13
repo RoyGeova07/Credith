@@ -12,9 +12,29 @@ function initialize(sequelize, _) {
                 primaryKey: true,
                 defaultValue: DataType.UUIDV4
             },
-            name: {
+            first_name:{
+
                 type: DataType.STRING(100),
                 allowNull: false
+
+            },
+            second_name:{
+
+                type: DataType.STRING(100),
+                allowNull: false
+
+            },
+            first_last_name:{
+
+                type:DataType.STRING(100),
+                allowNull:false
+
+            },
+            second_last_name:{
+
+                type:DataType.STRING(100),
+                allowNull:false
+
             },
             email: {
                 type: DataType.STRING(100),
@@ -23,17 +43,18 @@ function initialize(sequelize, _) {
                 type: DataType.STRING,
             },
             isActive: {
+                
                 type: DataType.BOOLEAN,
                 defaultValue: true,
-                onDelete: 'SET FALSE'
+                
             }
         },
         {
             sequelize: sequelize,
             schema: 'cd',
             paranoid: true,
-            timestamps: false,
-            underscored: true
+            timestamps: true,
+            underscored: true,
         }
     )
 }

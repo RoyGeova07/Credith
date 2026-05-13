@@ -23,6 +23,7 @@ sequelize.authenticate()
     .then(() => console.log('Success'))
     .catch((reason) => console.log(reason))
 
+
 sequelize.createSchema('cd')
     .catch((reason) => console.log(`Failed to create schema cause: ${reason}`));
 
