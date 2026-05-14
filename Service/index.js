@@ -8,8 +8,10 @@ const port = 3000
 app.use(express.json())
 
 const userRoutes=require('./routes/users')
+const productsRoutes=require('./routes/products.js')
 
 app.use("/api",userRoutes)
+app.use("/api",productsRoutes)
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
