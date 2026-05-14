@@ -23,9 +23,9 @@ sequelize.authenticate()
     .then(() => console.log('Success'))
     .catch((reason) => console.log(reason))
 
-
-sequelize.createSchema('cd')
-    .catch((reason) => console.log(`Failed to create schema cause: ${reason}`));
+//DESCOMANTAR SOLO CUANDO NO TENGAN CREADO EL SCHEMA EN LA BASE DE DATOSS
+// sequelize.createSchema('cd')
+//     .catch((reason) => console.log(`Failed to create schema cause: ${reason}`));
 
 fs
     .readdirSync(`${__dirname}/entities`)

@@ -358,5 +358,6 @@ module.exports = {
     await queryInterface.dropTable({ schema: 'cd', tableName: 'users' });
     await queryInterface.dropTable({ schema: 'cd', tableName: 'stores' });
     await queryInterface.dropTable({ schema: 'cd', tableName: 'companies' });
+    await queryInterface.dropSchema('cd')
   }
 };
