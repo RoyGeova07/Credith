@@ -9,8 +9,10 @@ app.use(express.json())
 
 const userRoutes=require('./routes/users')
 const productsRoutes=require('./routes/products.js')
+const companyRoutes = require('./routes/company')
 
 app.use("/api",userRoutes)
+app.use('/api', companyRoutes)
 app.use("/api",productsRoutes)
 
 app.get('/', (req, res) => {
