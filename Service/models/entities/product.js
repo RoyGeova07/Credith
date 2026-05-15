@@ -16,6 +16,9 @@ function initialize(sequelize, _) {
                 type: DataTypes.STRING,
                 allowNull: false
             },
+            imageUrl: {
+                type: DataTypes.STRING,
+            },
             description: {
                 type: DataTypes.STRING,
                 allowNull: false

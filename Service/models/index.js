@@ -21,11 +21,7 @@ if (config.use_env_variable) {
 
 sequelize.authenticate()
     .then(() => console.log('Success'))
-    .catch((reason) => console.log(reason))
-
-//DESCOMANTAR SOLO CUANDO NO TENGAN CREADO EL SCHEMA EN LA BASE DE DATOSS
-// sequelize.createSchema('cd')
-//     .catch((reason) => console.log(`Failed to create schema cause: ${reason}`));
+    .catch((reason) => console.log(`Failed to authenticate: ${reason}`))
 
 fs
     .readdirSync(`${__dirname}/entities`)

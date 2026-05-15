@@ -10,6 +10,7 @@ module.exports = {
                 defaultValue: Sequelize.UUIDV4
             },
             name: { type: Sequelize.STRING, allowNull: false },
+            image_url: { type: Sequelize.STRING, allowNull: true },
             description: { type: Sequelize.STRING, allowNull: false },
             buy_price: { type: Sequelize.DECIMAL(16, 8), defaultValue: 0 },
             sell_price: { type: Sequelize.DECIMAL(16, 8), allowNull: false },
