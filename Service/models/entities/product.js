@@ -16,6 +16,10 @@ function initialize(sequelize, _) {
                 type: DataTypes.STRING,
                 allowNull: false
             },
+            description: {
+                type: DataTypes.STRING,
+                allowNull: false
+            },
             buyPrice: {
                 type: DataTypes.DECIMAL(16, 8),
                 defaultValue: 0
@@ -27,7 +31,7 @@ function initialize(sequelize, _) {
             minGainPercentage: {
                 type: DataTypes.SMALLINT
             },
-            inStock: {
+            inExistance: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 defaultValue: 1
