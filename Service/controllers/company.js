@@ -3,9 +3,9 @@ const { Companies } = require('../models/entities/company')
 // Crear empresa
 const createCompany = async (req, res) => {
   try {
-    const { companyName, rtn, email, address } = req.body
+    const { name, rtn, email, address } = req.body
 
-    if (!companyName || companyName.trim() === '') {
+    if (!name || name.trim() === '') {
       return res.status(400).json({ message: 'El nombre de la empresa es requerido' })
     }
 
@@ -20,7 +20,7 @@ const createCompany = async (req, res) => {
     }
 
     const company = await Companies.create({
-      companyName,
+      name,
       rtn,
       email,
       address
@@ -76,7 +76,7 @@ const getCompanyById = async (req, res) => {
 const updateCompany = async (req, res) => {
   try {
     const { id } = req.params
-    const { companyName, rtn, email, address } = req.body
+    const { name, rtn, email, address } = req.body
 
     const company = await Companies.findByPk(id)
 
@@ -84,7 +84,7 @@ const updateCompany = async (req, res) => {
       return res.status(404).json({ message: 'Empresa no encontrada' })
     }
 
-    if (companyName !== undefined && companyName.trim() === '') {
+    if (name !== undefined && name.trim() === '') {
       return res.status(400).json({ message: 'El nombre de la empresa no puede estar vacío' })
     }
 
@@ -101,7 +101,7 @@ const updateCompany = async (req, res) => {
     }
 
     await company.update({
-      companyName,
+      name,
       rtn,
       email,
       address

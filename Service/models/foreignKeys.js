@@ -56,8 +56,8 @@ function createFKs() {
         as: 'company'
     })
 
-    Cais.hasMany(Bills, {
-        foreignKey: 'caiId',
+    CaiRanges.hasMany(Bills, {
+        foreignKey: 'caiRangeId',
         as: 'bills'
     })
 
@@ -76,9 +76,9 @@ function createFKs() {
         as: 'bills'
     })
 
-    Bills.belongsTo(Cais, {
-        foreignKey: 'caiId',
-        as: 'cais'
+    Bills.belongsTo(CaiRanges, {
+        foreignKey: 'caiRangeId',
+        as: 'caiRange'
     })
 
     Bills.belongsTo(Stores, {

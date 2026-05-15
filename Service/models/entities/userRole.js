@@ -9,7 +9,7 @@ function initialize(sequelize, _) {
         },
         {
             sequelize: sequelize,
-            tableName: 'user_role',
+            tableName: 'users_roles',
             schema: 'cd',
             timestamps: false,
             underscored: true
