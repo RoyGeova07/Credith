@@ -12,7 +12,7 @@ function initialize(sequelize, _) {
                 primaryKey: true,
                 defaultValue: DataTypes.UUIDV4
             },
-            companyName: {
+            name: {
                 type: DataTypes.STRING(100)
             },
             rtn: {

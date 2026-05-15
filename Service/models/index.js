@@ -6,7 +6,7 @@ const process = require('process');
 const { Sequelize } = require('sequelize');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
+const config = require(__dirname + '/../config/config.js')[env];
 const db = {};
 
 console.log(`Environment: ${env}`)
@@ -21,11 +21,7 @@ if (config.use_env_variable) {
 
 sequelize.authenticate()
     .then(() => console.log('Success'))
-    .catch((reason) => console.log(reason))
-
-//DESCOMANTAR SOLO CUANDO NO TENGAN CREADO EL SCHEMA EN LA BASE DE DATOSS
-// sequelize.createSchema('cd')
-//     .catch((reason) => console.log(`Failed to create schema cause: ${reason}`));
+    .catch((reason) => console.log(`Failed to authenticate: ${reason}`))
 
 fs
     .readdirSync(`${__dirname}/entities`)

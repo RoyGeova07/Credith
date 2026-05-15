@@ -1,4 +1,3 @@
-const user = require('../models/entities/user')
 const{Users}=require('../models/entities/user')
 const{v4:uuidv4}=require('uuid')
 const{generateToken}=require('../helper/jwt')

@@ -53,7 +53,7 @@ function initialize(sequelize, _) {
                 type: DataTypes.STRING
             },
             paymentType: {
-                type: PaymentStatusDbEnum
+                type: BillTypesDbEnum
             },
             isv15Amount: {
                 type: DataTypes.DECIMAL(18, 6)
