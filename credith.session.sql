@@ -14,3 +14,6 @@
 -- SELECT schema_name
 -- FROM information_schema.schemata
 -- WHERE schema_name='cd';
+
+-- npx sequelize-cli db:drop
+-- npx sequelize-cli db:create
