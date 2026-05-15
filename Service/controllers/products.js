@@ -13,24 +13,25 @@ async function createProduct(req, res) {
         return res.status(400).json({message:"El nombre de producto es necesario"});
     }
 
-    if (!BuyPrice || SellPrice < 0) {
+    if (!SellPrice || SellPrice < 0) {
         return res.status(400).json({message:"El precio del producto es necesario"});
     }
 
+    let stock = InStock;
     if (!InStock || InStock < 0) {
-        InStock = 0;
+        stock = 1;
     }
 
     try {
         await Products.create({
             name: Name,
-            buyPrice: BuyPrice,
+            buyPrice: BuyPrice || 0,
             sellPrice: SellPrice,
             minGainPercentage: MinGainPercentage,
-            inStock: InStock
+            inStock: stock 
         })
 
-        res.status(201).json({message:"Producto agregado existosamente",token,user})
+        res.status(201).json({message:"Producto agregado existosamente"})
     } catch (err) {
         res.status(500).json({message:err.message})
     }
@@ -38,6 +39,7 @@ async function createProduct(req, res) {
 
 async function updateProduct(req, res) {
     const {
+        id,
         ProductId,
         Name,
         BuyPrice,
@@ -45,6 +47,10 @@ async function updateProduct(req, res) {
         MinGainPercentage,
         InStock
     } = req.body;
+
+    if (!id || id !== ProductId) {
+        return res.status(500).json({message:"El id enviado por la ruta debe encajar con el del producto a modificar"});
+    }
 
     if (!Name || Name === "") {
         return res.status(400).json({message:"El nombre de producto es necesario"});
@@ -54,14 +60,15 @@ async function updateProduct(req, res) {
         return res.status(400).json({message:"El precio del producto es necesario"});
     }
 
+    let stock = InStock;
     if (!InStock || InStock < 0) {
-        InStock = 0;
+        stock = 0;
     }
 
     try {
         const product = await Products.findByPk(ProductId);
 
-        if (!product) new Error(`Product [${ProductId}] does not exists`)
+        if (!product) new Error(`Producto [${ProductId}] no existe`)
 
         await product.update({
             name: Name,
@@ -71,7 +78,7 @@ async function updateProduct(req, res) {
             inStock: InStock
         });
 
-        res.status(201).json({message:"Producto agregado existosamente"});
+        res.status(201).json({message:"Producto editado existosamente"});
     } catch (err) {
         res.status(500).json({message:err.message})
     }
@@ -79,17 +86,35 @@ async function updateProduct(req, res) {
 
 async function deleteProduct(req, res) {
     const {
-        ProductId
-    } = req.body;
+       id 
+    } = req.params;
 
     try {
-        const product = await Products.findByPk(ProductId);
+        const product = await Products.findByPk(id);
 
-        if (!product) new Error(`Product [${ProductId}] does not exists`)
+        if (!product) new Error(`Producto [${id}] no existe`)
 
-        await product.update({isActive:false});
+        await product.destroy();
 
-        res.status(201).json({message:"Producto agregado existosamente"});
+        res.status(201).json({message:"Producto archivado existosamente"});
+    } catch (err) {
+        res.status(500).json({message:err.message})
+    }
+}
+
+async function recoverProduct(req, res) {
+    const {
+       id 
+    } = req.params;
+
+    try {
+        const product = await Products.findByPk(id, { paranoid: false });
+
+        if (!product) new Error(`Producto [${id}] no existe`)
+
+        await product.restore();
+
+        res.status(201).json({message:"Producto restaurado existosamente"});
     } catch (err) {
         res.status(500).json({message:err.message})
     }
@@ -109,13 +134,13 @@ async function selectProduct(req, res) {
 
 async function selectProductById(req, res) {
     const {
-        ProductId
-    } = req.body;
+       id 
+    } = req.params;
 
     try {
-        const product = await Products.findByPk(ProductId);
+        const product = await Products.findByPk(id);
 
-        if (!product) new Error(`Product [${ProductId}] does not exists`)
+        if (!product) new Error(`Producto [${id}] no existe`)
 
         res.status(201).json(product);
     } catch (err) {
@@ -128,5 +153,6 @@ module.exports = {
     updateProduct,
     deleteProduct,
     selectProduct,
+    recoverProduct,
     selectProductById
 }
