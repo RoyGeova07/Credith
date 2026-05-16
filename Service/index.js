@@ -10,8 +10,12 @@ app.use(express.json())
 const userRoutes=require('./routes/users')
 const companyRoutes = require('./routes/company')
 
+const swaggerUi=require('swagger-ui-express')
+const swaggerSpecs=require('./config/swagger.js') 
+
 app.use("/api",userRoutes)
 app.use('/api', companyRoutes)
+app.use('/api-docs',swaggerUi.serve,swaggerUi.setup(swaggerSpecs))
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
