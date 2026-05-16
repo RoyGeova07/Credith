@@ -12,8 +12,12 @@ function initialize(sequelize, _) {
                 primaryKey: true,
                 defaultValue: DataTypes.UUIDV4
             },
+            name: {
+                type: DataTypes.STRING,
+                allowNull: false
+            },
             description: {
-                type: DataTypes.STRING(100),
+                type: DataTypes.STRING,
                 allowNull: false
             },
             isActive: {

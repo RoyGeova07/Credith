@@ -13,8 +13,11 @@ function initialize(sequelize, _) {
                 defaultValue: DataType.UUIDV4
             },
             name: {
-                type: DataType.STRING(100),
+                type: DataType.STRING,
                 allowNull: false
+            },
+            dni: {
+                type: DataType.STRING(25),
             },
             phone: {
                 type: DataType.STRING(25),
@@ -24,15 +27,14 @@ function initialize(sequelize, _) {
             },
             isActive: {
                 type: DataType.BOOLEAN,
-                defaultValue: true,
-                onDelete: 'SET FALSE'
+                defaultValue: true
             }
         },
         {
             sequelize: sequelize,
             schema: 'cd',
             paranoid: true,
-            timestamps: false,
+            timestamps: true,
             underscored: true
         }
     )

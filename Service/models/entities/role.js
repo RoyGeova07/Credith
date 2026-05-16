@@ -15,6 +15,9 @@ function initialize(sequelize, _) {
             name: {
                 type: DataType.STRING(50),
                 allowNull: false
+            },
+            description: {
+                type: DataType.STRING
             }
         },
         {
