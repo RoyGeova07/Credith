@@ -9,9 +9,11 @@ app.use(express.json())
 
 const userRoutes=require('./routes/users')
 const companyRoutes = require('./routes/company')
+const storeRoutes = require('./routes/store')
 
 app.use("/api",userRoutes)
 app.use('/api', companyRoutes)
+app.use('/api',storeRoutes)
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
