@@ -21,7 +21,7 @@ app.use('/api', companyRoutes)
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
-
+app.use('/api-docs',swaggerUi.serve,swaggerUi.setup(swaggerSpecs))
 app.listen(port, ()=>
 {
 
