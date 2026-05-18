@@ -4,9 +4,9 @@ const express = require('express')
 const app = express()
 const port = 3000
 
-
+const LoggerMiddleware=require('./middlewares/loggerMiddleware.js')
 app.use(express.json())
-
+app.use(LoggerMiddleware)
 const userRoutes=require('./routes/users')
 const companyRoutes = require('./routes/company')
 const storeRoutes = require('./routes/store')
