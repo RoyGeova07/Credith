@@ -5,7 +5,8 @@ const {
   getRoles,
   getRoleById,
   updateRole,
-  deleteRole
+  deleteRole,
+  associateRoleToUser
 } = require('../controllers/roles')
 
 router.get('/roles', getRoles)
@@ -13,6 +14,8 @@ router.get('/roles', getRoles)
 router.get('/roles/:id', getRoleById)
 
 router.post('/roles', createRole)
+
+router.post('/roles/associate-user', associateRoleToUser)
 
 router.put('/roles/:id', updateRole)
 
