@@ -4,15 +4,16 @@ const express = require('express')
 const app = express()
 const port = 3000
 
-
+const LoggerMiddleware=require('./middlewares/loggerMiddleware.js')
 app.use(express.json())
-
+app.use(LoggerMiddleware)
 const userRoutes=require('./routes/users')
 const productsRoutes=require('./routes/products.js')
 const companyRoutes = require('./routes/company')
 const storeRoutes = require('./routes/store')
 const caiRoutes = require('./routes/cai')
 const caiRangeRoutes = require('./routes/caiRange')
+const roleRoutes = require('./routes/roles')
 
 
 const swaggerUi=require('swagger-ui-express')
@@ -26,6 +27,7 @@ app.use('/api', caiRoutes)
 app.use('/api', storeRoutes)
 app.use('/api', caiRangeRoutes)
 app.use('/api-docs',swaggerUi.serve,swaggerUi.setup(swaggerSpecs))
+app.use('/api', roleRoutes)
 
 app.listen(port, ()=>
 {
