@@ -191,10 +191,6 @@ const updatePassword=async(req,res)=>
 
 }
 
-//obtener todos los usuario
-//=================AVISO=======================================
-//RECORDATORIO:QUITAR LA PASSWORD DE LOS USUARIOS AL LISTARLOS, NO LO QUITO PORQUE SE ME OLVIDAN LAS CONTRASEÑAS XD
-//=================AVISO=======================================
 
 const getUsers=async(req,res)=>
 {
@@ -206,7 +202,7 @@ const getUsers=async(req,res)=>
         const offset=parseInt(req.query.offset)||0
 
         //                      mas profesional :O
-        const users=await Users.findAndCountAll({limit,offset})
+        const users=await Users.findAndCountAll({limit,offset,attributes:{exclude:["password"]}})
 
         res.json({total:users.count,users:users.rows})
 
@@ -218,8 +214,7 @@ const getUsers=async(req,res)=>
 
 }
 
-//get by id
-//recordatorio de quitar la password al momento de mostrar el usuario
+
 const getUserById=async(req,res)=>
 {
 
@@ -227,7 +222,7 @@ const getUserById=async(req,res)=>
     {
 
         const{id}=req.params
-        const user=await Users.findByPk(id)
+        const user=await Users.findByPk(id,{attributes:{exclude:["password"]}})
 
         if(!user)
         {

@@ -184,6 +184,7 @@ const associateRoleToUser = async (req, res) => {
       }
     )
 
+    //VERIFICAR ESTE IF, ME TRAE DUDAS
     if (existingUserRole.length > 0) {
       return res.status(400).json({ message: 'El usuario ya tiene asignado ese rol' })
     }
