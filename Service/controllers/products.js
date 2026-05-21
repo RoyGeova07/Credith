@@ -1,37 +1,38 @@
 const { Products } = require('../models/entities/product');
-const { StoresInventories } = require('../models/entities/storeInventory');
 
-async function createProduct(req, res) {
+async function postProduct(req, res) {
     const {
-        Name,
-        BuyPrice,
-        SellPrice,
-        MinGainPercentage,
-        InStock,
-        Stores,
+        name,
+        buyPrice,
+        sellPrice,
+        description,
+        minGainPercentage,
+        inStock,
+        stores,
     } = req.body;
 
-    if (!Name || Name === "") {
+    if (!name || name === "") {
         return res.status(400).json({message:"El nombre de producto es necesario"});
     }
 
-    if (!SellPrice || SellPrice < 0) {
+    if (!sellPrice || sellPrice < 0) {
         return res.status(400).json({message:"El precio del producto es necesario"});
     }
 
-    let stock = InStock;
-    if (!InStock || InStock < 0) {
+    let stock = inStock;
+    if (!inStock || inStock < 0) {
         stock = 1;
     }
 
     try {
         await Products.create({
-            name: Name,
-            buyPrice: BuyPrice || 0,
-            sellPrice: SellPrice,
-            minGainPercentage: MinGainPercentage,
+            name: name,
+            description: description,
+            buyPrice: buyPrice || 0,
+            sellPrice: sellPrice,
+            minGainPercentage: minGainPercentage,
             inStock: stock,
-            stores: Stores
+            stores: stores
         })
 
         res.status(201).json({message:"Producto agregado existosamente"})
@@ -43,42 +44,42 @@ async function createProduct(req, res) {
 async function updateProduct(req, res) {
     const {
         id,
-        ProductId,
-        Name,
-        BuyPrice,
-        SellPrice,
-        MinGainPercentage,
-        InStock
+        productId,
+        name,
+        buyPrice,
+        sellPrice,
+        minGainPercentage,
+        inStock
     } = req.body;
 
-    if (!id || id !== ProductId) {
+    if (!id || id !== productId) {
         return res.status(500).json({message:"El id enviado por la ruta debe encajar con el del producto a modificar"});
     }
 
-    if (!Name || Name === "") {
+    if (!name || name === "") {
         return res.status(400).json({message:"El nombre de producto es necesario"});
     }
 
-    if (!BuyPrice || SellPrice < 0) {
+    if (!buyPrice || sellPrice < 0) {
         return res.status(400).json({message:"El precio del producto es necesario"});
     }
 
-    let stock = InStock;
-    if (!InStock || InStock < 0) {
+    let stock = inStock;
+    if (!inStock || inStock < 0) {
         stock = 0;
     }
 
     try {
-        const product = await Products.findByPk(ProductId);
+        const product = await Products.findByPk(productId);
 
-        if (!product) new Error(`Producto [${ProductId}] no existe`)
+        if (!product) new Error(`Producto [${productId}] no existe`)
 
         await product.update({
-            name: Name,
-            buyPrice: BuyPrice,
-            sellPrice: SellPrice,
-            minGainPercentage: MinGainPercentage,
-            inStock: InStock
+            name: name,
+            buyPrice: buyPrice,
+            sellPrice: sellPrice,
+            minGainPercentage: minGainPercentage,
+            inStock: inStock
         });
 
         res.status(201).json({message:"Producto editado existosamente"});
@@ -123,7 +124,7 @@ async function recoverProduct(req, res) {
     }
 }
 
-async function selectProduct(req, res) {
+async function getProduct(req, res) {
     try {
         const limit=parseInt(req.query.limit)||10
         const offset=parseInt(req.query.offset)||0
@@ -149,7 +150,7 @@ async function selectProduct(req, res) {
     }
 }
 
-async function selectProductById(req, res) {
+async function getProductById(req, res) {
     const {
        id 
     } = req.params;
@@ -166,10 +167,10 @@ async function selectProductById(req, res) {
 }
 
 module.exports = {
-    createProduct,
+    postProduct,
     updateProduct,
     deleteProduct,
-    selectProduct,
+    getProduct,
     recoverProduct,
-    selectProductById
+    getProductById
 }
