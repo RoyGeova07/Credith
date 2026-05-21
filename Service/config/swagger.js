@@ -24,7 +24,25 @@ const options=
 
             }
 
-        ]
+        ],
+        components:
+        {
+
+            securitySchemes:
+            {
+
+                bearerAuth:
+                {
+
+                    type:'http',
+                    scheme:'bearer',
+                    bearerFormat:'JWT'
+
+                }
+
+            }
+
+        }
 
     },
     apis:[`${__dirname}/../routes/*.js`]
