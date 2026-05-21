@@ -4,14 +4,121 @@ const { Users } = require('../models/entities/user');
 const { Companies } = require('../models/entities/company');
 const { CaiRanges } = require('../models/entities/caiRange');
 const { BillDetails } = require('../models/entities/billDetail');
+const { BillsPaymentPlans } = require('../models/entities/billPaymentPlan');
+const { MonthlyPayments } = require('../models/entities/monthlyPayment');
 const { StoresInventories } = require('../models/entities/storeInventory');
+const { BillTypes, PaymentStatus } = require('../models/dbEnums');
+
+function normalizeDate(year, month, day) {
+    const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+
+    const maxDay = Math.min(day, lastDay);
+
+    return new Date(
+        Date.UTC(year, month, maxDay)
+    );
+
+}
+
+async function calculateMonthlyPayments(plan, startingMonth, transaction) {
+    const baseDate = new Date(plan.startingDate);
+
+    const baseYear = baseDate.getUTCFullYear();
+    const baseMonth = baseDate.getUTCMonth();
+
+    const maxMonth = baseMonth + plan.monthsToPay;
+    const calcMonth = baseMonth + startingMonth;
+
+    const maxPaymentDate = normalizeDate(baseYear, maxMonth, plan.paymentDay);
+    const initialPaymentDate = normalizeDate(baseYear, calcMonth, plan.paymentDay);
+
+    if (initialPaymentDate > maxPaymentDate)
+        throw Error('Fecha de inicio sobrepasa la fecha limite de pago');
+
+    if (startingMonth >= plan.monthsToPay)
+        throw Error('El mes de inicio excede la duracion del plan de pago');
+
+    if (startingMonth > 0) {
+        const monthlyPayments = await MonthlyPayments.findAll({
+            where: { billPaymentPlanId: plan.billPaymentPlanId },
+            order: [['paymentDeadline', 'ASC']]
+        });
+
+        if (monthlyPayments.length < startingMonth)
+            throw Error('No se encontraron todos los pagos mensuales anteriores');
+
+        for (let i = 0; i < startingMonth; i++) {
+            if (!monthlyPayments[i].isPayed)
+                throw Error(`El mes ${i + 1} no ha sido pagado`);
+        }
+
+        const remaining = monthlyPayments.slice(startingMonth);
+        for (const payment of remaining) {
+            await payment.destroy();
+        }
+    }
+
+    const remainingMonths = plan.monthsToPay - startingMonth;
+
+    if (remainingMonths === 0) return [];
+
+    const monthlyAmount = Number(plan.totalToPay) / remainingMonths;
+
+    const payments = [];
+    for (let i = 0; i < remainingMonths; i++) {
+        const paymentDate = normalizeDate(baseYear, baseMonth + startingMonth + i, plan.paymentDay);
+        payments.push({
+            paymentAmount: monthlyAmount,
+            interestToPay: 0,
+            paymentDeadline: paymentDate,
+            billPaymentPlanId: plan.billPaymentPlanId
+        });
+    }
+
+    return await MonthlyPayments.bulkCreate(payments, {transaction: transaction});
+}
+
+async function createInstallmentPaymentPlan(paymentPlan, customer, billTotal, billId, transaction) {
+    const totalToPay = Math.max(0, billTotal - paymentPlan.payment)
+    const plan = await BillsPaymentPlans.create(
+        {
+            initialPayment: paymentPlan.payment,
+            totalToPay: totalToPay,
+            startingDate: paymentPlan.startingDate,
+            monthsToPay: paymentPlan.monthsToPay,
+            paymentDay: paymentPlan.paymentDay,
+            payedAmount: paymentPlan.payment,
+            interestRate: paymentPlan.interestRate || 0,
+            status: totalToPay == 0 ? PaymentStatus.PAYED : PaymentStatus.PENDING,
+            billId: billId
+        },
+        { transaction }
+    );
+
+    const monthlyPayments = await calculateMonthlyPayments(plan, 0, transaction);
+    plan.monthlyPayments = monthlyPayments;
+    await plan.setClient(customer.clientId, { transaction });
+    return plan;
+}
+
+async function createCashPaymentPlan(paymentData, billTotal, billId, transaction) {
+    const totalToPay = Math.max(0, billTotal - paymentData.payment)
+    return await BillsPaymentPlans.create(
+        {
+            initialPayment: paymentData.payment,
+            totalToPay: totalToPay,
+            payedAmount: paymentData.payment,
+            interestRate: paymentData.interestRate || 0,
+            status: PaymentStatus.PAYED,
+            billId: billId
+        },
+        { transaction }
+    );
+}
 
 async function postBill(req, res) {
     const {
         limitDate,
-        customerName,
-        customerPhone,
-        customerAddress,
         paymentType,
         discountPercentage,
         discountAmount,
@@ -22,6 +129,8 @@ async function postBill(req, res) {
         userId,
         storeId,
         details,
+        customer,
+        paymentData
     } = req.body;
 
     let billSubtotal = 0;
@@ -43,6 +152,12 @@ async function postBill(req, res) {
             })
 
         billSubtotal += total;
+    }
+
+    if (paymentType !== BillTypes.CASH && paymentType !== BillTypes.INSTALLMENT) {
+        return res.status(400).json({
+            message: `El tipo de pago [${paymentType}] es invalido`
+        })
     }
 
     try {
@@ -116,12 +231,12 @@ async function postBill(req, res) {
                 checkoutMachineNumber: user.checkoutMachine.machineNumber,
                 checkoutMachineName: user.checkoutMachine.name,
                 cashierName,
-                customerName,
-                customerPhone,
-                customerAddress,
+                customerName: customer.customerName,
+                customerPhone: customer.customerPhone,
+                customerAddress: customer.customerAddress,
                 paymentType,
                 isv_15_amount: isv_15_amount,
-                isv_15_amount: 0,
+                isv_18_amount: 0,
                 discountPercentage: discountPercentage || 0,
                 discountAmount: billDiscount,
                 exonerated: exonerated || 0,
@@ -145,13 +260,10 @@ async function postBill(req, res) {
                 );
 
                 if (productInventory.inStock < detail.quantity) {
-                    await transaction.rollback();
-                    return res.status(406).json({
-                        message: `La sucursal [${storeId}] no cuenta con tantos ${detail.productName} en existencia!`
-                    })
+                    throw { status: 406, message: `La sucursal [${storeId}] no cuenta con tantos ${detail.productName} en existencia!` }
                 }
 
-                productInventory.update({ inStock: productInventory.inStock - detail.quantity }, {transaction});
+                await productInventory.update({ inStock: productInventory.inStock - detail.quantity }, { transaction });
 
                 await BillDetails.create({
                     quantity: detail.quantity,
@@ -162,6 +274,12 @@ async function postBill(req, res) {
                     productId: detail.productId,
                     billId: createdBill.billId,
                 }, { transaction });
+            }
+
+            if (paymentType === BillTypes.CASH) {
+                createdBill.plan = await createCashPaymentPlan(paymentData, total, createdBill.billId, transaction);
+            } else {
+                createdBill.plan = await createInstallmentPaymentPlan(paymentData, customer, total, createdBill.billId, transaction);
             }
 
             return createdBill;

@@ -87,13 +87,17 @@ function createFKs() {
         as: 'bills'
     })
 
-    BillsPaymentPlans.belongsTo(Clients, {
+    BillsPaymentPlans.belongsToMany(Clients, {
         through: ClientsPaymentPlans,
+        foreignKey: 'billPaymentPlanId',
+        otherKey: 'clientId',
         as: 'client'
     })
 
     Clients.belongsToMany(BillsPaymentPlans, {
         through: ClientsPaymentPlans,
+        foreignKey: 'clientId',
+        otherKey: 'billPaymentPlanId',
         as: 'paymentPlans'
     })
 
