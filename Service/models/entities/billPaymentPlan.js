@@ -25,9 +25,11 @@ function initialize(sequelize, _) {
                 type: DataTypes.DECIMAL(18,6),
                 defaultValue: 0,
             },
+            startingDate: {
+                type: DataTypes.DATE
+            },
             monthsToPay: {
-                type: DataTypes.INTEGER,
-                defaultValue: 1
+                type: DataTypes.INTEGER
             },
             paymentDay: {
                 type: DataTypes.SMALLINT
