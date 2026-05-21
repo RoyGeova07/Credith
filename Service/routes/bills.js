@@ -7,4 +7,3 @@ const {
 router.post('/bills', postBill)
 
 module.exports = router
-

@@ -90,7 +90,7 @@ async function updateProduct(req, res) {
 
 async function deleteProduct(req, res) {
     const {
-       id 
+       id
     } = req.params;
 
     try {
@@ -108,7 +108,7 @@ async function deleteProduct(req, res) {
 
 async function recoverProduct(req, res) {
     const {
-       id 
+       id
     } = req.params;
 
     try {
@@ -152,7 +152,7 @@ async function getProduct(req, res) {
 
 async function getProductById(req, res) {
     const {
-       id 
+       id
     } = req.params;
 
     try {
