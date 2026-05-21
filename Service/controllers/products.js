@@ -1,4 +1,5 @@
-const { Products } = require('../models/entities/product')
+const { Products } = require('../models/entities/product');
+const { StoresInventories } = require('../models/entities/storeInventory');
 
 async function createProduct(req, res) {
     const {
@@ -6,7 +7,8 @@ async function createProduct(req, res) {
         BuyPrice,
         SellPrice,
         MinGainPercentage,
-        InStock
+        InStock,
+        Stores,
     } = req.body;
 
     if (!Name || Name === "") {
@@ -28,7 +30,8 @@ async function createProduct(req, res) {
             buyPrice: BuyPrice || 0,
             sellPrice: SellPrice,
             minGainPercentage: MinGainPercentage,
-            inStock: stock 
+            inStock: stock,
+            stores: Stores
         })
 
         res.status(201).json({message:"Producto agregado existosamente"})
@@ -124,8 +127,22 @@ async function selectProduct(req, res) {
     try {
         const limit=parseInt(req.query.limit)||10
         const offset=parseInt(req.query.offset)||0
+        const { storeId } = req.query;
 
-        const products = await Products.findAndCountAll({limit,offset})
+        let whereStmt = {}
+        if (!storeId || storeId != null) {
+            whereStmt = {
+                stores: {
+                    storeId: storeId
+                }
+            }
+        }
+
+        const products = await Products.findAndCountAll({
+            where: whereStmt,
+            limit: limit,
+            offset: offset
+        });
         res.json({total:products.count,products:products.rows})
     } catch (err) {
         res.status(500).json({message:err.message})

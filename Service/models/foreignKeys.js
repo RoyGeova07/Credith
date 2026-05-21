@@ -14,6 +14,7 @@ const { UsersRoles } = require('./entities/userRole')
 const { BillDetails } = require('./entities/billDetail')
 const { Clients } = require('./entities/clients')
 const { CaiRanges } = require('./entities/caiRange')
+const { StoresInventories } = require('./entities/storeInventory')
 
 function createFKs() {
     Stores.hasMany(Users, {
@@ -43,6 +44,16 @@ function createFKs() {
 
     Categories.belongsToMany(Products, {
         through: ProductsCategories,
+        as: 'products'
+    })
+
+    Products.belongsToMany(Stores, {
+        through: StoresInventories,
+        as: 'stores',
+    })
+
+    Stores.hasOne(Products, {
+        through: StoresInventories,
         as: 'products'
     })
 
