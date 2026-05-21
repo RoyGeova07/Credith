@@ -34,11 +34,6 @@ function initialize(sequelize, _) {
             minGainPercentage: {
                 type: DataTypes.SMALLINT
             },
-            inExistance: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-                defaultValue: 1
-            },
             isActive: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true

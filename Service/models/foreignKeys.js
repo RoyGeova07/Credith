@@ -12,8 +12,10 @@ const { Users } = require('./entities/user')
 const { Roles } = require('./entities/role')
 const { UsersRoles } = require('./entities/userRole')
 const { BillDetails } = require('./entities/billDetail')
+const { ClientsPaymentPlans } = require('./entities/clientPaymentPlan')
 const { Clients } = require('./entities/clients')
 const { CaiRanges } = require('./entities/caiRange')
+const { StoresInventories } = require('./entities/storeInventory')
 
 function createFKs() {
     Stores.hasMany(Users, {
@@ -46,6 +48,20 @@ function createFKs() {
         as: 'products'
     })
 
+    Products.belongsToMany(Stores, {
+        through: StoresInventories,
+        foreignKey: 'productId',
+        otherKey: 'storeId',
+        as: 'stores',
+    })
+
+    Stores.belongsToMany(Products, {
+        through: StoresInventories,
+        foreignKey: 'storeId',
+        otherKey: 'productId',
+        as: 'products'
+    })
+
     Companies.hasMany(Stores, {
         foreignKey: 'companyId',
         as: 'stores'
@@ -71,9 +87,14 @@ function createFKs() {
         as: 'bills'
     })
 
-    Clients.hasMany(Bills, {
-        foreignKey: 'clientId',
-        as: 'bills'
+    BillsPaymentPlans.belongsTo(Clients, {
+        through: ClientsPaymentPlans,
+        as: 'client'
+    })
+
+    Clients.belongsToMany(BillsPaymentPlans, {
+        through: ClientsPaymentPlans,
+        as: 'paymentPlans'
     })
 
     Bills.belongsTo(CaiRanges, {
@@ -89,11 +110,6 @@ function createFKs() {
     Bills.belongsTo(Users, {
         foreignKey: 'userId',
         as: 'users'
-    })
-
-    Bills.belongsTo(Clients, {
-        foreignKey: 'clientId',
-        as: 'client'
     })
 
     BillsPaymentPlans.belongsTo(Bills, {
