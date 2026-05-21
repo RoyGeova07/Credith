@@ -1,6 +1,4 @@
-const db = require('../models')
 const { Clients } = require('../models/entities/clients')
-const { Bills } = require('../models/entities/bill')
 
 // Crear cliente
 const createClient = async (req, res) => {
@@ -145,119 +143,10 @@ const deleteClient = async (req, res) => {
   }
 }
 
-// Asociar cliente a factura
-const associateClientToBill = async (req, res) => {
-  try {
-    const { clientId, billId } = req.body
-
-    if (!clientId || clientId.trim() === '') {
-      return res.status(400).json({ message: 'El id del cliente es requerido' })
-    }
-
-    if (!billId || billId.trim() === '') {
-      return res.status(400).json({ message: 'El id de la factura es requerido' })
-    }
-
-    const result = await db.sequelize.transaction(async (transaction) => {
-      const client = await Clients.findByPk(clientId, { transaction })
-
-      if (!client) {
-        throw { status: 404, message: 'Cliente no encontrado' }
-      }
-
-      const bill = await Bills.findByPk(billId, { transaction })
-
-      if (!bill) {
-        throw { status: 404, message: 'Factura no encontrada' }
-      }
-
-      await bill.update({
-        customerName: client.name,
-        customerPhone: client.phone,
-        customerAddress: client.address
-      }, { transaction })
-
-      const billPaymentPlans = await db.sequelize.query(
-        `SELECT bill_payment_plan_id AS "billPaymentPlanId"
-         FROM cd.bill_payment_plans
-         WHERE bill_id = :billId
-         AND deleted_at IS NULL
-         LIMIT 1`,
-        {
-          replacements: { billId },
-          type: db.Sequelize.QueryTypes.SELECT,
-          transaction
-        }
-      )
-
-      let paymentPlanAssociation = null
-      const billPaymentPlan = billPaymentPlans[0]
-
-      if (billPaymentPlan) {
-        const existingAssociations = await db.sequelize.query(
-          `SELECT bill_payment_plan_id AS "billPaymentPlanId", client_id AS "clientId"
-           FROM cd.clients_payment_plans
-           WHERE bill_payment_plan_id = :billPaymentPlanId
-           AND client_id = :clientId
-           LIMIT 1`,
-          {
-            replacements: {
-              clientId,
-              billPaymentPlanId: billPaymentPlan.billPaymentPlanId
-            },
-            type: db.Sequelize.QueryTypes.SELECT,
-            transaction
-          }
-        )
-
-        if (existingAssociations.length === 0) {
-          await db.sequelize.query(
-            `INSERT INTO cd.clients_payment_plans (bill_payment_plan_id, client_id)
-             VALUES (:billPaymentPlanId, :clientId)`,
-            {
-              replacements: {
-                clientId,
-                billPaymentPlanId: billPaymentPlan.billPaymentPlanId
-              },
-              type: db.Sequelize.QueryTypes.INSERT,
-              transaction
-            }
-          )
-
-          paymentPlanAssociation = {
-            clientId,
-            billPaymentPlanId: billPaymentPlan.billPaymentPlanId
-          }
-        } else {
-          paymentPlanAssociation = existingAssociations[0]
-        }
-      }
-
-      return {
-        bill,
-        client,
-        paymentPlanAssociation
-      }
-    })
-
-    res.json({
-      message: 'Cliente asociado a la factura correctamente',
-      ...result
-    })
-  } catch (error) {
-    if (error.status) {
-      return res.status(error.status).json({ message: error.message })
-    }
-
-    res.status(500).json({ message: error.message })
-  }
-}
-
 module.exports = {
   createClient,
   getClients,
   getClientById,
   updateClient,
-  deleteClient,
-  associateClientToBill
+  deleteClient
 }

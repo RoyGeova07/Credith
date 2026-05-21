@@ -5,8 +5,7 @@ const {
   getClients,
   getClientById,
   updateClient,
-  deleteClient,
-  associateClientToBill
+  deleteClient
 } = require('../controllers/clients')
 
 router.get('/clients', getClients)
@@ -14,8 +13,6 @@ router.get('/clients', getClients)
 router.get('/clients/:id', getClientById)
 
 router.post('/clients', createClient)
-
-router.post('/clients/associate-bill', associateClientToBill)
 
 router.put('/clients/:id', updateClient)
 
