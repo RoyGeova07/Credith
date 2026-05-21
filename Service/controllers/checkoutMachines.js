@@ -223,6 +223,49 @@ const activateCheckoutMachine = async (req, res) => {
   }
 }
 
+// Asociar usuario a maquina de checkout
+const associateUserToCheckoutMachine = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { userId } = req.body
+
+    if (!userId || userId.trim() === '') {
+      return res.status(400).json({ message: 'El id del usuario es requerido' })
+    }
+
+    const checkoutMachine = await CheckoutMachines.findByPk(id)
+
+    if (!checkoutMachine) {
+      return res.status(404).json({ message: 'Maquina de checkout no encontrada' })
+    }
+
+    const user = await Users.findByPk(userId)
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' })
+    }
+
+    if (userId !== checkoutMachine.userId) {
+      const existingMachineForUser = await CheckoutMachines.findOne({
+        where: { userId }
+      })
+
+      if (existingMachineForUser) {
+        return res.status(400).json({ message: 'El usuario ya tiene una maquina asignada' })
+      }
+    }
+
+    await checkoutMachine.update({ userId })
+
+    res.json({
+      message: 'Usuario asociado a la maquina de checkout correctamente',
+      checkoutMachine
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
 // Eliminar maquina de checkout
 const deleteCheckoutMachine = async (req, res) => {
   try {
@@ -249,5 +292,6 @@ module.exports = {
   updateCheckoutMachine,
   deactivateCheckoutMachine,
   activateCheckoutMachine,
+  associateUserToCheckoutMachine,
   deleteCheckoutMachine
 }

@@ -7,6 +7,7 @@ const {
   updateCheckoutMachine,
   deactivateCheckoutMachine,
   activateCheckoutMachine,
+  associateUserToCheckoutMachine,
   deleteCheckoutMachine
 } = require('../controllers/checkoutMachines')
 
@@ -21,6 +22,8 @@ router.put('/checkout-machines/:id', updateCheckoutMachine)
 router.put('/checkout-machines/deactivate/:id', deactivateCheckoutMachine)
 
 router.put('/checkout-machines/activate/:id', activateCheckoutMachine)
+
+router.put('/checkout-machines/:id/associate-user', associateUserToCheckoutMachine)
 
 router.delete('/checkout-machines/:id', deleteCheckoutMachine)
 
