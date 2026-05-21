@@ -15,6 +15,7 @@ const caiRoutes = require('./routes/cai')
 const caiRangeRoutes = require('./routes/caiRange')
 const roleRoutes = require('./routes/roles')
 const billRoutes = require('./routes/bills')
+const clientRoutes = require('./routes/clients')
 
 const swaggerUi=require('swagger-ui-express')
 const swaggerSpecs=require('./config/swagger.js') 
@@ -29,6 +30,7 @@ app.use('/api', caiRangeRoutes)
 app.use('/api', billRoutes)
 app.use('/api-docs',swaggerUi.serve,swaggerUi.setup(swaggerSpecs))
 app.use('/api', roleRoutes)
+app.use('/api', clientRoutes)
 
 app.listen(port, ()=>
 {
