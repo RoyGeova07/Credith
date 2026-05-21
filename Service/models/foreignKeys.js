@@ -52,7 +52,7 @@ function createFKs() {
         as: 'stores',
     })
 
-    Stores.hasOne(Products, {
+    Stores.belongsToMany(Products, {
         through: StoresInventories,
         as: 'products'
     })

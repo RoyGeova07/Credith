@@ -127,10 +127,10 @@ async function selectProduct(req, res) {
     try {
         const limit=parseInt(req.query.limit)||10
         const offset=parseInt(req.query.offset)||0
-        const { storeId } = req.query;
+        const storeId = req.query.storeId||null;
 
         let whereStmt = {}
-        if (!storeId || storeId != null) {
+        if (storeId !== null) {
             whereStmt = {
                 stores: {
                     storeId: storeId

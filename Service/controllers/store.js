@@ -53,7 +53,7 @@ const getStores = async (req, res) => {
         {
           model: Companies,
           as: 'company',
-          attributes: ['companyId', 'companyName', 'rtn']
+          attributes: ['companyId', 'name', 'rtn']
         }
       ]
     })
@@ -77,7 +77,7 @@ const getStoreById = async (req, res) => {
         {
           model: Companies,
           as: 'company',
-          attributes: ['companyId', 'companyName', 'rtn']
+          attributes: ['companyId', 'name', 'rtn']
         }
       ]
     })
