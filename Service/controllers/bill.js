@@ -41,7 +41,8 @@ async function calculateMonthlyPayments(plan, startingMonth, transaction) {
     if (startingMonth > 0) {
         const monthlyPayments = await MonthlyPayments.findAll({
             where: { billPaymentPlanId: plan.billPaymentPlanId },
-            order: [['paymentDeadline', 'ASC']]
+            order: [['paymentDeadline', 'ASC']],
+            transaction: transaction
         });
 
         if (monthlyPayments.length < startingMonth)
@@ -54,7 +55,7 @@ async function calculateMonthlyPayments(plan, startingMonth, transaction) {
 
         const remaining = monthlyPayments.slice(startingMonth);
         for (const payment of remaining) {
-            await payment.destroy();
+            await payment.destroy({transaction: transaction});
         }
     }
 

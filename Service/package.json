@@ -8,10 +8,10 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
+    "start": "NODE_ENV=development nodemon index.js",
     "migrate": "sequelize-cli db:migrate",
     "seed": "sequelize-cli db:seed:all",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_ENV=test jest"
   },
   "dependencies": {
     "@sequelize/postgres": "^7.0.0-alpha.48",
@@ -20,15 +20,18 @@
     "express": "^5.2.1",
     "express-validator": "^7.3.2",
     "jsonwebtoken": "^9.0.3",
-    "nodemon": "^3.1.14",
     "pg": "^8.20.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.8",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "uuid": "^14.0.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "sequelize-cli": "^6.6.5"
-  }
+    "jest": "^30.4.2",
+    "nodemon": "^3.1.14",
+    "sequelize-cli": "^6.6.5",
+    "supertest": "^7.2.2",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "packageManager": "pnpm@11.2.2+sha512.36e6621fad506178936455e70247b8808ef4ec25797a9f437a93281a020484e2607f6a469a22e982987c3dbb8866e3071514ab10a4a1749e06edcd1ec118436f"
 }
