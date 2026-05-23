@@ -1,21 +1,63 @@
 'use strict';
 
-const { v4: uuidv4 } = require('uuid');
-
 const now = new Date();
 const futureDate = new Date('2027-12-31');
 const pastDate = new Date('2025-01-01');
 
-const companyIds = [uuidv4(), uuidv4()];
-const storeIds = [uuidv4(), uuidv4(), uuidv4()];
-const userIds = [uuidv4(), uuidv4(), uuidv4(), uuidv4(), uuidv4()];
-const roleIds = [uuidv4(), uuidv4(), uuidv4()];
-const categoryIds = [uuidv4(), uuidv4(), uuidv4(), uuidv4()];
-const productIds = [uuidv4(), uuidv4(), uuidv4(), uuidv4(), uuidv4(), uuidv4()];
-const caiIds = [uuidv4(), uuidv4()];
-const caiRangeIds = [uuidv4(), uuidv4()];
-const checkoutMachineIds = [uuidv4(), uuidv4(), uuidv4()];
-const clientIds = [uuidv4(), uuidv4(), uuidv4(), uuidv4()];
+const companyIds = [
+  'a1b2c3d4-e5f6-4789-abcd-ef0123456789',
+  'b2c3d4e5-f6a7-489a-bcde-f01234567890',
+];
+const storeIds = [
+  'c3d4e5f6-a7b8-490a-bcde-f01234567891',
+  'd4e5f6a7-b8c9-4a0b-cdef-012345678912',
+  'e5f6a7b8-c9d0-4b0c-def0-123456789123',
+];
+const userIds = [
+  'f6a7b8c9-d0e1-4c0d-ef01-234567891234',
+  'a7b8c9d0-e1f2-4d0e-f012-345678912345',
+  'b8c9d0e1-f2a3-4e0f-0123-456789123456',
+  'c9d0e1f2-a3b4-4f01-1234-567891234567',
+  'd0e1f2a3-b4c5-4a01-2345-678912345678',
+];
+const roleIds = [
+  'e1f2a3b4-c5d6-4b01-2345-678912345679',
+  'f2a3b4c5-d6e7-4c01-2345-678912345680',
+  'a3b4c5d6-e7f8-4d01-2345-678912345681',
+];
+const categoryIds = [
+  'b4c5d6e7-f8a9-4e01-2345-678912345682',
+  'c5d6e7f8-a9b0-4f01-2345-678912345683',
+  'd6e7f8a9-b0c1-4a11-2345-678912345684',
+  'e7f8a9b0-c1d2-4b11-2345-678912345685',
+];
+const productIds = [
+  'f8a9b0c1-d2e3-4c11-2345-678912345686',
+  'a9b0c1d2-e3f4-4d11-2345-678912345687',
+  'b0c1d2e3-f4a5-4e11-2345-678912345688',
+  'c1d2e3f4-a5b6-4f11-2345-678912345689',
+  'd2e3f4a5-b6c7-4a21-2345-678912345690',
+  'e3f4a5b6-c7d8-4b21-2345-678912345691',
+];
+const caiIds = [
+  'f4a5b6c7-d8e9-4c21-2345-678912345692',
+  'a5b6c7d8-e9f0-4d21-2345-678912345693',
+];
+const caiRangeIds = [
+  'b6c7d8e9-f0a1-4e21-2345-678912345694',
+  'c7d8e9f0-a1b2-4f21-2345-678912345695',
+];
+const checkoutMachineIds = [
+  'd8e9f0a1-b2c3-4a31-2345-678912345696',
+  'e9f0a1b2-c3d4-4b31-2345-678912345697',
+  'f0a1b2c3-d4e5-4c31-2345-678912345698',
+];
+const clientIds = [
+  'a1b2c3d4-e5f6-4d31-2345-678912345699',
+  'b2c3d4e5-f6a7-4e31-2345-678912345700',
+  'c3d4e5f6-a7b8-4f31-2345-678912345701',
+  'd4e5f6a7-b8c9-4a41-2345-678912345702',
+];
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -152,5 +194,15 @@ module.exports = {
     for (const table of tables) {
       await queryInterface.bulkDelete({ schema: 'cd', tableName: table }, null, {});
     }
-  }
+  },
+  companyIds,
+  storeIds,
+  userIds,
+  roleIds,
+  categoryIds,
+  productIds,
+  caiIds,
+  caiRangeIds,
+  checkoutMachineIds,
+  clientIds
 };
