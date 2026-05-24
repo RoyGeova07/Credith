@@ -23,4 +23,8 @@ async function teardownTestTransaction() {
   }
 }
 
-module.exports = { setupTestTransaction, teardownTestTransaction };
+function getTransaction() {
+  return managedTransaction;
+}
+
+module.exports = { setupTestTransaction, teardownTestTransaction, getTransaction };

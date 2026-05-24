@@ -17,7 +17,6 @@ function normalizeDate(year, month, day) {
     return new Date(
         Date.UTC(year, month, maxDay)
     );
-
 }
 
 async function calculateMonthlyPayments(plan, startingMonth, transaction) {
