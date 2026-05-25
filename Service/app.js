@@ -18,6 +18,7 @@ const roleRoutes = require('./routes/roles')
 const billRoutes = require('./routes/bills')
 const clientRoutes = require('./routes/clients')
 const categoryRoutes=require('./routes/category')
+const paymentPlanRoutes=require('./routes/paymentPlan')
 
 app.use('/api', userRoutes)
 app.use('/api', companyRoutes)
@@ -29,7 +30,8 @@ app.use('/api', checkoutMachineRoutes)
 app.use('/api', billRoutes)
 app.use('/api', roleRoutes)
 app.use('/api', clientRoutes)
-app.use('/api',categoryRoutes)
+app.use('/api', categoryRoutes)
+app.use('/api', paymentPlanRoutes)
 
 if (process.env.NODE_ENV === 'development') {
     const LoggerMiddleware=require('./middlewares/loggerMiddleware.js')

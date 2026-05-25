@@ -13,10 +13,6 @@ function initialize(sequelize, _) {
                 primaryKey: true,
                 defaultValue: DataTypes.UUIDV4
             },
-            initialPayment: {
-                type: DataTypes.DECIMAL(18,6),
-                defaultValue: 0
-            },
             totalToPay: {
                 type: DataTypes.DECIMAL(18,6),
                 allowNull: false
