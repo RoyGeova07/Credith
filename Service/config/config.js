@@ -16,7 +16,8 @@ module.exports={
     database: DB_NAME,
     host: DB_HOST,
     port: DB_PORT,
-    dialect: DB_DIALECT
+    dialect: DB_DIALECT,
+    logging:false
   },
   docker: {
     username: DB_USER,

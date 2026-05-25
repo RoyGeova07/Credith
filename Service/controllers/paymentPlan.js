@@ -38,7 +38,7 @@ async function postRecalculatePlan(req, res) {
     });
 
     if (openMonthsWithInterest.length > 0)
-        return res.status(400).json({ message: 'No se puede recalcular: existen meses con intereses pendientes' });
+        return res.status(400).json({ message: 'No se puede recalcular por meses pendientes' });
 
     try {
         await db.sequelize.transaction(async (transaction) => {
