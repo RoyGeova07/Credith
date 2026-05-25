@@ -8,65 +8,19 @@ const { BillsPaymentPlans } = require('../models/entities/billPaymentPlan');
 const { MonthlyPayments } = require('../models/entities/monthlyPayment');
 const { StoresInventories } = require('../models/entities/storeInventory');
 const { BillTypes, PaymentStatus } = require('../models/dbEnums');
+const { normalizeDate } = require('../helper/dateHelper');
 
-function normalizeDate(year, month, day) {
-    const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-
-    const maxDay = Math.min(day, lastDay);
-
-    return new Date(
-        Date.UTC(year, month, maxDay)
-    );
-
-}
-
-async function calculateMonthlyPayments(plan, startingMonth, transaction) {
+async function calculateMonthlyPayments(plan, transaction) {
     const baseDate = new Date(plan.startingDate);
 
     const baseYear = baseDate.getUTCFullYear();
     const baseMonth = baseDate.getUTCMonth();
 
-    const maxMonth = baseMonth + plan.monthsToPay;
-    const calcMonth = baseMonth + startingMonth;
-
-    const maxPaymentDate = normalizeDate(baseYear, maxMonth, plan.paymentDay);
-    const initialPaymentDate = normalizeDate(baseYear, calcMonth, plan.paymentDay);
-
-    if (initialPaymentDate > maxPaymentDate)
-        throw Error('Fecha de inicio sobrepasa la fecha limite de pago');
-
-    if (startingMonth >= plan.monthsToPay)
-        throw Error('El mes de inicio excede la duracion del plan de pago');
-
-    if (startingMonth > 0) {
-        const monthlyPayments = await MonthlyPayments.findAll({
-            where: { billPaymentPlanId: plan.billPaymentPlanId },
-            order: [['paymentDeadline', 'ASC']]
-        });
-
-        if (monthlyPayments.length < startingMonth)
-            throw Error('No se encontraron todos los pagos mensuales anteriores');
-
-        for (let i = 0; i < startingMonth; i++) {
-            if (!monthlyPayments[i].isPayed)
-                throw Error(`El mes ${i + 1} no ha sido pagado`);
-        }
-
-        const remaining = monthlyPayments.slice(startingMonth);
-        for (const payment of remaining) {
-            await payment.destroy();
-        }
-    }
-
-    const remainingMonths = plan.monthsToPay - startingMonth;
-
-    if (remainingMonths === 0) return [];
-
-    const monthlyAmount = Number(plan.totalToPay) / remainingMonths;
+    const monthlyAmount = Number(plan.totalToPay) / plan.monthsToPay;
 
     const payments = [];
-    for (let i = 0; i < remainingMonths; i++) {
-        const paymentDate = normalizeDate(baseYear, baseMonth + startingMonth + i, plan.paymentDay);
+    for (let i = 0; i < plan.monthsToPay; i++) {
+        const paymentDate = normalizeDate(baseYear, baseMonth + i, plan.paymentDay);
         payments.push({
             paymentAmount: monthlyAmount,
             interestToPay: 0,
@@ -79,23 +33,21 @@ async function calculateMonthlyPayments(plan, startingMonth, transaction) {
 }
 
 async function createInstallmentPaymentPlan(paymentPlan, customer, billTotal, billId, transaction) {
-    const totalToPay = Math.max(0, billTotal - paymentPlan.payment)
     const plan = await BillsPaymentPlans.create(
         {
-            initialPayment: paymentPlan.payment,
-            totalToPay: totalToPay,
+            totalToPay: billTotal,
             startingDate: paymentPlan.startingDate,
             monthsToPay: paymentPlan.monthsToPay,
             paymentDay: paymentPlan.paymentDay,
             payedAmount: paymentPlan.payment,
             interestRate: paymentPlan.interestRate || 0,
-            status: totalToPay == 0 ? PaymentStatus.PAYED : PaymentStatus.PENDING,
+            status: billTotal == 0 ? PaymentStatus.PAYED : PaymentStatus.PENDING,
             billId: billId
         },
         { transaction }
     );
 
-    const monthlyPayments = await calculateMonthlyPayments(plan, 0, transaction);
+    const monthlyPayments = await calculateMonthlyPayments(plan, transaction);
     plan.monthlyPayments = monthlyPayments;
     await plan.setClient(customer.clientId, { transaction });
     return plan;
@@ -105,7 +57,6 @@ async function createCashPaymentPlan(paymentData, billTotal, billId, transaction
     const totalToPay = Math.max(0, billTotal - paymentData.payment)
     return await BillsPaymentPlans.create(
         {
-            initialPayment: paymentData.payment,
             totalToPay: totalToPay,
             payedAmount: paymentData.payment,
             interestRate: paymentData.interestRate || 0,
