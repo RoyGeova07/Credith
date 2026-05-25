@@ -19,6 +19,7 @@ const roleRoutes = require('./routes/roles')
 const billRoutes = require('./routes/bills')
 const clientRoutes = require('./routes/clients')
 const categoryRoutes=require('./routes/category')
+const paymentPlanRoutes=require('./routes/paymentPlan')
 
 const swaggerUi=require('swagger-ui-express')
 const swaggerSpecs=require('./config/swagger.js')
@@ -35,6 +36,7 @@ app.use('/api', roleRoutes)
 app.use('/api', clientRoutes)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs))
 app.use('/api',categoryRoutes)
+app.use('/api', paymentPlanRoutes)
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
