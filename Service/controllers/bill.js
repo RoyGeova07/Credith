@@ -3,6 +3,7 @@ const { Bills } = require('../models/entities/bill');
 const { Users } = require('../models/entities/user');
 const { Companies } = require('../models/entities/company');
 const { CaiRanges } = require('../models/entities/caiRange');
+const { Cais } = require('../models/entities/cai');
 const { BillDetails } = require('../models/entities/billDetail');
 const { BillsPaymentPlans } = require('../models/entities/billPaymentPlan');
 const { MonthlyPayments } = require('../models/entities/monthlyPayment');
@@ -143,7 +144,7 @@ async function postBill(req, res) {
                 throw { status: 406, message: 'La sucursal donde trabaja el usuario no es la misma especificada en la factura' }
 
             const caiRange = await CaiRanges.findByPk(caiRangeId, {
-                include: ['Cai'],
+                lock: transaction.LOCK.UPDATE,
                 transaction
             });
 
@@ -153,10 +154,12 @@ async function postBill(req, res) {
             if (!caiRange.isActive)
                 throw { status: 406, message: 'Rango de cai ha expirado' }
 
-            if (!caiRange.Cai)
+            const cai = await Cais.findByPk(caiRange.caiId, { transaction });
+
+            if (!cai)
                 throw { status: 404, message: 'Cai no encontrado' }
 
-            if (!caiRange.Cai.isActive)
+            if (!cai.isActive)
                 throw { status: 406, message: 'El cai ha expirado' }
 
             const company = await Companies.findByPk(companyId, { transaction });
