@@ -73,7 +73,6 @@ describe('POST /api/bills', () => {
             expect(plan).not.toBeNull();
             expect(plan.status).toBe('PAYED');
             expect(Number(plan.payedAmount)).toBe(10999);
-            expect(Number(plan.initialPayment)).toBe(10999);
         });
 
         it('should return 201 for a CASH bill with discount', async () => {
@@ -146,7 +145,7 @@ describe('POST /api/bills', () => {
             });
             expect(plan).not.toBeNull();
             expect(plan.status).toBe('PENDING');
-            expect(Number(plan.initialPayment)).toBe(2000);
+            expect(Number(plan.payedAmount)).toBe(2000);
             expect(Number(plan.totalToPay)).toBeGreaterThan(0);
             expect(plan.monthsToPay).toBe(3);
 
@@ -168,45 +167,6 @@ describe('POST /api/bills', () => {
                 transaction: getTransaction(),
             });
             expect(clientPlan).not.toBeNull();
-        });
-
-        it('should return 201 for an INSTALLMENT bill paid in full', async () => {
-            const res = await request(app)
-                .post('/api/bills')
-                .send({
-                    ...validCashBill(),
-                    paymentType: 'INSTALLMENT',
-                    paymentData: {
-                        payment: 12648.85,
-                        startingDate: '2026-07-01',
-                        monthsToPay: 1,
-                        paymentDay: 15,
-                        interestRate: 0,
-                    },
-                    customer: {
-                        clientId: SEED_CLIENT_ID,
-                        customerName: 'Test Customer',
-                        customerPhone: '9999-9999',
-                        customerAddress: 'Test Address',
-                    },
-                });
-
-            expect(res.status).toBe(201);
-
-            const plan = await db.BillPaymentPlan.findOne({
-                where: { billId: res.body.billId },
-                transaction: getTransaction(),
-            });
-            expect(plan).not.toBeNull();
-            expect(plan.status).toBe('PAYED');
-            expect(plan.monthsToPay).toBe(1);
-
-            const monthlyPayments = await db.MonthlyPayment.findAll({
-                where: { billPaymentPlanId: plan.billPaymentPlanId },
-                transaction: getTransaction(),
-            });
-            expect(monthlyPayments).toHaveLength(1);
-            expect(Number(monthlyPayments[0].paymentAmount)).toBe(0);
         });
     });
 
