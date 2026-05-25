@@ -20,6 +20,14 @@ function initialize(sequelize, _) {
                 type: DataTypes.INTEGER,
                 allowNull: false,
             },
+            currentNumber:
+            {
+
+                type:DataTypes.INTEGER,
+                allowNull:false,
+                defaultValue:0
+
+            },
             expirationDate: {
                 type: DataTypes.DATE,
                 allowNull: false
