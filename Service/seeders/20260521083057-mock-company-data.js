@@ -112,8 +112,8 @@ module.exports = {
 
     // CAI Ranges
     await queryInterface.bulkInsert({ schema: 'cd', tableName: 'cai_ranges' }, [
-      { cai_range_id: caiRangeIds[0], min_range: 1, max_range: 5000, expiration_date: futureDate, is_active: true, cai_id: caiIds[0], created_at: now, updated_at: now },
-      { cai_range_id: caiRangeIds[1], min_range: 5001, max_range: 10000, expiration_date: pastDate, is_active: false, cai_id: caiIds[1], created_at: now, updated_at: now },
+      { cai_range_id: caiRangeIds[0], min_range: 1, max_range: 5000,current_number:0,expiration_date: futureDate, is_active: true, cai_id: caiIds[0], created_at: now, updated_at: now },
+      { cai_range_id: caiRangeIds[1], min_range: 5001, max_range: 10000,current_number:5000,expiration_date: pastDate, is_active: false, cai_id: caiIds[1], created_at: now, updated_at: now },
     ]);
 
     // Checkout Machines
