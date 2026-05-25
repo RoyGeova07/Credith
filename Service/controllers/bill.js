@@ -28,7 +28,7 @@ async function calculateMonthlyPayments(plan, startingMonth, transaction) {
     const monthlyAmount = Number(plan.totalToPay) / plan.monthsToPay;
 
     const payments = [];
-    for (let i = 0; i < remainingMonths; i++) {
+    for (let i = 0; i < plan.monthsToPay; i++) {
         const paymentDate = normalizeDate(baseYear, baseMonth + startingMonth + i, plan.paymentDay);
         payments.push({
             paymentAmount: monthlyAmount,
@@ -164,17 +164,19 @@ async function postBill(req, res) {
             if (!company)
                 throw { status: 404, message: 'Compañia no encontrada' }
 
-            const maxBill = await Bills.findOne({
-                where: { caiRangeId },
-                order: [['billNumber', 'DESC']],
-                transaction,
-                paranoid: false,
-            });
-
-            const nextBillNumber = maxBill ? maxBill.billNumber + 1 : caiRange.minRange;
+            const nextBillNumber = caiRange.currentNumber + 1;
 
             if (nextBillNumber > caiRange.maxRange)
                 throw { status: 406, message: 'El rango de CAI se ha agotado' }
+
+            await caiRange.update(
+                {
+                    currentNumber: nextBillNumber
+                },
+                {
+                    transaction: transaction,
+                }
+            );
 
             const cashierName = [user.first_name, user.second_name, user.first_last_name, user.second_last_name]
                 .filter(Boolean).join(' ');
