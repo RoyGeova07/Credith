@@ -10,7 +10,8 @@ module.exports = {
                 defaultValue: Sequelize.UUIDV4
             },
             min_range: { type: Sequelize.INTEGER, allowNull: false },
-            max_range: { type: Sequelize.INTEGER, allowNull: false },
+            current_number: { type: Sequelize.INTEGER, allowNull: false },
+            currentNumber:{type:Sequelize.INTEGER,allowNull:false,defaultValue:0},
             expiration_date: { type: Sequelize.DATE, allowNull: false },
             is_active: { type: Sequelize.BOOLEAN, defaultValue: true },
             cai_id: {

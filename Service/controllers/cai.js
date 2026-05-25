@@ -1,6 +1,7 @@
 const db = require('../models')
 const { Cais } = require('../models/entities/cai')
 const { CaiRanges } = require('../models/entities/caiRange')
+const{Op}=require('sequelize')
 
 // Crear CAI con rango
 const createCai = async (req, res) => {
@@ -13,6 +14,21 @@ const createCai = async (req, res) => {
 
     if (!expirationDate || expirationDate.trim() === '') {
       return res.status(400).json({ message: 'La fecha de expiracion del CAI es requerida' })
+    }
+
+    const parsedCaiDate=new Date(expirationDate)
+    if(isNaN(parsedCaiDate.getTime()))
+    {
+
+      return res.status(400).json({ message: 'La fecha de expiracion del CAI no es valida' })
+
+    }
+
+    if(parsedCaiDate<=new Date())
+    {
+
+      return res.status(400).json({message:'La fecha de expiracion del CAI debe ser futura'})
+
     }
 
     if (!range) {
@@ -29,18 +45,86 @@ const createCai = async (req, res) => {
       return res.status(400).json({ message: 'El rango final es requerido' })
     }
 
+    if(isNaN(Number(minRange))||isNaN(Number(maxRange)))
+    {
+
+      return res.status(400).json({message:'Los rangos deben ser numeros validos'})
+
+    }
+
+    if(Number(minRange)<0||Number(maxRange)<0)
+    {
+
+      return res.status(400).json({message:'Los rangos no pueden ser negativos'})
+
+    }
+    
+    if (Number(minRange) > Number(maxRange)) {
+      return res.status(400).json({ message: 'El rango inicial no puede ser mayor al rango final' })
+    }
     if (!rangeExpirationDate || rangeExpirationDate.trim() === '') {
       return res.status(400).json({ message: 'La fecha de expiracion del rango es requerida' })
     }
 
-    if (Number(minRange) > Number(maxRange)) {
-      return res.status(400).json({ message: 'El rango inicial no puede ser mayor al rango final' })
+    const parsedRangeDate=new Date(rangeExpirationDate)
+    if(isNaN(parsedRangeDate.getTime()))
+    {
+
+      return res.status(400).json({message:'La fecha de expiracion del rango no es valida'})
+
+    }
+    if(parsedRangeDate<=new Date())
+    {
+
+      return res.status(400).json({message:'La fecha de expiracion del rango debe ser futura'})
+
     }
 
     const existingCai = await Cais.findOne({ where: { governmentId } })
 
     if (existingCai) {
       return res.status(400).json({ message: 'Ya existe un CAI con ese numero' })
+    }
+
+    //se verifica primeroo el solapamiento del rango inicial contra todos los rango iniciale 
+    const rangoSuperpuesto=await CaiRanges.findOne({where:{[Op.or]:[
+
+      {
+
+        minRange:{[Op.between]:[minRange,maxRange]}
+      
+      },
+      {
+
+        maxRange:{[Op.between]:[minRange,maxRange]}
+
+      },
+      {
+
+        [Op.and]:[
+
+          {
+
+            minRange:{[Op.lte]:minRange}
+
+          },
+
+          {
+
+            maxRange:{[Op.gte]:maxRange}
+
+          }
+
+        ]
+      }
+      
+    ]}})
+
+    if(rangoSuperpuesto)
+    {
+
+      return res.status(400).json({message:'El rango se solapa con otro rango existente'})
+
     }
 
     const cai = await db.sequelize.transaction(async (transaction) => {
@@ -125,7 +209,17 @@ const deleteCai = async (req, res) => {
       return res.status(404).json({ message: 'CAI no encontrado' })
     }
 
-    await cai.destroy()
+    await db.sequelize.transaction(async(transaction)=>
+    {
+
+      //delete en cascada de todos los rangos asociados
+      await CaiRanges.update({isActive:false},{where:{caiId:cai.caiId},transaction})
+
+      await CaiRanges.destroy({where:{caiId:cai.caiId},transaction})
+
+      await cai.destroy({transaction})
+
+    })
 
     res.json({ message: 'CAI eliminado correctamente' })
   } catch (error) {
