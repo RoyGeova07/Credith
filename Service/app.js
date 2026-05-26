@@ -1,6 +1,8 @@
 const express = require('express')
+const cors = require('cors')
 const app = express()
 
+app.use(cors({ origin: 'http://localhost:5173' }))
 app.use(express.json())
 if (process.env.NODE_ENV !== 'test') {
     const LoggerMiddleware=require('./middlewares/loggerMiddleware.js')
@@ -32,6 +34,10 @@ app.use('/api', roleRoutes)
 app.use('/api', clientRoutes)
 app.use('/api', categoryRoutes)
 app.use('/api', paymentPlanRoutes)
+
+app.get('/', (_, res) => {
+  res.json({ message: 'Hello from the backend!' })
+})
 
 if (process.env.NODE_ENV === 'development') {
     const LoggerMiddleware=require('./middlewares/loggerMiddleware.js')
