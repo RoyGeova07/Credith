@@ -1,0 +1,31 @@
+.submit-container button {
+    font-size: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin: 20px;
+    border-radius: 10px;
+    border: none;
+    transition: 0.3s;
+}
+
+.submit-container button:active {
+    color: black;
+}
+
+.submit-btn:hover {
+    background-color: #131E68;
+}
+
+.submit-btn {
+    background-color: #2A68D2;
+}
+
+.close-btn:hover {
+    background-color: #220C0C;
+}
+
+.close-btn {
+    background-color: #4E2D2D;
+}
