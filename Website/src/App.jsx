@@ -4,8 +4,8 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
-import SubmitDialog from './components/submitDialog'
-import MessageDialog from './components/messageDialog'
+import SubmitDialog from './components/dialogs/submitDialog'
+import MessageDialog from './components/dialogs/messageDialog'
 
 function App() {
   const [email, setEmail] = useState("");
