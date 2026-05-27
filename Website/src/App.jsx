@@ -4,12 +4,17 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
-import Dialog from './components/dialog'
+import { SubmitDialog } from './components/submitDialog'
 
 function App() {
   const [testStr, setTestStr] = useState(null)
   const [isOpen, setIsOpen] = useState(false);
   const [count, setCount] = useState(0)
+
+  const onAccept = () => {
+      alert('Accepted click')
+      setIsOpen(false);
+  }
 
   useEffect(() => {
     Get('/').then((out) => setTestStr(out.json.message))
@@ -17,8 +22,14 @@ function App() {
 
   return (
     <>
-      <Dialog title='Modal Title' isOpen={isOpen} setIsOpen={(o) => setIsOpen(o)}>
-      </Dialog>
+      <SubmitDialog title='Modal Title' 
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        onAccept={onAccept}
+        setIsOpen={(o) => setIsOpen(o)}>
+        <form>
+        </form>
+      </SubmitDialog>
       <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
