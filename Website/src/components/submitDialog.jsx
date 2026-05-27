@@ -1,8 +1,9 @@
 import Dialog from "./dialog";
 import './submitDialog.css'
 
-export function SubmitDialog({
+export default function SubmitDialog({
     title,
+    openButtonTxt,
     buttonStyle,
     dialogStyle,
     onAccept,
@@ -20,6 +21,7 @@ export function SubmitDialog({
     return (
         <>
             <Dialog title={title}
+                openButtonTxt={openButtonTxt}
                 buttonStyle={buttonStyle}
                 dialogStyle={dialogStyle}
                 isOpen={isOpen}

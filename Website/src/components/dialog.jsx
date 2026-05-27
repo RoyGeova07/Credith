@@ -2,16 +2,19 @@ import './dialog.css'
 
 export default function Dialog({ 
     title,
+    openButtonTxt,
     openButtonStyle,
     dialogStyle,
     children,
     isOpen,
     setIsOpen }) {
+    const openTxt = openButtonTxt || 'Click me!'
+
     return (
         <>
             <button style={openButtonStyle}
                 onClick={() => setIsOpen(true)}>
-                Click me
+                { openTxt }
             </button>
             {isOpen ? (
                 <div className='dialog'>
@@ -21,7 +24,7 @@ export default function Dialog({
                             onClick={() => setIsOpen(false)}>
                             &times;
                         </span>
-                        <h2>
+                        <h2 className='dialog-title'>
                             {title}
                         </h2>
                         {children}
