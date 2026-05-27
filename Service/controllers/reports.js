@@ -6,6 +6,28 @@ function padMonth(month) {
   return String(month).padStart(2, '0')
 }
 
+function buildMonthlyDateRange(parsedYear, parsedMonth) {
+  const nextMonth = parsedMonth === 12 ? 1 : parsedMonth + 1
+  const nextYear = parsedMonth === 12 ? parsedYear + 1 : parsedYear
+  const startDate = `${parsedYear}-${padMonth(parsedMonth)}-01`
+  const endDate = `${nextYear}-${padMonth(nextMonth)}-01`
+
+  return {
+    period: {
+      type: 'month',
+      year: parsedYear,
+      month: parsedMonth,
+      startDate,
+      endDate
+    },
+    dateFilter: 'AND b.created_at >= :startDate AND b.created_at < :endDate',
+    replacements: {
+      startDate,
+      endDate
+    }
+  }
+}
+
 function buildMonthPeriod(query) {
   const month = query.month
   const year = query.year
@@ -45,25 +67,18 @@ function buildMonthPeriod(query) {
     throw { status: 400, message: 'El year debe ser un numero valido' }
   }
 
-  const nextMonth = parsedMonth === 12 ? 1 : parsedMonth + 1
-  const nextYear = parsedMonth === 12 ? parsedYear + 1 : parsedYear
-  const startDate = `${parsedYear}-${padMonth(parsedMonth)}-01`
-  const endDate = `${nextYear}-${padMonth(nextMonth)}-01`
+  return buildMonthlyDateRange(parsedYear, parsedMonth)
+}
 
-  return {
-    period: {
-      type: 'month',
-      year: parsedYear,
-      month: parsedMonth,
-      startDate,
-      endDate
-    },
-    dateFilter: 'AND b.created_at >= :startDate AND b.created_at < :endDate',
-    replacements: {
-      startDate,
-      endDate
-    }
+function buildCurrentMonthPeriod(query, currentDate = new Date()) {
+  const month = query.month
+  const year = query.year
+
+  if ((month === undefined || month === null || month === '') && (year === undefined || year === null || year === '')) {
+    return buildMonthlyDateRange(currentDate.getFullYear(), currentDate.getMonth() + 1)
   }
+
+  return buildMonthPeriod(query)
 }
 
 function buildStoreFilter(storeId) {
@@ -90,6 +105,16 @@ function buildStoreFilter(storeId) {
       storeId: normalizedStoreId
     }
   }
+}
+
+function buildRequiredStoreFilter(storeId) {
+  const storeFilter = buildStoreFilter(storeId)
+
+  if (!storeFilter.normalizedStoreId) {
+    throw { status: 400, message: 'El storeId es requerido para generar el reporte de tienda' }
+  }
+
+  return storeFilter
 }
 
 function toInteger(value) {
@@ -131,6 +156,35 @@ function mapProductRows(productRows, storesByProduct) {
     netGain: toMoney(row.netGain),
     stores: storesByProduct.get(row.productId) || []
   }))
+}
+
+function buildFullName(row) {
+  return [
+    row.firstName,
+    row.secondName,
+    row.firstLastName,
+    row.secondLastName
+  ].filter(Boolean).join(' ')
+}
+
+function mapEmployeeRows(employeeRows) {
+  return employeeRows.map((row) => ({
+    userId: row.userId,
+    fullName: buildFullName(row),
+    email: row.email,
+    isActive: Boolean(row.isActive)
+  }))
+}
+
+function mapStoreReportRow(row, employeeRows) {
+  return {
+    storeId: row.storeId,
+    address: row.address,
+    isOperating: Boolean(row.isOperating),
+    monthlyGrossGain: toMoney(row.monthlyGrossGain),
+    monthlyNetGain: toMoney(row.monthlyNetGain),
+    employees: mapEmployeeRows(employeeRows)
+  }
 }
 
 async function getProductReport(req, res) {
@@ -263,10 +317,98 @@ async function getProductReport(req, res) {
   }
 }
 
+async function getStoreReport(req, res) {
+  try {
+    const monthPeriod = buildCurrentMonthPeriod(req.query)
+    const storeFilter = buildRequiredStoreFilter(req.query.storeId)
+    const replacements = {
+      ...monthPeriod.replacements,
+      ...storeFilter.replacements
+    }
+
+    const storeRows = await db.sequelize.query(
+      `
+      SELECT
+        st.store_id AS "storeId",
+        st.address,
+        st.is_active AS "isOperating",
+        COALESCE(SUM(COALESCE(bd.total, bd.sell_price * bd.quantity)), 0) AS "monthlyGrossGain",
+        COALESCE(
+          SUM(COALESCE(bd.total, bd.sell_price * bd.quantity) - (COALESCE(p.buy_price, 0) * bd.quantity)),
+          0
+        ) AS "monthlyNetGain"
+      FROM cd.stores st
+      LEFT JOIN cd.bills b
+        ON b.store_id = st.store_id
+        AND b.deleted_at IS NULL
+        ${monthPeriod.dateFilter}
+      LEFT JOIN cd.bill_details bd
+        ON bd.bill_id = b.bill_id
+        AND bd.deleted_at IS NULL
+      LEFT JOIN cd.products p
+        ON p.product_id = bd.product_id
+      WHERE st.deleted_at IS NULL
+        AND st.store_id = :storeId
+      GROUP BY st.store_id, st.address, st.is_active
+      `,
+      {
+        replacements,
+        type: db.Sequelize.QueryTypes.SELECT
+      }
+    )
+
+    if (storeRows.length === 0) {
+      return res.status(404).json({ message: 'Tienda no encontrada' })
+    }
+
+    const employeeRows = await db.sequelize.query(
+      `
+      SELECT
+        u.user_id AS "userId",
+        u.first_name AS "firstName",
+        u.second_name AS "secondName",
+        u.first_last_name AS "firstLastName",
+        u.second_last_name AS "secondLastName",
+        u.email,
+        u.is_active AS "isActive"
+      FROM cd.users u
+      WHERE u.deleted_at IS NULL
+        AND u.store_id = :storeId
+      ORDER BY u.first_name ASC, u.first_last_name ASC
+      `,
+      {
+        replacements: {
+          storeId: storeFilter.normalizedStoreId
+        },
+        type: db.Sequelize.QueryTypes.SELECT
+      }
+    )
+
+    res.json({
+      period: monthPeriod.period,
+      filters: {
+        storeId: storeFilter.normalizedStoreId
+      },
+      store: mapStoreReportRow(storeRows[0], employeeRows)
+    })
+  } catch (error) {
+    if (error.status) {
+      return res.status(error.status).json({ message: error.message })
+    }
+
+    res.status(500).json({ message: error.message })
+  }
+}
+
 module.exports = {
   getProductReport,
+  getStoreReport,
   buildMonthPeriod,
+  buildCurrentMonthPeriod,
   buildStoreFilter,
+  buildRequiredStoreFilter,
   mapProductRows,
-  mapStoreRows
+  mapStoreRows,
+  mapEmployeeRows,
+  mapStoreReportRow
 }
