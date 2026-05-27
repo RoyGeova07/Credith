@@ -117,6 +117,25 @@ function buildRequiredStoreFilter(storeId) {
   return storeFilter
 }
 
+function buildRequiredCompanyFilter(companyId) {
+  if (companyId === undefined || companyId === null || companyId === '') {
+    throw { status: 400, message: 'El companyId es requerido para generar el reporte de compania' }
+  }
+
+  const normalizedCompanyId = String(companyId).trim()
+
+  if (!UUID_PATTERN.test(normalizedCompanyId)) {
+    throw { status: 400, message: 'El companyId debe ser un UUID valido' }
+  }
+
+  return {
+    normalizedCompanyId,
+    replacements: {
+      companyId: normalizedCompanyId
+    }
+  }
+}
+
 function toInteger(value) {
   return Number.parseInt(value || 0, 10)
 }
@@ -185,6 +204,87 @@ function mapStoreReportRow(row, employeeRows) {
     monthlyNetGain: toMoney(row.monthlyNetGain),
     employees: mapEmployeeRows(employeeRows)
   }
+}
+
+function mapCompanyStoreReportRows(storeRows) {
+  return storeRows.map((row) => ({
+    storeId: row.storeId,
+    address: row.address,
+    isOperating: Boolean(row.isOperating),
+    monthlyGrossGain: toMoney(row.monthlyGrossGain),
+    monthlyNetGain: toMoney(row.monthlyNetGain)
+  }))
+}
+
+function sumMoney(rows, field) {
+  return toMoney(rows.reduce((total, row) => total + Number(row[field] || 0), 0))
+}
+
+function mapCompanyReportRow(companyRow, storeRows) {
+  const stores = mapCompanyStoreReportRows(storeRows)
+
+  return {
+    companyId: companyRow.companyId,
+    name: companyRow.name,
+    rtn: companyRow.rtn,
+    email: companyRow.email,
+    stores,
+    totalMonthlyGrossGain: sumMoney(stores, 'monthlyGrossGain'),
+    totalMonthlyNetGain: sumMoney(stores, 'monthlyNetGain')
+  }
+}
+
+async function getMonthlyStoreReportRows({ monthPeriod, storeId, companyId, activeOnly = false }) {
+  const replacements = {
+    ...monthPeriod.replacements
+  }
+
+  const filters = ['st.deleted_at IS NULL']
+
+  if (storeId) {
+    replacements.storeId = storeId
+    filters.push('st.store_id = :storeId')
+  }
+
+  if (companyId) {
+    replacements.companyId = companyId
+    filters.push('st.company_id = :companyId')
+  }
+
+  if (activeOnly) {
+    filters.push('st.is_active = true')
+  }
+
+  return await db.sequelize.query(
+    `
+    SELECT
+      st.store_id AS "storeId",
+      st.address,
+      st.is_active AS "isOperating",
+      COALESCE(SUM(COALESCE(bd.total, bd.sell_price * bd.quantity)), 0) AS "monthlyGrossGain",
+      COALESCE(
+        SUM(COALESCE(bd.total, bd.sell_price * bd.quantity) - (COALESCE(p.buy_price, 0) * bd.quantity)),
+        0
+      ) AS "monthlyNetGain"
+    FROM cd.stores st
+    LEFT JOIN cd.bills b
+      ON b.store_id = st.store_id
+      AND b.deleted_at IS NULL
+      ${monthPeriod.dateFilter}
+    LEFT JOIN cd.bill_details bd
+      ON bd.bill_id = b.bill_id
+      AND bd.deleted_at IS NULL
+    LEFT JOIN cd.products p
+      ON p.product_id = bd.product_id
+    WHERE ${filters.join(' AND ')}
+    GROUP BY st.store_id, st.address, st.is_active
+    ORDER BY st.address ASC
+    `,
+    {
+      replacements,
+      type: db.Sequelize.QueryTypes.SELECT
+    }
+  )
 }
 
 async function getProductReport(req, res) {
@@ -321,41 +421,11 @@ async function getStoreReport(req, res) {
   try {
     const monthPeriod = buildCurrentMonthPeriod(req.query)
     const storeFilter = buildRequiredStoreFilter(req.query.storeId)
-    const replacements = {
-      ...monthPeriod.replacements,
-      ...storeFilter.replacements
-    }
 
-    const storeRows = await db.sequelize.query(
-      `
-      SELECT
-        st.store_id AS "storeId",
-        st.address,
-        st.is_active AS "isOperating",
-        COALESCE(SUM(COALESCE(bd.total, bd.sell_price * bd.quantity)), 0) AS "monthlyGrossGain",
-        COALESCE(
-          SUM(COALESCE(bd.total, bd.sell_price * bd.quantity) - (COALESCE(p.buy_price, 0) * bd.quantity)),
-          0
-        ) AS "monthlyNetGain"
-      FROM cd.stores st
-      LEFT JOIN cd.bills b
-        ON b.store_id = st.store_id
-        AND b.deleted_at IS NULL
-        ${monthPeriod.dateFilter}
-      LEFT JOIN cd.bill_details bd
-        ON bd.bill_id = b.bill_id
-        AND bd.deleted_at IS NULL
-      LEFT JOIN cd.products p
-        ON p.product_id = bd.product_id
-      WHERE st.deleted_at IS NULL
-        AND st.store_id = :storeId
-      GROUP BY st.store_id, st.address, st.is_active
-      `,
-      {
-        replacements,
-        type: db.Sequelize.QueryTypes.SELECT
-      }
-    )
+    const storeRows = await getMonthlyStoreReportRows({
+      monthPeriod,
+      storeId: storeFilter.normalizedStoreId
+    })
 
     if (storeRows.length === 0) {
       return res.status(404).json({ message: 'Tienda no encontrada' })
@@ -400,15 +470,68 @@ async function getStoreReport(req, res) {
   }
 }
 
+async function getCompanyReport(req, res) {
+  try {
+    const monthPeriod = buildCurrentMonthPeriod(req.query)
+    const companyFilter = buildRequiredCompanyFilter(req.query.companyId)
+
+    const companyRows = await db.sequelize.query(
+      `
+      SELECT
+        c.company_id AS "companyId",
+        c.name,
+        c.rtn,
+        c.email
+      FROM cd.companies c
+      WHERE c.deleted_at IS NULL
+        AND c.company_id = :companyId
+      `,
+      {
+        replacements: companyFilter.replacements,
+        type: db.Sequelize.QueryTypes.SELECT
+      }
+    )
+
+    if (companyRows.length === 0) {
+      return res.status(404).json({ message: 'Compania no encontrada' })
+    }
+
+    const storeRows = await getMonthlyStoreReportRows({
+      monthPeriod,
+      companyId: companyFilter.normalizedCompanyId,
+      activeOnly: true
+    })
+
+    res.json({
+      period: monthPeriod.period,
+      filters: {
+        companyId: companyFilter.normalizedCompanyId
+      },
+      company: mapCompanyReportRow(companyRows[0], storeRows)
+    })
+  } catch (error) {
+    if (error.status) {
+      return res.status(error.status).json({ message: error.message })
+    }
+
+    res.status(500).json({ message: error.message })
+  }
+}
+
 module.exports = {
   getProductReport,
   getStoreReport,
+  getCompanyReport,
   buildMonthPeriod,
   buildCurrentMonthPeriod,
   buildStoreFilter,
   buildRequiredStoreFilter,
+  buildRequiredCompanyFilter,
   mapProductRows,
   mapStoreRows,
   mapEmployeeRows,
-  mapStoreReportRow
+  mapStoreReportRow,
+  mapCompanyStoreReportRows,
+  mapCompanyReportRow,
+  getMonthlyStoreReportRows
 }

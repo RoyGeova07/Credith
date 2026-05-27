@@ -2,7 +2,8 @@ const router = require('express').Router()
 
 const {
   getProductReport,
-  getStoreReport
+  getStoreReport,
+  getCompanyReport
 } = require('../controllers/reports')
 
 /**
@@ -190,5 +191,104 @@ router.get('/reports/products', getProductReport)
  *         description: Error interno del servidor
  */
 router.get('/reports/stores', getStoreReport)
+
+/**
+ * @swagger
+ * /api/reports/companies:
+ *   get:
+ *     summary: Obtener reporte mensual de una compania
+ *     tags: [Reports]
+ *     parameters:
+ *       - in: query
+ *         name: companyId
+ *         required: true
+ *         description: ID de la compania a reportar.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
+ *         name: month
+ *         required: false
+ *         description: Mes a filtrar. Si no se envia, se usa el mes actual. Puede enviarse como YYYY-MM o como numero de 1 a 12 junto con year.
+ *         schema:
+ *           type: string
+ *           example: "2026-05"
+ *       - in: query
+ *         name: year
+ *         required: false
+ *         description: Year requerido cuando month se envia como numero.
+ *         schema:
+ *           type: integer
+ *           example: 2026
+ *     responses:
+ *       200:
+ *         description: Reporte mensual de compania obtenido correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 period:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       enum: [month]
+ *                     year:
+ *                       type: integer
+ *                     month:
+ *                       type: integer
+ *                     startDate:
+ *                       type: string
+ *                       format: date
+ *                     endDate:
+ *                       type: string
+ *                       format: date
+ *                 filters:
+ *                   type: object
+ *                   properties:
+ *                     companyId:
+ *                       type: string
+ *                       format: uuid
+ *                 company:
+ *                   type: object
+ *                   properties:
+ *                     companyId:
+ *                       type: string
+ *                       format: uuid
+ *                     name:
+ *                       type: string
+ *                     rtn:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     totalMonthlyGrossGain:
+ *                       type: number
+ *                     totalMonthlyNetGain:
+ *                       type: number
+ *                     stores:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           storeId:
+ *                             type: string
+ *                             format: uuid
+ *                           address:
+ *                             type: integer
+ *                           isOperating:
+ *                             type: boolean
+ *                           monthlyGrossGain:
+ *                             type: number
+ *                           monthlyNetGain:
+ *                             type: number
+ *       400:
+ *         description: Filtros invalidos
+ *       404:
+ *         description: Compania no encontrada
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get('/reports/companies', getCompanyReport)
 
 module.exports = router
