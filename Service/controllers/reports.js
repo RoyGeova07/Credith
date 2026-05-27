@@ -332,7 +332,10 @@ async function getStoreReport(req, res) {
         st.store_id AS "storeId",
         st.address,
         st.is_active AS "isOperating",
-        COALESCE(SUM(COALESCE(bd.total, bd.sell_price * bd.quantity)), 0) AS "monthlyGrossGain",
+        COALESCE(
+          SUM(COALESCE(bd.total, bd.sell_price * bd.quantity) - (COALESCE(p.buy_price, 0) * bd.quantity)),
+          0
+        ) AS "monthlyGrossGain",
         COALESCE(
           SUM(COALESCE(bd.total, bd.sell_price * bd.quantity) - (COALESCE(p.buy_price, 0) * bd.quantity)),
           0
