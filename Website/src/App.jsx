@@ -5,7 +5,14 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+//import RegisterPage from './RegisterPage'
+
+
+
 function App() {
+  //return <RegisterPage/>
+
+  
   const [testStr, setTestStr] = useState(null)
   const [count, setCount] = useState(0)
 
