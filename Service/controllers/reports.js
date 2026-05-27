@@ -261,9 +261,12 @@ async function getMonthlyStoreReportRows({ monthPeriod, storeId, companyId, acti
       st.store_id AS "storeId",
       st.address,
       st.is_active AS "isOperating",
-      COALESCE(SUM(COALESCE(bd.total, bd.sell_price * bd.quantity)), 0) AS "monthlyGrossGain",
       COALESCE(
-        SUM(COALESCE(bd.total, bd.sell_price * bd.quantity) - (COALESCE(p.buy_price, 0) * bd.quantity)),
+        SUM((COALESCE(bd.sell_price, 0) - COALESCE(p.buy_price, 0)) * COALESCE(bd.quantity, 0)),
+        0
+      ) AS "monthlyGrossGain",
+      COALESCE(
+        SUM(COALESCE(bd.total, COALESCE(bd.sell_price, 0) * COALESCE(bd.quantity, 0)) - (COALESCE(p.buy_price, 0) * COALESCE(bd.quantity, 0))),
         0
       ) AS "monthlyNetGain"
     FROM cd.stores st
