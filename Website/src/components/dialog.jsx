@@ -1,11 +1,15 @@
-import { useState } from 'react'
 import './dialog.css'
 
-export default function Dialog({ title, buttonStyle, dialogStyle, children }) {
-    const [isOpen, setIsOpen] = useState(false);
+export default function Dialog({ 
+    title,
+    openButtonStyle,
+    dialogStyle,
+    children,
+    isOpen,
+    setIsOpen }) {
     return (
         <>
-            <button style={buttonStyle}
+            <button style={openButtonStyle}
                 onClick={() => setIsOpen(true)}>
                 Click me
             </button>
