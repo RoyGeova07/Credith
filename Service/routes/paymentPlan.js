@@ -3,7 +3,8 @@ const router = require('express').Router()
 const {
     postRecalculatePlan,
     postPayPlan,
-    getPaymentPlan
+    getPaymentPlan,
+    getPendingPayments
 } = require('../controllers/paymentPlan');
 
 /**
@@ -82,6 +83,78 @@ router.post('/payment-plan/:planId/recalculate', postRecalculatePlan)
  *         description: Plan de pago no encontrado
  */
 router.post('/payment-plan/:planId/pay', postPayPlan)
+
+/**
+ * @swagger
+ * /api/payment-plan/pending-payments:
+ *   get:
+ *     summary: Listar pagos pendientes hasta el mes actual
+ *     tags: [PaymentPlan]
+ *     responses:
+ *       200:
+ *         description: Pagos pendientes obtenidos correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 period:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: upToCurrentMonth
+ *                     year:
+ *                       type: integer
+ *                       example: 2026
+ *                     month:
+ *                       type: integer
+ *                       example: 5
+ *                     endDate:
+ *                       type: string
+ *                       format: date
+ *                       example: "2026-06-01"
+ *                 pendingPayments:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       monthlyPaymentId:
+ *                         type: string
+ *                         format: uuid
+ *                       billPaymentPlanId:
+ *                         type: string
+ *                         format: uuid
+ *                       paymentDeadline:
+ *                         type: string
+ *                         format: date-time
+ *                       paymentAmount:
+ *                         type: number
+ *                       interestToPay:
+ *                         type: number
+ *                       payedAmount:
+ *                         type: number
+ *                       amountToPay:
+ *                         type: number
+ *                       planStatus:
+ *                         type: string
+ *                         enum: [PENDING, OVERDUE]
+ *                       client:
+ *                         type: object
+ *                         properties:
+ *                           clientId:
+ *                             type: string
+ *                             format: uuid
+ *                           name:
+ *                             type: string
+ *                           dni:
+ *                             type: string
+ *                           phone:
+ *                             type: string
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get('/payment-plan/pending-payments', getPendingPayments)
 
 /**
  * @swagger

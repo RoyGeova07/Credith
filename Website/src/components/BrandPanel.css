@@ -1,0 +1,141 @@
+.brand-panel
+{
+
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #1a7a3c 0%, #0d4a25 40%, #0a3d5e 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 36px;
+    position: relative;
+    overflow: hidden;
+
+}
+
+.brand-panel::before
+{
+
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+
+}
+
+.brand-panel::after
+{
+
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+
+}
+
+.waver-bar
+{
+
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #2ecc71, #00b3a4, #2980b9, #c9a227);
+    border-radius: 3px 3px 0 0;
+
+}
+
+.brand-logo-area
+{
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 1;
+
+}
+
+.brand-inversiones
+{
+
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: rgba(255,255,255,0.92);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+
+}
+
+.brand-house-icon svg
+{
+
+    width: 96px;
+    height: 90px;
+    filter: drop-shadow(0 4px 16px rgba(0,0,0,0.3));
+
+}
+
+.brand-name
+{
+
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    color: #ffffff;
+    letter-spacing: 1px;
+    text-align: center;
+    line-height: 1.1;
+
+}
+
+
+.brand-name span 
+{
+
+    color: #2ecc71;   
+
+}
+
+
+.brand-tagline 
+{
+  
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 2px;
+
+}
+
+.brand-divider 
+{
+
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, #2ecc71, #00b3a4);
+    border-radius: 2px;
+    margin: 20px 0;
+    
+}
+
+.brand-description 
+{
+
+    font-family: 'Lato', sans-serif;
+    font-size: 0.93rem;
+    color: rgba(255,255,255,0.65);
+    text-align: center;
+    line-height: 1.7;
+    max-width: 240px;
+    z-index: 1;   
+
+}
