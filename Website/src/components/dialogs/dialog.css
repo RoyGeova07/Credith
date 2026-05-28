@@ -15,12 +15,11 @@
     margin: 15% auto;
     padding: 20px;
     border: 1px solid #888;
+    border-radius: 20px;
     width: 80%;
 }
 
-.dialog-content > h1,
-.dialog-content > h2,
-.dialog-content > h3 {
+.dialog-title {
     text-align: start;
 }
 
@@ -45,3 +44,26 @@
   cursor: pointer;
 }
 
+.dialog-content form{
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+}
+
+.dialog-content select,
+.dialog-content input {
+    border: none;
+    border-bottom: 3px solid gray;
+    font-size: 24px;
+    background: inherit;
+    color: black;
+    transition: 0.3s;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.dialog-content input:focus {
+    border: none;
+    outline: none;
+    border-bottom: 4px solid black;
+}
