@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import BrandPanel from '@/components/BrandPanel'
 import BrandMark from '@/components/BrandMark'
-import DualPanel from '@/components/DualPanel'
 import FormField from '@/components/form/FormField'
+import LoginBrandPanel from '@/components/LoginBrandPanel'
 import './LoginPage.css'
 
 const users = [
@@ -98,7 +97,13 @@ export default function LoginPage() {
     }, 450)
   }
 
-  const formPanel = (
+  return (
+    <div className="login-shell">
+      <div className="login-brand-column">
+        <LoginBrandPanel />
+      </div>
+
+      <div className="login-content-column">
     <main className="login-panel">
       <section className="login-card" aria-labelledby="login-title">
         <div className="login-card-header">
@@ -162,16 +167,7 @@ export default function LoginPage() {
         </div>
       </section>
     </main>
-  )
-
-  return (
-    <DualPanel
-      left={
-        <BrandPanel
-          description="Acceso interno para administrar usuarios, reportes y operaciones de la sucursal."
-        />
-      }
-      right={formPanel}
-    />
+      </div>
+    </div>
   )
 }
