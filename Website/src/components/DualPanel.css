@@ -1,0 +1,37 @@
+.dual-panel
+{
+
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+    background: linear-gradient(135deg,#e8f5ee 0%,#d6edf8 100%);
+
+}
+
+.left-panel
+{
+
+    width: 38%;
+    display: flex;
+
+}
+
+.right-panel
+{
+
+    flex: 1;
+    display: flex;
+
+}
+
+@media(max-width:820px)
+{
+
+    .left-panel
+    {
+
+        display: none;
+
+    }
+
+}
