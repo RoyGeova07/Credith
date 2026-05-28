@@ -1,0 +1,328 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Lato:wght@300;400;700&display=swap');
+
+
+/* RIGHT PANEL */
+.form-panel 
+{
+  
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+
+}
+
+.card 
+{
+  
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: 0 12px 48px rgba(26,122,60,0.12), 0 2px 8px rgba(0,0,0,0.06);
+  padding: 44px 40px 36px;
+  width: 100%;
+  max-width: 520px;
+  animation: fadeUp 0.5s ease both;
+
+}
+
+@keyframes fadeUp 
+{
+
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+
+}
+
+.card-title 
+{
+
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+
+}
+
+.card-subtitle 
+{
+
+  font-size: 0.88rem;
+  color: var(--gray-mid);
+  margin-bottom: 28px;
+
+}
+
+.select-wrapper
+{
+
+  position: relative;
+
+}
+
+.select-wrapper select
+{
+  width: 100%;
+  padding: 11px 36px 11px 14px;
+  border: 1.5px solid var(--gray-light);
+  border-radius: var(--radius-sm);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  background: var(--off-white);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+
+}
+
+.select-wrapper select:focus
+{
+
+  border-color: var(--green-mid);
+  box-shadow: 0 0 0 3px rgba(39,174,96,0.13);
+  background: #fff;
+
+}
+
+.select-wrapper::after
+{
+
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--green-mid);
+  pointer-events: none;
+
+}
+
+.select-wrapper.input-error select
+{
+
+  border-color: #e74c3c;
+  background: #fff8f8;
+  box-shadow: 0 0 0 3px rgba(231,76,60,0.10);
+
+}
+
+.select-wrapper.input-ok select
+{
+
+  border-color: #27ae60;
+  background: #f6fff9;
+  box-shadow: 0 0 0 3px rgba(39,174,96,0.10);
+
+}
+
+/*bton del registro estilo UI*/
+.btn-register 
+{
+
+  width: 100%;
+  padding: 14px;
+  margin-top: 24px;
+  background: linear-gradient(135deg, #1a7a3c, #27ae60);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+  box-shadow: 0 4px 18px rgba(26,122,60,0.25);
+
+}
+
+.btn-register:hover 
+{
+  
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(26,122,60,0.3);
+
+}
+
+.btn-register:active 
+{
+
+  transform: translateY(0);
+
+}
+
+/* ── LOADING BUTTON ── */
+.btn-register.btn-loading 
+{
+
+  opacity: 0.85;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.spinner
+{
+
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+
+}
+
+@keyframes spin{to {transform: rotate(360deg);}}
+
+/*login linkkkk*/
+.login-prompt 
+{
+
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--gray-mid);
+
+}
+
+.login-prompt a 
+{
+
+  color: var(--green-dark);
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 4px;
+  transition: color 0.2s;
+
+}
+
+.login-prompt a:hover 
+{
+
+  color: var(--teal);
+  text-decoration: underline;
+
+}
+
+/* ── PASSWORD STRENGTH BAR ── */
+.password-wrapper 
+{
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+}
+
+.strength-bar 
+{
+
+  height: 4px;
+  background: #e8f0ec;
+  border-radius: 4px;
+  overflow: hidden;
+
+}
+
+
+.strength-fill 
+{
+
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background 0.3s ease;
+
+}
+
+.strength-weak{background: #e74c3c;}
+.strength-medium{background: #f39c12;}
+.strength-strong{background: #27ae60;}
+
+.strength-label 
+{
+
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+
+}
+
+.strength-weak{background: #e74c3c;}
+.strength-medium{background: #f39c12;}
+.strength-strong{background: #27ae60;}
+
+/* ── SUCCESS BANNER ── */
+.success-banner 
+{
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, #eafaf1, #d5f5e3);
+  border: 1.5px solid #27ae60;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+  animation: slideDown 0.4s ease;
+
+}
+
+@keyframes slideDown 
+{
+
+  from{opacity: 0; transform: translateY(-12px);}
+  to{opacity: 1; transform: translateY(0);}
+
+}
+
+.success-icon
+{
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  background: #27ae60;
+  color: white;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  font-weight: 700;
+  
+}
+
+
+.success-banner strong 
+{
+
+  display: block;
+  color: #1a7a3c;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  
+}
+
+
+.success-banner p 
+{
+
+  color: #2e7d52;
+  font-size: 0.82rem;
+  margin-top: 2px;
+  
+}

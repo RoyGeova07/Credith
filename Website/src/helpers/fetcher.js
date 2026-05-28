@@ -2,7 +2,7 @@ const baseRoute = import.meta.env.VITE_BASE_ROUTE || 'http://localhost:3000'
 
 async function request(method, path, body) {
     const cleanPath = path.trim()
-        .replace(/^http(s?):\/\/\w[\w\.]+:\d+/, '');
+        .replace(/^http(s?):\/\/\w[\w.]+:\d+/, '');
 
     const res = await fetch(`${baseRoute}${cleanPath}`, {
         method: method,

@@ -7,6 +7,8 @@ import MultiSelect from './components/multiSelect/multiSelect'
 import SubmitDialog from './components/dialogs/submitDialog'
 import MessageDialog from './components/dialogs/messageDialog'
 import './App.css'
+//import RegisterPage from './pages/RegisterPage'
+
 
 export default function App() {
   const [email, setEmail] = useState("");
@@ -16,6 +18,8 @@ export default function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMessageOpen, setIsMessageOpen] = useState(false);
   const [count, setCount] = useState(0)
+
+  //return <RegisterPage/>
 
   const onLoad = async (search, loadedOptions, { page }) => {
       return {
