@@ -55,16 +55,16 @@ function buildMonthPeriod(query) {
     parsedYear = Number(year)
 
     if (!Number.isInteger(parsedYear)) {
-      throw { status: 400, message: 'El year es requerido cuando month se envia como numero' }
+      throw { status: 400, message: 'El año es requerido cuando month se envia como numero' }
     }
   }
 
   if (!Number.isInteger(parsedMonth) || parsedMonth < 1 || parsedMonth > 12) {
-    throw { status: 400, message: 'El month debe ser un numero entre 1 y 12 o formato YYYY-MM' }
+    throw { status: 400, message: 'El mes debe ser un numero entre 1 y 12 o formato YYYY-MM' }
   }
 
   if (!Number.isInteger(parsedYear) || parsedYear < 1900) {
-    throw { status: 400, message: 'El year debe ser un numero valido' }
+    throw { status: 400, message: 'El año debe ser un numero valido' }
   }
 
   return buildMonthlyDateRange(parsedYear, parsedMonth)
@@ -92,10 +92,6 @@ function buildStoreFilter(storeId) {
   }
 
   const normalizedStoreId = String(storeId).trim()
-
-  if (!UUID_PATTERN.test(normalizedStoreId)) {
-    throw { status: 400, message: 'El storeId debe ser un UUID valido' }
-  }
 
   return {
     normalizedStoreId,
