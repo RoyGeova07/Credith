@@ -4,9 +4,7 @@ async function request(method, path, body) {
     const cleanPath = path.trim()
         .replace(/^http(s?):\/\/\w[\w.]+:\d+/, '');
 
-    console.log(cleanPath);
-
-    const res = await fetch(`${baseRoute}${path}`, {
+    const res = await fetch(`${baseRoute}${cleanPath}`, {
         method: method,
         headers: {
             "Content-Type": "application/json",

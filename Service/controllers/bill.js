@@ -3,6 +3,7 @@ const { Bills } = require('../models/entities/bill');
 const { Users } = require('../models/entities/user');
 const { Companies } = require('../models/entities/company');
 const { CaiRanges } = require('../models/entities/caiRange');
+const { Cais } = require('../models/entities/cai');
 const { BillDetails } = require('../models/entities/billDetail');
 const { BillsPaymentPlans } = require('../models/entities/billPaymentPlan');
 const { MonthlyPayments } = require('../models/entities/monthlyPayment');
@@ -25,47 +26,10 @@ async function calculateMonthlyPayments(plan, startingMonth, transaction) {
     const baseYear = baseDate.getUTCFullYear();
     const baseMonth = baseDate.getUTCMonth();
 
-    const maxMonth = baseMonth + plan.monthsToPay;
-    const calcMonth = baseMonth + startingMonth;
-
-    const maxPaymentDate = normalizeDate(baseYear, maxMonth, plan.paymentDay);
-    const initialPaymentDate = normalizeDate(baseYear, calcMonth, plan.paymentDay);
-
-    if (initialPaymentDate > maxPaymentDate)
-        throw Error('Fecha de inicio sobrepasa la fecha limite de pago');
-
-    if (startingMonth >= plan.monthsToPay)
-        throw Error('El mes de inicio excede la duracion del plan de pago');
-
-    if (startingMonth > 0) {
-        const monthlyPayments = await MonthlyPayments.findAll({
-            where: { billPaymentPlanId: plan.billPaymentPlanId },
-            order: [['paymentDeadline', 'ASC']],
-            transaction: transaction
-        });
-
-        if (monthlyPayments.length < startingMonth)
-            throw Error('No se encontraron todos los pagos mensuales anteriores');
-
-        for (let i = 0; i < startingMonth; i++) {
-            if (!monthlyPayments[i].isPayed)
-                throw Error(`El mes ${i + 1} no ha sido pagado`);
-        }
-
-        const remaining = monthlyPayments.slice(startingMonth);
-        for (const payment of remaining) {
-            await payment.destroy({transaction: transaction});
-        }
-    }
-
-    const remainingMonths = plan.monthsToPay - startingMonth;
-
-    if (remainingMonths === 0) return [];
-
-    const monthlyAmount = Number(plan.totalToPay) / remainingMonths;
+    const monthlyAmount = Number(plan.totalToPay) / plan.monthsToPay;
 
     const payments = [];
-    for (let i = 0; i < remainingMonths; i++) {
+    for (let i = 0; i < plan.monthsToPay; i++) {
         const paymentDate = normalizeDate(baseYear, baseMonth + startingMonth + i, plan.paymentDay);
         payments.push({
             paymentAmount: monthlyAmount,
@@ -180,7 +144,7 @@ async function postBill(req, res) {
                 throw { status: 406, message: 'La sucursal donde trabaja el usuario no es la misma especificada en la factura' }
 
             const caiRange = await CaiRanges.findByPk(caiRangeId, {
-                include: ['Cai'],
+                lock: transaction.LOCK.UPDATE,
                 transaction
             });
 
@@ -190,10 +154,12 @@ async function postBill(req, res) {
             if (!caiRange.isActive)
                 throw { status: 406, message: 'Rango de cai ha expirado' }
 
-            if (!caiRange.Cai)
+            const cai = await Cais.findByPk(caiRange.caiId, { transaction });
+
+            if (!cai)
                 throw { status: 404, message: 'Cai no encontrado' }
 
-            if (!caiRange.Cai.isActive)
+            if (!cai.isActive)
                 throw { status: 406, message: 'El cai ha expirado' }
 
             const company = await Companies.findByPk(companyId, { transaction });
@@ -201,17 +167,19 @@ async function postBill(req, res) {
             if (!company)
                 throw { status: 404, message: 'Compañia no encontrada' }
 
-            const maxBill = await Bills.findOne({
-                where: { caiRangeId },
-                order: [['billNumber', 'DESC']],
-                transaction,
-                paranoid: false,
-            });
-
-            const nextBillNumber = maxBill ? maxBill.billNumber + 1 : caiRange.minRange;
+            const nextBillNumber = caiRange.currentNumber + 1;
 
             if (nextBillNumber > caiRange.maxRange)
                 throw { status: 406, message: 'El rango de CAI se ha agotado' }
+
+            await caiRange.update(
+                {
+                    currentNumber: nextBillNumber
+                },
+                {
+                    transaction: transaction,
+                }
+            );
 
             const cashierName = [user.first_name, user.second_name, user.first_last_name, user.second_last_name]
                 .filter(Boolean).join(' ');
