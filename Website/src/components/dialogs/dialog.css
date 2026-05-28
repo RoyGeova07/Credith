@@ -1,3 +1,15 @@
+.open-btn {
+    font-size: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin: 20px;
+    border-radius: 10px;
+    transition: 0.3s;
+    color: black;
+}
+
 .dialog {
     position: fixed;
     z-index: 1;

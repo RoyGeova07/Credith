@@ -1,13 +1,14 @@
-*, *::before, *::after 
-{
+*,
+*::before,
+*::after {
 
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 
 }
 
-:root{
+:root {
 
     --green-dark: #1a7a3c;
     --green-mid: #27ae60;
@@ -23,13 +24,14 @@
     --gray-mid: #a0b0a8;
     --text-dark: #1a2e24;
     --text-mid: #3d5a48;
-    --shadow: 0 8px 32px rgba(26,122,60,0.13);
+    --shadow: 0 8px 32px rgba(26, 122, 60, 0.13);
     --radius: 14px;
     --radius-sm: 8px;
-  }
+}
 
-  body, #root{
+body,
+#root {
     min-height: 100vh;
     background: var(--off-white);
     font-family: 'Lato', sans-serif;
-  }
+}
