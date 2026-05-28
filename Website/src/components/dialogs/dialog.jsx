@@ -13,6 +13,7 @@ export default function Dialog({
     return (
         <>
             <button style={openButtonStyle}
+                className="open-btn"
                 onClick={() => setIsOpen(true)}>
                 { openTxt }
             </button>

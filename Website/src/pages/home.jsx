@@ -83,7 +83,7 @@ export default function Home() {
         </form>
       </SubmitDialog>
 
-      <MessageDialog title='Form Dialog' 
+      <MessageDialog title='Message Dialog' 
         openButtonTxt='Message dialog'
         isOpen={isMessageOpen}
         setIsOpen={(o) => setIsMessageOpen(o)}>
