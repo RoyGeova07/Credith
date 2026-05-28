@@ -10,7 +10,7 @@ jest.mock('../models', () => ({
 }))
 
 const db = require('../models')
-const { getProductReport } = require('../controllers/reports')
+const { getProductReport, getStoreReport } = require('../controllers/reports')
 
 function mockResponse() {
   return {
@@ -83,6 +83,9 @@ describe('GET /api/reports/products controller', () => {
     expect(db.sequelize.query).toHaveBeenCalledTimes(2)
     expect(db.sequelize.query.mock.calls[0][0]).toContain('b.created_at >= :startDate')
     expect(db.sequelize.query.mock.calls[0][0]).toContain('b.store_id = :storeId')
+    expect(db.sequelize.query.mock.calls[0][0]).toContain('INNER JOIN cd.stores st ON st.store_id = b.store_id')
+    expect(db.sequelize.query.mock.calls[0][0]).toContain('INNER JOIN cd.stores st ON st.store_id = si.store_id')
+    expect(db.sequelize.query.mock.calls[0][0]).toContain('st.deleted_at IS NULL')
     expect(db.sequelize.query.mock.calls[0][1].replacements).toEqual({
       startDate: '2026-05-01',
       endDate: '2026-06-01',
@@ -130,19 +133,157 @@ describe('GET /api/reports/products controller', () => {
     expect(db.sequelize.query).not.toHaveBeenCalled()
     expect(res.status).toHaveBeenCalledWith(400)
     expect(res.json).toHaveBeenCalledWith({
-      message: 'El month debe ser un numero entre 1 y 12 o formato YYYY-MM'
+      message: 'El mes debe ser un numero entre 1 y 12 o formato YYYY-MM'
     })
   })
 
-  it('returns 400 for invalid storeId filters', async () => {
+})
+
+describe('GET /api/reports/stores controller', () => {
+  const storeId = 'd4e5f6a7-b8c9-4a0b-cdef-012345678912'
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  it('returns the current month store report when month is not provided', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-05-27T12:00:00.000Z'))
+
+    db.sequelize.query
+      .mockResolvedValueOnce([
+        {
+          storeId,
+          address: 202,
+          isOperating: true,
+          monthlyGrossGain: '30998.000000',
+          monthlyNetGain: '7998.000000'
+        }
+      ])
+      .mockResolvedValueOnce([
+        {
+          userId: 'b8c9d0e1-f2a3-4e0f-0123-456789123456',
+          firstName: 'Jose',
+          secondName: 'Antonio',
+          firstLastName: 'Hernandez',
+          secondLastName: 'Cruz',
+          email: 'jose.hernandez@credith.hn',
+          isActive: true
+        }
+      ])
+
     const res = mockResponse()
 
-    await getProductReport({ query: { storeId: 'not-a-uuid' } }, res)
+    await getStoreReport({ query: { storeId } }, res)
+
+    expect(db.sequelize.query).toHaveBeenCalledTimes(2)
+    expect(db.sequelize.query.mock.calls[0][0]).toContain('st.store_id = :storeId')
+    expect(db.sequelize.query.mock.calls[0][1].replacements).toEqual({
+      startDate: '2026-05-01',
+      endDate: '2026-06-01',
+      storeId
+    })
+    expect(res.status).not.toHaveBeenCalled()
+    expect(res.json).toHaveBeenCalledWith({
+      period: {
+        type: 'month',
+        year: 2026,
+        month: 5,
+        startDate: '2026-05-01',
+        endDate: '2026-06-01'
+      },
+      filters: {
+        storeId
+      },
+      store: {
+        storeId,
+        address: 202,
+        isOperating: true,
+        monthlyGrossGain: 30998,
+        monthlyNetGain: 7998,
+        employees: [
+          {
+            userId: 'b8c9d0e1-f2a3-4e0f-0123-456789123456',
+            fullName: 'Jose Antonio Hernandez Cruz',
+            email: 'jose.hernandez@credith.hn',
+            isActive: true
+          }
+        ]
+      }
+    })
+  })
+
+  it('returns a store report for a specific month', async () => {
+    db.sequelize.query
+      .mockResolvedValueOnce([
+        {
+          storeId,
+          address: 202,
+          isOperating: false,
+          monthlyGrossGain: '499.400000',
+          monthlyNetGain: '249.400000'
+        }
+      ])
+      .mockResolvedValueOnce([])
+
+    const res = mockResponse()
+
+    await getStoreReport({ query: { storeId, month: '2026-04' } }, res)
+
+    expect(db.sequelize.query).toHaveBeenCalledTimes(2)
+    expect(db.sequelize.query.mock.calls[0][1].replacements).toEqual({
+      startDate: '2026-04-01',
+      endDate: '2026-05-01',
+      storeId
+    })
+    expect(res.json).toHaveBeenCalledWith({
+      period: {
+        type: 'month',
+        year: 2026,
+        month: 4,
+        startDate: '2026-04-01',
+        endDate: '2026-05-01'
+      },
+      filters: {
+        storeId
+      },
+      store: {
+        storeId,
+        address: 202,
+        isOperating: false,
+        monthlyGrossGain: 499.4,
+        monthlyNetGain: 249.4,
+        employees: []
+      }
+    })
+  })
+
+  it('returns 400 when storeId is missing', async () => {
+    const res = mockResponse()
+
+    await getStoreReport({ query: {} }, res)
 
     expect(db.sequelize.query).not.toHaveBeenCalled()
     expect(res.status).toHaveBeenCalledWith(400)
     expect(res.json).toHaveBeenCalledWith({
-      message: 'El storeId debe ser un UUID valido'
+      message: 'El storeId es requerido para generar el reporte de tienda'
+    })
+  })
+
+  it('returns 404 when the store does not exist', async () => {
+    db.sequelize.query.mockResolvedValueOnce([])
+
+    const res = mockResponse()
+
+    await getStoreReport({ query: { storeId } }, res)
+
+    expect(db.sequelize.query).toHaveBeenCalledTimes(1)
+    expect(res.status).toHaveBeenCalledWith(404)
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'Tienda no encontrada'
     })
   })
 })

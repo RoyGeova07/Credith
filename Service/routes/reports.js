@@ -1,7 +1,8 @@
 const router = require('express').Router()
 
 const {
-  getProductReport
+  getProductReport,
+  getStoreReport
 } = require('../controllers/reports')
 
 /**
@@ -94,5 +95,100 @@ const {
  *         description: Error interno del servidor
  */
 router.get('/reports/products', getProductReport)
+
+/**
+ * @swagger
+ * /api/reports/stores:
+ *   get:
+ *     summary: Obtener reporte mensual de una tienda
+ *     tags: [Reports]
+ *     parameters:
+ *       - in: query
+ *         name: storeId
+ *         required: true
+ *         description: ID de la tienda a reportar.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
+ *         name: month
+ *         required: false
+ *         description: Mes a filtrar. Si no se envia, se usa el mes actual. Puede enviarse como YYYY-MM o como numero de 1 a 12 junto con year.
+ *         schema:
+ *           type: string
+ *           example: "2026-05"
+ *       - in: query
+ *         name: year
+ *         required: false
+ *         description: Year requerido cuando month se envia como numero.
+ *         schema:
+ *           type: integer
+ *           example: 2026
+ *     responses:
+ *       200:
+ *         description: Reporte mensual de tienda obtenido correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 period:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       enum: [month]
+ *                     year:
+ *                       type: integer
+ *                     month:
+ *                       type: integer
+ *                     startDate:
+ *                       type: string
+ *                       format: date
+ *                     endDate:
+ *                       type: string
+ *                       format: date
+ *                 filters:
+ *                   type: object
+ *                   properties:
+ *                     storeId:
+ *                       type: string
+ *                       format: uuid
+ *                 store:
+ *                   type: object
+ *                   properties:
+ *                     storeId:
+ *                       type: string
+ *                       format: uuid
+ *                     address:
+ *                       type: integer
+ *                     isOperating:
+ *                       type: boolean
+ *                     monthlyGrossGain:
+ *                       type: number
+ *                     monthlyNetGain:
+ *                       type: number
+ *                     employees:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           userId:
+ *                             type: string
+ *                             format: uuid
+ *                           fullName:
+ *                             type: string
+ *                           email:
+ *                             type: string
+ *                           isActive:
+ *                             type: boolean
+ *       400:
+ *         description: Filtros invalidos
+ *       404:
+ *         description: Tienda no encontrada
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get('/reports/stores', getStoreReport)
 
 module.exports = router
