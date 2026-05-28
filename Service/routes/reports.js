@@ -14,6 +14,13 @@ const {
  *     tags: [Reports]
  *     parameters:
  *       - in: query
+ *         name: companyId
+ *         required: true
+ *         description: ID de la compania para limitar el reporte.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
  *         name: month
  *         required: false
  *         description: Mes a filtrar. Puede enviarse como YYYY-MM o como numero de 1 a 12 junto con year.
@@ -34,6 +41,23 @@ const {
  *         schema:
  *           type: string
  *           format: uuid
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         description: Cantidad maxima de productos a devolver. Maximo 100.
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           example: 10
+ *       - in: query
+ *         name: offset
+ *         required: false
+ *         description: Cantidad de productos a omitir.
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *           example: 0
  *     responses:
  *       200:
  *         description: Reporte de productos obtenido correctamente
@@ -51,9 +75,19 @@ const {
  *                 filters:
  *                   type: object
  *                   properties:
+ *                     companyId:
+ *                       type: string
+ *                       format: uuid
  *                     storeId:
  *                       type: string
  *                       nullable: true
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     limit:
+ *                       type: integer
+ *                     offset:
+ *                       type: integer
  *                 products:
  *                   type: array
  *                   items:

@@ -1,7 +1,5 @@
 const db = require('../models')
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
 function padMonth(month) {
   return String(month).padStart(2, '0')
 }
@@ -46,10 +44,12 @@ function buildMonthPeriod(query) {
   let parsedMonth
   let parsedYear
 
-  if (/^\d{4}-(0[1-9]|1[0-2])$/.test(stringMonth)) {
+  if (/^\d{4}-\d{2}$/.test(stringMonth)) {
     const [periodYear, periodMonth] = stringMonth.split('-')
     parsedYear = Number(periodYear)
     parsedMonth = Number(periodMonth)
+  } else if (/^\d{4}-/.test(stringMonth)) {
+    throw { status: 400, message: 'El mes debe ser un numero entre 1 y 12 o formato YYYY-MM' }
   } else {
     parsedMonth = Number(stringMonth)
     parsedYear = Number(year)
@@ -127,6 +127,27 @@ function buildRequiredCompanyFilter(companyId) {
   }
 }
 
+function buildPagination(query) {
+  const parsedLimit = Number.parseInt(query.limit, 10)
+  const parsedOffset = Number.parseInt(query.offset, 10)
+
+  const limit = Number.isInteger(parsedLimit) && parsedLimit > 0
+    ? Math.min(parsedLimit, 100)
+    : 10
+  const offset = Number.isInteger(parsedOffset) && parsedOffset >= 0
+    ? parsedOffset
+    : 0
+
+  return {
+    limit,
+    offset,
+    replacements: {
+      limit,
+      offset
+    }
+  }
+}
+
 function toInteger(value) {
   return Number.parseInt(value || 0, 10)
 }
@@ -166,6 +187,46 @@ function mapProductRows(productRows, storesByProduct) {
     netGain: toMoney(row.netGain),
     stores: storesByProduct.get(row.productId) || []
   }))
+}
+
+function buildSelectedProductsCte(monthPeriod, storeFilter) {
+  const inventoryStoreFilter = storeFilter.normalizedStoreId ? 'AND si.store_id = :storeId' : ''
+
+  return `
+      selected_products AS (
+        SELECT DISTINCT
+          p.product_id,
+          p.name
+        FROM cd.products p
+        WHERE p.deleted_at IS NULL
+          AND (
+            EXISTS (
+              SELECT 1
+              FROM cd.stores_inventories si
+              INNER JOIN cd.stores st ON st.store_id = si.store_id
+              WHERE si.product_id = p.product_id
+                AND st.deleted_at IS NULL
+                AND st.company_id = :companyId
+                ${inventoryStoreFilter}
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM cd.bill_details bd
+              INNER JOIN cd.bills b ON b.bill_id = bd.bill_id
+              INNER JOIN cd.stores st ON st.store_id = b.store_id
+              WHERE bd.product_id = p.product_id
+                AND bd.deleted_at IS NULL
+                AND b.deleted_at IS NULL
+                AND st.deleted_at IS NULL
+                AND st.company_id = :companyId
+                ${monthPeriod.dateFilter}
+                ${storeFilter.billFilter}
+            )
+          )
+        ORDER BY p.name ASC
+        LIMIT :limit
+        OFFSET :offset
+      )`
 }
 
 function buildFullName(row) {
@@ -285,14 +346,19 @@ async function getProductReport(req, res) {
   try {
     const monthPeriod = buildMonthPeriod(req.query)
     const storeFilter = buildStoreFilter(req.query.storeId)
+    const companyFilter = buildRequiredCompanyFilter(req.query.companyId)
+    const pagination = buildPagination(req.query)
     const replacements = {
       ...monthPeriod.replacements,
-      ...storeFilter.replacements
+      ...storeFilter.replacements,
+      ...companyFilter.replacements,
+      ...pagination.replacements
     }
 
     const productRows = await db.sequelize.query(
       `
-      WITH sales AS (
+      WITH ${buildSelectedProductsCte(monthPeriod, storeFilter)},
+      sales AS (
         SELECT
           bd.product_id,
           SUM(bd.quantity) AS quantity_sold,
@@ -301,8 +367,12 @@ async function getProductReport(req, res) {
         FROM cd.bill_details bd
         INNER JOIN cd.bills b ON b.bill_id = bd.bill_id
         INNER JOIN cd.products p ON p.product_id = bd.product_id
+        INNER JOIN cd.stores st ON st.store_id = b.store_id
+        INNER JOIN selected_products sp ON sp.product_id = bd.product_id
         WHERE bd.deleted_at IS NULL
           AND b.deleted_at IS NULL
+          AND st.deleted_at IS NULL
+          AND st.company_id = :companyId
           ${monthPeriod.dateFilter}
           ${storeFilter.billFilter}
         GROUP BY bd.product_id
@@ -312,21 +382,24 @@ async function getProductReport(req, res) {
           si.product_id,
           SUM(si.in_stock) AS in_stock
         FROM cd.stores_inventories si
+        INNER JOIN cd.stores st ON st.store_id = si.store_id
+        INNER JOIN selected_products sp ON sp.product_id = si.product_id
         ${storeFilter.inventoryFilter}
+        ${storeFilter.inventoryFilter ? 'AND' : 'WHERE'} st.deleted_at IS NULL
+        AND st.company_id = :companyId
         GROUP BY si.product_id
       )
       SELECT
-        p.product_id AS "productId",
-        p.name,
+        sp.product_id AS "productId",
+        sp.name,
         COALESCE(s.quantity_sold, 0) AS "quantitySold",
         COALESCE(i.in_stock, 0) AS "inStock",
         COALESCE(s.gross_gain, 0) AS "grossGain",
         COALESCE(s.net_gain, 0) AS "netGain"
-      FROM cd.products p
-      LEFT JOIN sales s ON s.product_id = p.product_id
-      LEFT JOIN inventory i ON i.product_id = p.product_id
-      WHERE p.deleted_at IS NULL
-      ORDER BY p.name ASC
+      FROM selected_products sp
+      LEFT JOIN sales s ON s.product_id = sp.product_id
+      LEFT JOIN inventory i ON i.product_id = sp.product_id
+      ORDER BY sp.name ASC
       `,
       {
         replacements,
@@ -336,7 +409,8 @@ async function getProductReport(req, res) {
 
     const storeRows = await db.sequelize.query(
       `
-      WITH sales AS (
+      WITH ${buildSelectedProductsCte(monthPeriod, storeFilter)},
+      sales AS (
         SELECT
           bd.product_id,
           b.store_id,
@@ -346,8 +420,12 @@ async function getProductReport(req, res) {
         FROM cd.bill_details bd
         INNER JOIN cd.bills b ON b.bill_id = bd.bill_id
         INNER JOIN cd.products p ON p.product_id = bd.product_id
+        INNER JOIN cd.stores st ON st.store_id = b.store_id
+        INNER JOIN selected_products sp ON sp.product_id = bd.product_id
         WHERE bd.deleted_at IS NULL
           AND b.deleted_at IS NULL
+          AND st.deleted_at IS NULL
+          AND st.company_id = :companyId
           ${monthPeriod.dateFilter}
           ${storeFilter.billFilter}
         GROUP BY bd.product_id, b.store_id
@@ -358,7 +436,11 @@ async function getProductReport(req, res) {
           si.store_id,
           SUM(si.in_stock) AS in_stock
         FROM cd.stores_inventories si
+        INNER JOIN cd.stores st ON st.store_id = si.store_id
+        INNER JOIN selected_products sp ON sp.product_id = si.product_id
         ${storeFilter.inventoryFilter}
+        ${storeFilter.inventoryFilter ? 'AND' : 'WHERE'} st.deleted_at IS NULL
+        AND st.company_id = :companyId
         GROUP BY si.product_id, si.store_id
       ),
       store_report AS (
@@ -398,7 +480,12 @@ async function getProductReport(req, res) {
     res.json({
       period: monthPeriod.period,
       filters: {
+        companyId: companyFilter.normalizedCompanyId,
         storeId: storeFilter.normalizedStoreId
+      },
+      pagination: {
+        limit: pagination.limit,
+        offset: pagination.offset
       },
       products: mapProductRows(productRows, storesByProduct)
     })
