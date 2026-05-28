@@ -5,11 +5,39 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import { SubmitDialog } from './components/submitDialog'
+import MultiSelect from './components/multiSelect/multiSelect'
 
 function App() {
+  const [selectedOpts, setSelectedOpts] = useState([]);
   const [testStr, setTestStr] = useState(null)
   const [isOpen, setIsOpen] = useState(false);
   const [count, setCount] = useState(0)
+
+  const onLoad = async (search, loadedOptions, { page }) => {
+      return {
+          options: [
+            {
+                value: 'Test val #1',
+                label: 'Test val #1'
+            },
+            {
+                value: 'Test val #2',
+                label: 'Test val #2'
+            },
+            {
+                value: 'Test val #3',
+                label: 'Test val #3'
+            },
+          ],
+          hasMore: false,
+          page: page + 1
+      }
+  }
+
+  const onSelect = (list) => {
+      console.log(list);
+      setSelectedOpts(list);
+  }
 
   const onAccept = () => {
       alert('Accepted click')
@@ -28,6 +56,12 @@ function App() {
         onAccept={onAccept}
         setIsOpen={(o) => setIsOpen(o)}>
         <form>
+            <MultiSelect
+                    title='This is a test'
+                    selected={selectedOpts}
+                    onSelect={onSelect}
+                    onLoad={onLoad}
+                />
         </form>
       </SubmitDialog>
       <section id="center">
