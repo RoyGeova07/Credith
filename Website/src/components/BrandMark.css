@@ -1,0 +1,73 @@
+.brand-mark {
+  --brand-mark-word: #ffffff;
+  --brand-mark-muted: rgba(255, 255, 255, 0.72);
+  --brand-mark-green: #2ecc71;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--brand-mark-word);
+  text-align: center;
+}
+
+.brand-mark-on-light {
+  --brand-mark-word: var(--text-dark);
+  --brand-mark-muted: var(--text-mid);
+}
+
+.brand-mark-top {
+  color: var(--brand-mark-word);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.36rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.brand-mark-symbol {
+  width: 138px;
+  margin: 10px 0 4px;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.18));
+}
+
+.brand-mark-name {
+  color: var(--brand-mark-word);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.35rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.brand-mark-name span {
+  color: var(--brand-mark-green);
+}
+
+.brand-mark-tagline {
+  color: var(--brand-mark-muted);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.33em;
+  margin-top: 10px;
+  text-transform: uppercase;
+}
+
+.brand-mark-compact .brand-mark-top {
+  font-size: 0.95rem;
+}
+
+.brand-mark-compact .brand-mark-symbol {
+  width: 92px;
+  margin-top: 8px;
+}
+
+.brand-mark-compact .brand-mark-name {
+  font-size: 1.55rem;
+}
+
+.brand-mark-compact .brand-mark-tagline {
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+  margin-top: 6px;
+}
