@@ -1,10 +1,12 @@
 .dual-panel
 {
 
+    height: 100vh;
     min-height: 100vh;
     display: flex;
     align-items: stretch;
     background: linear-gradient(135deg,#e8f5ee 0%,#d6edf8 100%);
+    overflow: hidden;
 
 }
 
@@ -13,6 +15,7 @@
 
     width: 38%;
     display: flex;
+    height: 100%;
 
 }
 
@@ -21,6 +24,8 @@
 
     flex: 1;
     display: flex;
+    min-width: 0;
+    overflow: hidden;
 
 }
 
