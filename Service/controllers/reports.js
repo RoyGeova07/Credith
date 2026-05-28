@@ -55,7 +55,7 @@ function buildMonthPeriod(query) {
     parsedYear = Number(year)
 
     if (!Number.isInteger(parsedYear)) {
-      throw { status: 400, message: 'El año es requerido cuando month se envia como numero' }
+      throw { status: 400, message: 'El año es requerido cuando mes se envia como numero' }
     }
   }
 
