@@ -55,16 +55,16 @@ function buildMonthPeriod(query) {
     parsedYear = Number(year)
 
     if (!Number.isInteger(parsedYear)) {
-      throw { status: 400, message: 'El year es requerido cuando month se envia como numero' }
+      throw { status: 400, message: 'El año es requerido cuando mes se envia como numero' }
     }
   }
 
   if (!Number.isInteger(parsedMonth) || parsedMonth < 1 || parsedMonth > 12) {
-    throw { status: 400, message: 'El month debe ser un numero entre 1 y 12 o formato YYYY-MM' }
+    throw { status: 400, message: 'El mes debe ser un numero entre 1 y 12 o formato YYYY-MM' }
   }
 
   if (!Number.isInteger(parsedYear) || parsedYear < 1900) {
-    throw { status: 400, message: 'El year debe ser un numero valido' }
+    throw { status: 400, message: 'El año debe ser un numero valido' }
   }
 
   return buildMonthlyDateRange(parsedYear, parsedMonth)
@@ -92,11 +92,6 @@ function buildStoreFilter(storeId) {
   }
 
   const normalizedStoreId = String(storeId).trim()
-
-  if (!UUID_PATTERN.test(normalizedStoreId)) {
-    throw { status: 400, message: 'El storeId debe ser un UUID valido' }
-  }
-
   return {
     normalizedStoreId,
     billFilter: 'AND b.store_id = :storeId',
@@ -119,14 +114,10 @@ function buildRequiredStoreFilter(storeId) {
 
 function buildRequiredCompanyFilter(companyId) {
   if (companyId === undefined || companyId === null || companyId === '') {
-    throw { status: 400, message: 'El companyId es requerido para generar el reporte de compania' }
+    throw { status: 400, message: 'El companyId es requerido para generar el reporte de compañia' }
   }
 
   const normalizedCompanyId = String(companyId).trim()
-
-  if (!UUID_PATTERN.test(normalizedCompanyId)) {
-    throw { status: 400, message: 'El companyId debe ser un UUID valido' }
-  }
 
   return {
     normalizedCompanyId,
@@ -496,7 +487,7 @@ async function getCompanyReport(req, res) {
     )
 
     if (companyRows.length === 0) {
-      return res.status(404).json({ message: 'Compania no encontrada' })
+      return res.status(404).json({ message: 'Compañia no encontrada' })
     }
 
     const storeRows = await getMonthlyStoreReportRows({
