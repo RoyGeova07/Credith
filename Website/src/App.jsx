@@ -4,15 +4,22 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
-import { SubmitDialog } from './components/submitDialog'
+import SubmitDialog from './components/dialogs/submitDialog'
+import MessageDialog from './components/dialogs/messageDialog'
 
 function App() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const [testStr, setTestStr] = useState(null)
   const [isOpen, setIsOpen] = useState(false);
+  const [isMessageOpen, setIsMessageOpen] = useState(false);
   const [count, setCount] = useState(0)
 
   const onAccept = () => {
-      alert('Accepted click')
+      alert(`Email: ${email} | password: ${password}`)
+      setEmail('');
+      setPassword('');
       setIsOpen(false);
   }
 
@@ -22,14 +29,35 @@ function App() {
 
   return (
     <>
-      <SubmitDialog title='Modal Title' 
+      <SubmitDialog title='Form Dialog' 
         isOpen={isOpen}
+        openButtonTxt='Form dialog'
         onClose={() => setIsOpen(false)}
         onAccept={onAccept}
         setIsOpen={(o) => setIsOpen(o)}>
         <form>
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
         </form>
       </SubmitDialog>
+
+      <MessageDialog title='Form Dialog' 
+        openButtonTxt='Message dialog'
+        isOpen={isMessageOpen}
+        setIsOpen={(o) => setIsMessageOpen(o)}>
+        <p> Hola mundo! </p>
+      </MessageDialog>
+
       <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
