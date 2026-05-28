@@ -1,10 +1,10 @@
 import { useState } from "react";
 import "./RegisterPage.css";
-import DualPanel from "../src/components/DualPanel";
-import FormGrid from "../src/components/form/FormGrid";
-import FormField from "../src/components/form/FormField";
-import BrandPanel from "../src/components/BrandPanel"; 
-import{RegisterFormConfig}from './constants/registerForm'
+import DualPanel from "@/components/DualPanel";
+import FormGrid from "@/components/form/FormGrid";
+import FormField from "@/components/form/FormField";
+import BrandPanel from "@/components/BrandPanel"; 
+import{RegisterFormConfig}from '@/pages/constants/registerForm'
 
 const stores=["ServiCredith Central","ServiCredith Norte","ServiCredith Sur","ServiCredith Oriente","ServiCredith Occidente","ServiCredith San Pedro","ServiCredith Tegucigalpa","ServiCredith La Ceiba","ServiCredith Choloma",];
 

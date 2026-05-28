@@ -4,5 +4,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "pages/RegisterPage.jsx"]
+  "include": ["src", "src/pages/RegisterPage.jsx"]
 }

@@ -22,11 +22,9 @@ function initialize(sequelize, _) {
             },
             currentNumber:
             {
-
                 type:DataTypes.INTEGER,
                 allowNull:false,
                 defaultValue:0
-
             },
             expirationDate: {
                 type: DataTypes.DATE,
