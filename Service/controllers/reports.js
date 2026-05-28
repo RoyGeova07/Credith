@@ -1,7 +1,5 @@
 const db = require('../models')
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
 function padMonth(month) {
   return String(month).padStart(2, '0')
 }
@@ -203,8 +201,10 @@ async function getProductReport(req, res) {
         FROM cd.bill_details bd
         INNER JOIN cd.bills b ON b.bill_id = bd.bill_id
         INNER JOIN cd.products p ON p.product_id = bd.product_id
+        INNER JOIN cd.stores st ON st.store_id = b.store_id
         WHERE bd.deleted_at IS NULL
           AND b.deleted_at IS NULL
+          AND st.deleted_at IS NULL
           ${monthPeriod.dateFilter}
           ${storeFilter.billFilter}
         GROUP BY bd.product_id
@@ -214,7 +214,9 @@ async function getProductReport(req, res) {
           si.product_id,
           SUM(si.in_stock) AS in_stock
         FROM cd.stores_inventories si
+        INNER JOIN cd.stores st ON st.store_id = si.store_id
         ${storeFilter.inventoryFilter}
+        ${storeFilter.inventoryFilter ? 'AND' : 'WHERE'} st.deleted_at IS NULL
         GROUP BY si.product_id
       )
       SELECT
@@ -248,8 +250,10 @@ async function getProductReport(req, res) {
         FROM cd.bill_details bd
         INNER JOIN cd.bills b ON b.bill_id = bd.bill_id
         INNER JOIN cd.products p ON p.product_id = bd.product_id
+        INNER JOIN cd.stores st ON st.store_id = b.store_id
         WHERE bd.deleted_at IS NULL
           AND b.deleted_at IS NULL
+          AND st.deleted_at IS NULL
           ${monthPeriod.dateFilter}
           ${storeFilter.billFilter}
         GROUP BY bd.product_id, b.store_id
@@ -260,7 +264,9 @@ async function getProductReport(req, res) {
           si.store_id,
           SUM(si.in_stock) AS in_stock
         FROM cd.stores_inventories si
+        INNER JOIN cd.stores st ON st.store_id = si.store_id
         ${storeFilter.inventoryFilter}
+        ${storeFilter.inventoryFilter ? 'AND' : 'WHERE'} st.deleted_at IS NULL
         GROUP BY si.product_id, si.store_id
       ),
       store_report AS (
