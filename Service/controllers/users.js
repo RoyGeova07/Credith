@@ -2,6 +2,7 @@ const{Users}=require('../models/entities/user')
 const{v4:uuidv4}=require('uuid')
 const{generateToken}=require('../helper/jwt')
 const{comparePassword,hashPassword}=require('../helper/bycrypt')
+const{Stores}=require('../models/entities/store')
 
 //crear usuario
 const createUser=async(req,res)=>
@@ -10,9 +11,8 @@ const createUser=async(req,res)=>
     try
     {
 
-        const{first_name,second_name,first_last_name,second_last_name,email,password}=req.body
+        const{first_name,second_name,first_last_name,second_last_name,email,password,storeId}=req.body
         const existingUser=await Users.findOne({where:{email}})
-        const hashedPassword=await hashPassword(password)
         if(!first_name||first_name.trim()==="")
         {
 
@@ -57,8 +57,26 @@ const createUser=async(req,res)=>
 
         }
 
+        if(!storeId||storeId.trim()==="")
+        {
+
+            return res.status(400).json({message: "La tienda es requerida"});
+
+        }
+
+        const store=await Stores.findByPk(storeId)
+
+        if(!store)
+        {
+
+            return res.status(404).json({message: "Tienda no encontrada"});
+            
+        }
+
+        const hashedPassword=await hashPassword(password)
+
         //                                                                                                          contra encriptada :O
-        const user=await Users.create({userId:uuidv4(),first_name,second_name,first_last_name,second_last_name,email,password:hashedPassword})
+        const user=await Users.create({userId:uuidv4(),first_name,second_name,first_last_name,second_last_name,email,password:hashedPassword,storeId})
 
         const token=generateToken(user)
 
@@ -242,4 +260,57 @@ const getUserById=async(req,res)=>
 }
 
 
-module.exports={createUser,desactivateUser,activateUser,getUsers,getUserById,updatePassword}
+const loginUser=async(req,res)=>
+{
+
+    try
+    {
+
+        const{email,password}=req.body
+
+        if(!email||email.trim()==="")
+        {
+
+            return res.status(400).json({message:"El correo electronico es requerido"})
+
+        }
+
+        if(!password)
+        {
+
+            return res.status(400).json({message:"La contraseña es requerida"})
+
+        }
+
+        const user=await Users.findOne({where:{email}})
+
+        if(!user)
+        {
+
+            return res.status(404).json({message:"Credenciales incorrectas"})
+
+        }
+
+        const validPassword=await comparePassword(password,user.password)
+
+        if(!validPassword)
+        {
+
+            return res.status(404).json({message:"Credenciales incorrectas"})
+
+        }
+
+        const token=generateToken(user)
+
+        res.json({message:"Inicio de sesión exitoso",token,user})
+
+    }catch(error){
+
+        res.status(500).json({message:error.message})
+
+    }
+
+}
+
+
+module.exports={createUser,desactivateUser,activateUser,getUsers,getUserById,updatePassword,loginUser}

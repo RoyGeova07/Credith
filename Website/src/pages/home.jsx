@@ -4,6 +4,8 @@ import MultiSelect from '@/components/multiSelect/multiSelect'
 import SubmitDialog from '@/components/dialogs/submitDialog'
 import MessageDialog from '@/components/dialogs/messageDialog'
 import './home.css'
+import{useNavigate}from 'react-router-dom'
+
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -12,7 +14,15 @@ export default function Home() {
   const [testStr, setTestStr] = useState(null)
   const [isOpen, setIsOpen] = useState(false);
   const [isMessageOpen, setIsMessageOpen] = useState(false);
+  const navigate=useNavigate();
+  const[currentUser]=useState(() =>
+  {
 
+    const user=localStorage.getItem('currentUser');
+
+    return user?JSON.parse(user):null;
+
+  });
   const onLoad = async (search, loadedOptions, { page }) => {
       return {
           options: [
@@ -49,12 +59,57 @@ export default function Home() {
       setIsOpen(false);
   }
 
+  const handleLogout=()=>
+  {
+
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+
+    navigate('/login');
+
+  };
+
   useEffect(() => {
     Get('/').then((out) => setTestStr(out.json.message))
   }, [])
 
   return (
     <>
+
+      <div className="user-banner">
+
+        <span>
+
+          {
+
+            currentUser? `Bienvenido, ${currentUser.first_name} ${currentUser.first_last_name}`:'ENTRADA DEL MERO MERO XD'
+
+          }
+
+        </span>
+
+        {
+
+          currentUser&&
+          (
+            
+            <button
+
+              className="logout-btn"
+              onClick={handleLogout}
+
+            >
+
+              Cerrar sesión
+
+            </button>
+
+          )
+
+        }
+
+      </div>
+
       <SubmitDialog title='Form Dialog' 
         isOpen={isOpen}
         openButtonTxt='Form dialog'

@@ -14,7 +14,7 @@
 }
 
 .login-content-column {
-  flex: 1;
+  flex: 1;  
   display: flex;
   min-width: 0;
   overflow: hidden;
@@ -57,10 +57,6 @@
   margin-bottom: 26px;
 }
 
-.login-logo {
-  display: none;
-  margin: 0 auto 24px;
-}
 
 .login-eyebrow {
   color: var(--blue);
@@ -227,11 +223,29 @@
     padding: 24px 18px;
   }
 
-  .login-logo {
-    display: block;
-  }
 
   .login-card {
     padding: 28px 22px;
   }
+}
+
+.register-prompt
+{
+  margin-top: 24px;
+  text-align: center;
+  color: var(--text-mid);
+  font-size: 0.95rem;
+}
+
+.register-prompt a
+{
+  margin-left: 6px;
+  color: var(--blue);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.register-prompt a:hover
+{
+  text-decoration: underline;
 }
