@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import "./RegisterPage.css";
 import DualPanel from "@/components/DualPanel";
 import FormGrid from "@/components/form/FormGrid";
 import FormField from "@/components/form/FormField";
 import BrandPanel from "@/components/BrandPanel"; 
 import{RegisterFormConfig}from '@/pages/constants/registerForm'
+import{Get}from '@/helpers/fetcher'
 
-const stores=["ServiCredith Central","ServiCredith Norte","ServiCredith Sur","ServiCredith Oriente","ServiCredith Occidente","ServiCredith San Pedro","ServiCredith Tegucigalpa","ServiCredith La Ceiba","ServiCredith Choloma",];
 
 export default function RegisterPage() 
 {
@@ -16,6 +16,7 @@ export default function RegisterPage()
     const [touched, setTouched] = useState({});
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
+    const[stores,setStores]=useState([])
 
     const handleChange = (e) => 
     {
@@ -24,7 +25,7 @@ export default function RegisterPage()
         if (touched[e.target.name]) 
         {
 
-            const newErrors = RegisterFormConfig.validate(form)
+            const newErrors = RegisterFormConfig.validate(updated)
             setErrors((prev) => ({ ...prev, [e.target.name]: newErrors[e.target.name] }));
 
         }
@@ -52,16 +53,52 @@ export default function RegisterPage()
         if (Object.keys(newErrors).length > 0) return;
 
         setLoading(true);
-        setTimeout(() => {
-        setLoading(false);
-        setSuccess(true);
-        setForm(RegisterFormConfig.INITIAL_FORM);
-        setErrors({});
-        setTouched({});
-        setTimeout(() => setSuccess(false), 4000);
+        setTimeout(() => 
+        {
+
+            setLoading(false);
+            setSuccess(true);
+            setForm(RegisterFormConfig.INITIAL_FORM);
+            setErrors({});
+            setTouched({});
+            setTimeout(() => setSuccess(false), 4000);
+
         }, 1200);
 
     };
+
+    useEffect(()=>
+    {
+
+        const cargarStores=async()=>
+        {
+
+            try
+            {
+
+                const respuesta=await Get('/api/stores')
+
+                if(respuesta.status!==200)
+                {
+
+                    throw new Error("Error obteniendo las tiendas: "+respuesta.statusText)
+
+                }
+
+                setStores(respuesta.json.stores)
+
+            }catch(error){
+
+                console.error('Error obteniendo las tiendas: ',error)
+
+            }
+
+
+        }
+        cargarStores()
+
+       
+    },[])
 
     const formPanel=
     (
@@ -250,7 +287,19 @@ export default function RegisterPage()
 
                                     <option value="" disabled>Selecciona tu tienda</option>
 
-                                    {stores.map((s)=>(<option key={s} value={s}>{s}</option>))}
+                                    {stores.map((store)=>(
+
+                                        <option 
+
+                                            key={store.storeId}
+                                            value={store.storeId}
+
+                                        >
+
+                                            {`${store.company.name} - ${store.address}`}
+                                           
+                                        </option>
+                                    ))}
                                             
 
                                 </select>
