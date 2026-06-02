@@ -9,6 +9,7 @@ async function request(method, path, body) {
         headers: {
             "Content-Type": "application/json",
         },
+        credentials:'include',//envia y recibe cookies automaticamente
         body: body,
     });
 
@@ -17,6 +18,25 @@ async function request(method, path, body) {
         json: await res.json()
     };
 }
+
+export function getSession()
+{
+
+    const match=document.cookie.match(/(?:^|;\s*)session=([^;]+)/)
+    if(!match)return null
+    try 
+    {
+
+        return JSON.parse(decodeURIComponent(match[1]))
+
+    }catch{
+
+        return null
+        
+    }
+
+}
+
 
 export const Get = async (path) => request('GET', path);
 export const Put = async (path, body) => request('PUT', path, body);

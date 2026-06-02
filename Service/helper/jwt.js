@@ -1,9 +1,9 @@
 const jwt=require("jsonwebtoken")
 
-const generateToken=(user)=>
+const generateToken=(user,role)=>
 {
 
-    return jwt.sign({id:user.userId,email:user.email},process.env.JWT_SECRET,{expiresIn:"23h"})
+    return jwt.sign({id:user.userId,email:user.email,role},process.env.JWT_SECRET,{expiresIn:`${process.env.COOKIE_LIFETIME_HOURS||2}h`})
 
 }
 

@@ -1,18 +1,24 @@
-import { Get } from '@/helpers/fetcher'
+import { Get,Post,getSession } from '@/helpers/fetcher'
 import { useEffect, useState } from 'react'
 import MultiSelect from '@/components/multiSelect/multiSelect'
 import SubmitDialog from '@/components/dialogs/submitDialog'
 import MessageDialog from '@/components/dialogs/messageDialog'
 import './home.css'
+import{useNavigate}from 'react-router-dom'
 
-export default function Home() {
+
+
+export default function Home() 
+{
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedOpts, setSelectedOpts] = useState([]);
   const [testStr, setTestStr] = useState(null)
   const [isOpen, setIsOpen] = useState(false);
   const [isMessageOpen, setIsMessageOpen] = useState(false);
-
+  const navigate=useNavigate();
+  const[currentUser]=useState(()=>getSession())
   const onLoad = async (search, loadedOptions, { page }) => {
       return {
           options: [
@@ -49,12 +55,57 @@ export default function Home() {
       setIsOpen(false);
   }
 
+  const handleLogout=async()=>
+  {
+
+    await Post('/api/users/logout')//limpia ambas cookies desde el servidor    
+
+    navigate('/login');
+
+  };
+
   useEffect(() => {
     Get('/').then((out) => setTestStr(out.json.message))
   }, [])
 
   return (
     <>
+
+      <div className="user-banner">
+
+        <span>
+
+          {
+
+            currentUser? `Bienvenido, ${currentUser.first_name} ${currentUser.first_last_name}`:'ENTRADA DEL MERO MERO XD'
+            
+
+          }
+
+        </span>
+
+        {
+
+          currentUser&&
+          (
+            
+            <button
+
+              className="logout-btn"
+              onClick={handleLogout}
+
+            >
+
+              Cerrar sesión
+
+            </button>
+
+          )
+
+        }
+
+      </div>
+
       <SubmitDialog title='Form Dialog' 
         isOpen={isOpen}
         openButtonTxt='Form dialog'

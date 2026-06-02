@@ -30,11 +30,15 @@ function createFKs() {
 
     Users.belongsToMany(Roles, {
         through: UsersRoles,
+        foreignKey: 'user_id',
+        otherKey: 'role_id',
         as: 'roles'
     })
 
     Roles.belongsToMany(Users, {
         through: UsersRoles,
+        foreignKey: 'role_id',
+        otherKey: 'user_id',
         as: 'employee'
     })
 

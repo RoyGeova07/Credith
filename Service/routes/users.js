@@ -1,7 +1,7 @@
 const router=require("express").Router()
 const authMiddleware=require("../middlewares/authMiddleware")
 
-const{createUser,getUsers, getUserById, desactivateUser, activateUser,updatePassword}=require("../controllers/users")
+const{createUser,getUsers, getUserById, desactivateUser, activateUser,updatePassword,loginUser,logoutUser}=require("../controllers/users")
 
 /**
  * @swagger
@@ -14,27 +14,6 @@ const{createUser,getUsers, getUserById, desactivateUser, activateUser,updatePass
  *         description: Lista de usuarios
  */
 router.get("/users",getUsers)
-
-/**
- * @swagger
- * /api/users/{id}:
- *   get:
- *     summary: Obtener usuario por ID
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID del usuario
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Usuario encontrado
- *       404:
- *         description: Usuario no encontrado
- */
-router.get("/users/:id",getUserById)
 
 /**
  * @swagger
@@ -55,6 +34,7 @@ router.get("/users/:id",getUserById)
  *               - second_last_name
  *               - email
  *               - password
+ *               - storeId
  *             properties:
  *               first_name:
  *                 type: string
@@ -70,18 +50,59 @@ router.get("/users/:id",getUserById)
  *                 example: Lopez
  *               email:
  *                 type: string
+ *                 format: email
  *                 example: juan@gmail.com
  *               password:
  *                 type: string
+ *                 format: password
  *                 example: 123456
+ *               storeId:
+ *                 type: string
+ *                 format: uuid
+ *                 description: ID de la tienda a la que pertenece el usuario
+ *                 example: b75438e5-9ae8-4597-b95e-9889028f4737
  *     responses:
  *       201:
  *         description: Usuario creado correctamente
  *       400:
- *         description: Datos inválidos o email ya existente
+ *         description: Datos inválidos, email existente o tienda inválida
+ *       404:
+ *         description: Tienda no encontrada
  */
 router.post("/users",createUser)
 
+
+/**
+ * @swagger
+ * /api/users/login:
+ *   post:
+ *     summary: Iniciar sesión
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: juan@gmail.com
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: 123456
+ *     responses:
+ *       200:
+ *         description: Inicio de sesión exitoso
+ *       404:
+ *         description: Credenciales incorrectas
+ */
+router.post("/users/login",loginUser)
 
 /**
  * @swagger
@@ -173,5 +194,29 @@ router.put("/users/activate/:id",authMiddleware,activateUser)
  *         description: No autorizado
  */
 router.put("/users/update-password/",authMiddleware,updatePassword)
+
+router.post("/users/logout", logoutUser)
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Obtener usuario por ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del usuario
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usuario encontrado
+ *       404:
+ *         description: Usuario no encontrado
+ */
+router.get("/users/:id",getUserById)
+
 
 module.exports=router

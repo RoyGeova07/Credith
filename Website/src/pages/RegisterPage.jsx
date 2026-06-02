@@ -4,8 +4,9 @@ import DualPanel from "@/components/DualPanel";
 import FormGrid from "@/components/form/FormGrid";
 import FormField from "@/components/form/FormField";
 import BrandPanel from "@/components/BrandPanel"; 
-import{RegisterFormConfig}from '@/pages/constants/registerForm'
-import{Get}from '@/helpers/fetcher'
+import{RegisterFormConfig}from '@/pages/constants/FormConfig'
+import{Get,Post}from '@/helpers/fetcher'
+import { useNavigate } from "react-router-dom";
 
 
 export default function RegisterPage() 
@@ -17,6 +18,7 @@ export default function RegisterPage()
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
     const[stores,setStores]=useState([])
+    const navigate=useNavigate()
 
     const handleChange = (e) => 
     {
@@ -25,7 +27,7 @@ export default function RegisterPage()
         if (touched[e.target.name]) 
         {
 
-            const newErrors = RegisterFormConfig.validate(updated)
+            const newErrors = RegisterFormConfig.validateRegister(updated)
             setErrors((prev) => ({ ...prev, [e.target.name]: newErrors[e.target.name] }));
 
         }
@@ -40,30 +42,46 @@ export default function RegisterPage()
 
     };
 
-    const handleSubmit = (e) => 
+    const handleSubmit =async(e)=> 
     {
 
         e.preventDefault();
-        const allTouched = Object.keys(RegisterFormConfig.validate(form)).reduce(
+        const allTouched = Object.keys(RegisterFormConfig.validateRegister(form)).reduce(
         (acc, k) => ({ ...acc, [k]: true }), {}
         );
         setTouched(allTouched);
-        const newErrors = RegisterFormConfig.validate(form)
+        const newErrors = RegisterFormConfig.validateRegister(form)
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) return;
 
         setLoading(true);
-        setTimeout(() => 
+        try
         {
 
-            setLoading(false);
-            setSuccess(true);
-            setForm(RegisterFormConfig.INITIAL_FORM);
-            setErrors({});
-            setTouched({});
-            setTimeout(() => setSuccess(false), 4000);
+            const response=await Post('/api/users',JSON.stringify(form));
 
-        }, 1200);
+            if(response.status!==201)
+            {
+
+                throw new Error(response.json.message||'Error al registrar usuario');
+
+            }
+
+            setSuccess(true);
+
+            navigate('/*');
+
+        }catch(error){
+
+            console.error(error);
+
+            alert(error.message);
+
+        }finally{
+
+            setLoading(false);
+
+        }
 
     };
 
@@ -137,55 +155,55 @@ export default function RegisterPage()
 
                         <FormField
 
-                            inputName="primerNombre"
+                            inputName="first_name"
                             description="Primer Nombre"
                             placeholder="Ej. Juan"
-                            value={form.primerNombre}
+                            value={form.first_name}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            error={errors.primerNombre}
-                            touched={touched.primerNombre}
+                            error={errors.first_name}
+                            touched={touched.first_name}
                             required
 
                         />
 
                         <FormField
 
-                            inputName="segundoNombre"
+                            inputName="second_name"
                             description="Segundo Nombre"
                             placeholder="Ej. Carlos"
-                            value={form.segundoNombre}
+                            value={form.second_name}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            error={errors.segundoNombre}
-                            touched={touched.segundoNombre}
+                            error={errors.second_name}
+                            touched={touched.second_name}
 
                         />
 
                         <FormField
 
-                            inputName="primerApellido"
+                            inputName="first_last_name"
                             description="Primer Apellido"
                             placeholder="Ej. García"
-                            value={form.primerApellido}
+                            value={form.first_last_name}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            error={errors.primerApellido}
-                            touched={touched.primerApellido}
+                            error={errors.first_last_name}
+                            touched={touched.first_last_name}
                             required
 
                         />
 
                         <FormField
 
-                            inputName="segundoApellido"
+                            inputName="second_last_name"
                             description="Segundo Apellido"
                             placeholder="Ej. López"
-                            value={form.segundoApellido}
+                            value={form.second_last_name}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            error={errors.segundoApellido}
-                            touched={touched.segundoApellido}
+                            error={errors.second_last_name}
+                            touched={touched.second_last_name}
 
                         />
 
@@ -267,19 +285,19 @@ export default function RegisterPage()
                         {/* Tienda — select, no input; igual necesita JSX propio */}
                         <div className="field-group full">
 
-                            <label htmlFor="tienda">
+                            <label htmlFor="storeId">
 
                                 Tienda <span className="required">*</span>
 
                                 </label>
 
-                            <div className={`select-wrapper ${touched.tienda? errors.tienda ? "input-error" : "input-ok": ""}`}>
+                            <div className={`select-wrapper ${touched.storeId? errors.storeId ? "input-error" : "input-ok": ""}`}>
 
                                 <select
 
-                                    id="tienda"
-                                    name="tienda"
-                                    value={form.tienda}
+                                    id="storeId"
+                                    name="storeId"
+                                    value={form.storeId}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
 
@@ -306,7 +324,7 @@ export default function RegisterPage()
 
                             </div>
 
-                            {touched.tienda && errors.tienda&&(<span className="error-msg">⚠ {errors.tienda}</span>)}
+                            {touched.storeId && errors.storeId&&(<span className="error-msg">⚠ {errors.storeId}</span>)}
 
                         </div>
 

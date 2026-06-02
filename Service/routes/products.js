@@ -1,5 +1,8 @@
 const router = require("express").Router()
 const Products =require("../controllers/products")
+const authMiddleware=require('../middlewares/authMiddleware')
+const roleMiddleware=require('../middlewares/roleMiddleware')
+
 
 /**
  * @swagger
@@ -193,5 +196,9 @@ router.delete("/products/:id", Products.deleteProduct)
  *         description: Producto no encontrado
  */
 router.post("/products/:id/recover", Products.recoverProduct)
+
+// Solo admins
+//router.delete("/products/:id", authMiddleware, roleMiddleware('Admin'), deleteProduct)
+
 
 module.exports=router
