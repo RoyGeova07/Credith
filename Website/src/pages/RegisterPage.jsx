@@ -4,7 +4,7 @@ import DualPanel from "@/components/DualPanel";
 import FormGrid from "@/components/form/FormGrid";
 import FormField from "@/components/form/FormField";
 import BrandPanel from "@/components/BrandPanel"; 
-import{RegisterFormConfig}from '@/pages/constants/AuthContext'
+import{RegisterFormConfig}from '@/pages/constants/FormConfig'
 import{Get,Post}from '@/helpers/fetcher'
 import { useNavigate } from "react-router-dom";
 
@@ -67,11 +67,9 @@ export default function RegisterPage()
 
             }
 
-            localStorage.setItem('currentUser',JSON.stringify(response.json.user));
-
             setSuccess(true);
 
-            navigate('/');
+            navigate('/*');
 
         }catch(error){
 

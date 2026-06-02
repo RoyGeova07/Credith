@@ -3,6 +3,9 @@ const{v4:uuidv4}=require('uuid')
 const{generateToken}=require('../helper/jwt')
 const{comparePassword,hashPassword}=require('../helper/bycrypt')
 const{Stores}=require('../models/entities/store')
+const{Roles}=require('../models/entities/role')
+const{CheckoutMachines}=require('../models/entities/checkoutMachine')
+const COOKIE_OPTIONS={httpOnly: false,secure: process.env.NODE_ENV==='production',sameSite: 'lax',maxAge: parseInt(process.env.COOKIE_LIFETIME_HOURS||2)*60*60*1000}
 
 //crear usuario
 const createUser=async(req,res)=>
@@ -77,10 +80,28 @@ const createUser=async(req,res)=>
 
         //                                                                                                          contra encriptada :O
         const user=await Users.create({userId:uuidv4(),first_name,second_name,first_last_name,second_last_name,email,password:hashedPassword,storeId})
-
+        const roleName='sin-rol'
         const token=generateToken(user)
 
-        res.status(201).json({message:"Usuario registrado existosamente",token,user})
+        //Cookie JWT - guardar el token
+        res.cookie('token',token,{...COOKIE_OPTIONS,httpOnly:true})
+        //cookie de sesion - guardar datos del usuario (sin httpOnly para que el frontend pueda leerlo)
+        res.cookie('session',JSON.stringify
+        ({
+
+            userId:user.userId,
+            first_name:user.first_name,
+            second_name:user.second_name,
+            first_last_name:user.first_last_name,
+            second_last_name:user.second_last_name,
+            email:user.email,
+            role:roleName,
+            checkoutMachine:null
+
+        }),COOKIE_OPTIONS);
+
+
+        res.status(201).json({message:"Usuario registrado existosamente",user})
 
     }catch(error){
 
@@ -282,7 +303,7 @@ const loginUser=async(req,res)=>
 
         }
 
-        const user=await Users.findOne({where:{email}})
+        const user=await Users.findOne({where:{email},include:[{model:Roles,as:'roles',through:{attributes:[]}},{model:CheckoutMachines,as:'checkoutMachine'}]})
 
         if(!user)
         {
@@ -300,17 +321,54 @@ const loginUser=async(req,res)=>
 
         }
 
-        const token=generateToken(user)
+        //se toma el primer rol
+        const roleName=user.roles?.[0]?.name??'sin-rol'
 
-        res.json({message:"Inicio de sesión exitoso",token,user})
+        const token=generateToken(user,roleName)
+
+        //Cookie 1: JWT — HttpOnly,el browser la envia automaticamente
+        res.cookie('token',token,{...COOKIE_OPTIONS,httpOnly: true})
+
+        //Cookie 2: datos de sesion — legible desde el frontend (sin HttpOnly)
+        res.cookie('session', JSON.stringify({
+            userId:user.userId,
+            first_name:user.first_name,
+            second_name:user.second_name,
+            first_last_name:user.first_last_name,
+            second_last_name:user.second_last_name,
+            email:user.email,
+            role:roleName,
+            checkoutMachine:user.checkoutMachine
+            ?{
+
+                checkoutMachineId:user.checkoutMachine.checkoutMachineId,
+                name:user.checkoutMachine.name,
+                machineNumber:user.checkoutMachine.machineNumber
+
+            }:null}),COOKIE_OPTIONS)
+
+        res.json({message:"Inicio de sesión exitoso"})
 
     }catch(error){
 
+        console.error("LOGIN ERROR:")
+        console.error(error)
         res.status(500).json({message:error.message})
 
     }
 
 }
 
+const logoutUser=(req,res)=> 
+{
 
-module.exports={createUser,desactivateUser,activateUser,getUsers,getUserById,updatePassword,loginUser}
+    res.clearCookie('token')
+    res.clearCookie('session')
+    res.json({ message: "Sesión cerrada" }) 
+
+}
+
+
+
+
+module.exports={createUser,desactivateUser,activateUser,getUsers,getUserById,updatePassword,loginUser,logoutUser}

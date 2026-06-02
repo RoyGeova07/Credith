@@ -1,4 +1,6 @@
 const router = require('express').Router()
+const authMiddleware=require('../middlewares/authMiddleware')
+const roleMiddleware=require('../middlewares/roleMiddleware')
 
 const {
   getProductReport,
@@ -324,5 +326,9 @@ router.get('/reports/stores', getStoreReport)
  *         description: Error interno del servidor
  */
 router.get('/reports/companies', getCompanyReport)
+
+// Admin o owner
+//router.get("/reports", authMiddleware, roleMiddleware('Admin', 'owner'), getReports)
+
 
 module.exports = router

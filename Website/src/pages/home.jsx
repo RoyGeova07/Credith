@@ -1,4 +1,4 @@
-import { Get } from '@/helpers/fetcher'
+import { Get,Post,getSession } from '@/helpers/fetcher'
 import { useEffect, useState } from 'react'
 import MultiSelect from '@/components/multiSelect/multiSelect'
 import SubmitDialog from '@/components/dialogs/submitDialog'
@@ -7,7 +7,10 @@ import './home.css'
 import{useNavigate}from 'react-router-dom'
 
 
-export default function Home() {
+
+export default function Home() 
+{
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedOpts, setSelectedOpts] = useState([]);
@@ -15,14 +18,7 @@ export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMessageOpen, setIsMessageOpen] = useState(false);
   const navigate=useNavigate();
-  const[currentUser]=useState(() =>
-  {
-
-    const user=localStorage.getItem('currentUser');
-
-    return user?JSON.parse(user):null;
-
-  });
+  const[currentUser]=useState(()=>getSession())
   const onLoad = async (search, loadedOptions, { page }) => {
       return {
           options: [
@@ -59,11 +55,10 @@ export default function Home() {
       setIsOpen(false);
   }
 
-  const handleLogout=()=>
+  const handleLogout=async()=>
   {
 
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
+    await Post('/api/users/logout')//limpia ambas cookies desde el servidor    
 
     navigate('/login');
 
@@ -83,6 +78,7 @@ export default function Home() {
           {
 
             currentUser? `Bienvenido, ${currentUser.first_name} ${currentUser.first_last_name}`:'ENTRADA DEL MERO MERO XD'
+            
 
           }
 

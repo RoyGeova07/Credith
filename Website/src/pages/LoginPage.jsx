@@ -4,7 +4,7 @@ import BrandPanel from '@/components/BrandPanel'
 import './LoginPage.css'
 import{Post}from'@/helpers/fetcher'
 import{useNavigate }from'react-router-dom'
-import{LoginFormConfig}from'@/pages/constants/AuthContext'
+import{LoginFormConfig}from'@/pages/constants/FormConfig'
 import{Link}from'react-router-dom'
 
 
@@ -60,17 +60,13 @@ export default function LoginPage() {
 
         throw new Error(response.json.message ||'Credenciales incorrectas');
 
-      }
-
-      localStorage.setItem('token',response.json.token);
-
-      localStorage.setItem('currentUser',JSON.stringify(response.json.user));
+      } 
 
       navigate('/');
 
     }catch(error){
 
-      setErrors({password:'Encienda el BACKEND chele', error});
+      setErrors({password:error.message});
       
     }finally{
 
