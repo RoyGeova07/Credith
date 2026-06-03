@@ -1,0 +1,314 @@
+.company-admin-page {
+  min-height: 100vh;
+  background: #eef6f4;
+  color: var(--text-dark);
+  padding: 28px;
+}
+
+.company-admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  max-width: 1280px;
+  margin: 0 auto 18px;
+}
+
+.company-admin-kicker {
+  color: var(--blue);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.company-admin-header h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.company-admin-primary,
+.company-admin-secondary,
+.company-admin-danger {
+  min-height: 42px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 0 16px;
+  transition: filter 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.company-admin-primary {
+  background: linear-gradient(120deg, var(--green-dark), var(--green-mid) 62%, var(--blue));
+  color: #ffffff;
+}
+
+.company-admin-secondary {
+  background: #edf4f0;
+  color: var(--text-mid);
+  border: 1px solid var(--gray-light);
+}
+
+.company-admin-danger {
+  width: 100%;
+  background: #fff3f1;
+  color: #b43a2f;
+  border: 1px solid rgba(192, 57, 43, 0.18);
+}
+
+.company-admin-primary:hover:not(:disabled),
+.company-admin-secondary:hover:not(:disabled),
+.company-admin-danger:hover:not(:disabled) {
+  filter: brightness(1.03);
+  box-shadow: 0 10px 24px rgba(26, 122, 60, 0.14);
+  transform: translateY(-1px);
+}
+
+.company-admin-primary:disabled,
+.company-admin-danger:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.company-admin-summary {
+  max-width: 1280px;
+  margin: 0 auto 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.company-admin-summary div {
+  background: #ffffff;
+  border: 1px solid rgba(26, 122, 60, 0.08);
+  border-radius: 8px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 24px rgba(26, 122, 60, 0.07);
+}
+
+.company-admin-summary span {
+  color: var(--text-mid);
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.company-admin-summary strong {
+  color: var(--text-dark);
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.45rem;
+  margin-top: 4px;
+}
+
+.company-admin-layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 18px;
+  align-items: start;
+}
+
+.company-admin-list-panel,
+.company-admin-form-panel {
+  background: #ffffff;
+  border: 1px solid rgba(26, 122, 60, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 12px 34px rgba(26, 122, 60, 0.08);
+}
+
+.company-admin-list-panel {
+  overflow: hidden;
+}
+
+.company-admin-toolbar {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 18px;
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.company-admin-toolbar label,
+.company-admin-form-panel label {
+  color: var(--text-mid);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.company-admin-toolbar input,
+.company-admin-form-panel input,
+.company-admin-form-panel textarea {
+  width: 100%;
+  border: 1.5px solid var(--gray-light);
+  border-radius: 8px;
+  background: #f8fbf9;
+  color: var(--text-dark);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  padding: 11px 13px;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.company-admin-toolbar input:focus,
+.company-admin-form-panel input:focus,
+.company-admin-form-panel textarea:focus {
+  background: #ffffff;
+  border-color: var(--green-mid);
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.13);
+}
+
+.company-admin-table-wrap {
+  overflow-x: auto;
+}
+
+.company-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.company-admin-table th,
+.company-admin-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--gray-light);
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.company-admin-table th {
+  color: var(--text-mid);
+  background: #f8fbf9;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.company-admin-table tr {
+  cursor: pointer;
+}
+
+.company-admin-table tbody tr:hover,
+.company-admin-table tbody tr.selected {
+  background: #f0faf4;
+}
+
+.company-admin-table tbody tr.selected td:first-child {
+  box-shadow: inset 5px 0 0 var(--gold);
+}
+
+.company-admin-empty {
+  color: var(--text-mid);
+  height: 180px;
+  text-align: center;
+}
+
+.company-admin-form-panel {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+}
+
+.company-admin-form-heading {
+  border-bottom: 1px solid var(--gray-light);
+  padding-bottom: 14px;
+}
+
+.company-admin-form-heading p {
+  color: var(--text-dark);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.company-admin-form-heading span {
+  color: var(--text-mid);
+  display: block;
+  font-size: 0.86rem;
+  margin-top: 4px;
+}
+
+.company-admin-form-panel label {
+  display: grid;
+  gap: 6px;
+}
+
+.company-admin-form-panel textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.company-admin-alert {
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.4;
+  padding: 12px 14px;
+}
+
+.company-admin-alert.error {
+  background: #fff3f1;
+  color: #9f3127;
+  border: 1px solid rgba(192, 57, 43, 0.18);
+}
+
+.company-admin-alert.success {
+  background: #effaf3;
+  color: var(--green-dark);
+  border: 1px solid rgba(39, 174, 96, 0.22);
+}
+
+.company-admin-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+@media (max-width: 980px) {
+  .company-admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .company-admin-form-panel {
+    order: -1;
+  }
+}
+
+@media (max-width: 680px) {
+  .company-admin-page {
+    padding: 18px;
+  }
+
+  .company-admin-header,
+  .company-admin-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .company-admin-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .company-admin-toolbar,
+  .company-admin-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .company-admin-table {
+    min-width: 720px;
+  }
+}
