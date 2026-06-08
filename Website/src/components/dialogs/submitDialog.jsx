@@ -1,17 +1,12 @@
 import Dialog from "./dialog";
 import './submitDialog.css'
 
-export default function SubmitDialog({
+export default function FormDialog({
     title,
-    openButtonTxt,
-    buttonStyle,
-    dialogStyle,
     onAccept,
     acceptText,
-    acceptStyle,
     onClose,
     closeText,
-    closeStyle,
     children,
     isOpen,
     setIsOpen }) {
@@ -21,9 +16,6 @@ export default function SubmitDialog({
     return (
         <>
             <Dialog title={title}
-                openButtonTxt={openButtonTxt}
-                buttonStyle={buttonStyle}
-                dialogStyle={dialogStyle}
                 isOpen={isOpen}
                 setIsOpen={setIsOpen}>
 
@@ -31,13 +23,11 @@ export default function SubmitDialog({
 
                 <div className="submit-container">
                     <button className="close-btn"
-                        style={closeStyle}
                         onClick={onClose}>
                         {closeTxt}
                     </button>
 
                     <button className="submit-btn"
-                        style={acceptStyle}
                         onClick={onAccept}>
                         {acceptTxt}
                     </button>
