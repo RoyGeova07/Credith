@@ -1,9 +1,9 @@
 import { Get,Post,getSession } from '@/helpers/fetcher'
 import { useEffect, useState } from 'react'
-import MultiSelect from '@/components/multiSelect/multiSelect'
-import FormDialog from '@/components/dialogs/submitDialog'
-import Dialog from '@/components/dialogs/dialog'
-import './home.css'
+import MultiSelect from '@/components/multiSelect/MultiSelect'
+import FormDialog from '@/components/dialogs/SubmitDialog'
+import Dialog from '@/components/dialogs/Dialog'
+import './Home.css'
 import{useNavigate}from 'react-router-dom'
 
 

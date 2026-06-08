@@ -1,4 +1,4 @@
-import './dialog.css'
+import './Dialog.css'
 
 export default function Dialog({ 
     title,

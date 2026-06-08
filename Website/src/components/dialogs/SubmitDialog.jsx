@@ -1,5 +1,5 @@
-import Dialog from "./dialog";
-import './submitDialog.css'
+import Dialog from "./Dialog";
+import './SubmitDialog.css'
 
 export default function FormDialog({
     title,
