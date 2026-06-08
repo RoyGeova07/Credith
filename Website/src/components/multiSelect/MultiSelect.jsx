@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AsyncPaginate } from 'react-select-async-paginate'
-import './multiSelect.css'
+import './MultiSelect.css'
 
 export default function MultiSelect({
     title,

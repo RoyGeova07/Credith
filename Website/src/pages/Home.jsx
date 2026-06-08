@@ -1,9 +1,9 @@
 import { Get,Post,getSession } from '@/helpers/fetcher'
 import { useEffect, useState } from 'react'
-import MultiSelect from '@/components/multiSelect/multiSelect'
-import SubmitDialog from '@/components/dialogs/submitDialog'
-import MessageDialog from '@/components/dialogs/messageDialog'
-import './home.css'
+import MultiSelect from '@/components/multiSelect/MultiSelect'
+import FormDialog from '@/components/dialogs/SubmitDialog'
+import Dialog from '@/components/dialogs/Dialog'
+import './Home.css'
 import{useNavigate}from 'react-router-dom'
 
 
@@ -106,7 +106,16 @@ export default function Home()
 
       </div>
 
-      <SubmitDialog title='Form Dialog' 
+      <button className='open-btn'
+            onClick={() => setIsOpen(true)}>
+        Form Dialog
+      </button>
+      <button className='open-btn'
+            onClick={() => setIsMessageOpen(true)}>
+        Dialog Message
+      </button>
+
+      <FormDialog title='Form Dialog' 
         isOpen={isOpen}
         openButtonTxt='Form dialog'
         onClose={() => setIsOpen(false)}
@@ -132,14 +141,14 @@ export default function Home()
             placeholder="Password"
           />
         </form>
-      </SubmitDialog>
+      </FormDialog>
 
-      <MessageDialog title='Message Dialog' 
+      <Dialog title='Message Dialog' 
         openButtonTxt='Message dialog'
         isOpen={isMessageOpen}
         setIsOpen={(o) => setIsMessageOpen(o)}>
         <p> Hola mundo! </p>
-      </MessageDialog>
+      </Dialog>
     </>
   )
 }

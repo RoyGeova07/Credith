@@ -1,26 +1,16 @@
-import './dialog.css'
+import './Dialog.css'
 
 export default function Dialog({ 
     title,
-    openButtonTxt,
-    openButtonStyle,
-    dialogStyle,
     children,
     isOpen,
     setIsOpen }) {
-    const openTxt = openButtonTxt || 'Click me!'
 
     return (
         <>
-            <button style={openButtonStyle}
-                className="open-btn"
-                onClick={() => setIsOpen(true)}>
-                { openTxt }
-            </button>
             {isOpen ? (
                 <div className='dialog'>
-                    <div className='dialog-content'
-                        style={dialogStyle}>
+                    <div className='dialog-content'>
                         <span className='dialog-close'
                             onClick={() => setIsOpen(false)}>
                             &times;
