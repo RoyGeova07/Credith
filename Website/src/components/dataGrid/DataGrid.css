@@ -1,0 +1,41 @@
+.data-grid {
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+}
+
+.data-grid .data-grid-header {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+}
+
+.data-grid .add-element-click {
+    font-size: 18px;
+    border-radius: 10px;
+    padding: 10px;
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+.data-grid .data-grid-filters {
+    display: flex;
+    padding-top: 15px;
+    gap: 10px;
+}
+
+.data-grid-filters input {
+    border-radius: 10px;
+    font-size: 18px;
+    padding: 5px;
+}
+
+.data-grid-filters input[type="submit"],
+.data-grid-filters input[type="button"] {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.data-grid-filters .grid-main-filter {
+    width: 100%;
+}

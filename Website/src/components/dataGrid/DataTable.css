@@ -1,0 +1,12 @@
+.data-table,
+.data-table-div {
+    width: 100%;
+}
+
+.data-table-paging{
+    border-top: 2px solid black;
+    margin-top: 10px;
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
