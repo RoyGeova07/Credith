@@ -61,27 +61,6 @@ router.get('/roles/:id', getRoleById)
 
 /**
  * @swagger
- * /api/roles/{id}:
- *   get:
- *     summary: Obtener rol por ID
- *     tags: [Roles]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID del rol
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Rol encontrado
- *       404:
- *         description: Rol no encontrado
- */
-router.get('/roles/:id', getRoleById)
-
-/**
- * @swagger
  * /api/roles:
  *   post:
  *     summary: Crear un nuevo rol
