@@ -112,3 +112,36 @@
     padding: 10px;
 
 }
+
+.mst-item::after
+{
+
+    content: "Click para agregar";
+    float: right;
+    opacity: 0;
+    font-size: 12px;
+    color: gray;
+    transition: .2s;
+
+}
+
+.mst-item:hover::after
+{
+
+    opacity: 1;
+
+}
+
+.mst-selected::after
+{
+
+    content: "Click para quitar";
+
+}
+
+.mst-selected:hover::after
+{
+
+    opacity: 1;
+    
+}

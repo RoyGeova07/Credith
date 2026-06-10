@@ -106,6 +106,7 @@ export default function MultiSelectTransfer({LoadData,SelectedList=[],onChange,K
                                 key={item[KeyField]}
                                 className="mst-item"
                                 onClick={()=>addItem(item)}
+                                /**title="Click para agregar"*/
 
                             >
 
@@ -182,6 +183,7 @@ export default function MultiSelectTransfer({LoadData,SelectedList=[],onChange,K
                                 key={item[KeyField]}
                                 className="mst-item mst-selected"
                                 onClick={()=>removeItem(item)}
+                                /**title="Click para quitar"*/
 
                             >
 
