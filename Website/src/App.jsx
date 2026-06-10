@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import RegisterPage from './pages/RegisterPage'
 import LoginPage from "./pages/LoginPage";
 import AdminCompanyManagementPage from '@/pages/AdminCompanyManagementPage'
+import AdminStoreManagementPage from '@/pages/AdminStoreManagementPage'
 import Home from './pages/Home'
 
 export default function App() {
@@ -11,6 +12,7 @@ export default function App() {
                 <Route path="/register" element={<RegisterPage/>}/>
                 <Route path="/login" element={<LoginPage/>}/>
                 <Route path="/admin/companies" element={<AdminCompanyManagementPage/>}/>
+                <Route path="/admin/stores" element={<AdminStoreManagementPage/>}/>
                 <Route path="/*" element={<Home/>}/>
             </Routes>
         </BrowserRouter>
