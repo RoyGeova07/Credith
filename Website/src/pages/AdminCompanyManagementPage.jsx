@@ -21,13 +21,14 @@ function normalizeCompany(company) {
 }
 
 async function apiRequest(path, options = {}) {
+  const { headers: optionHeaders, ...rest } = options
   const response = await fetch(`${API_BASE}${path}`, {
+    ...rest,
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(options.headers || {}),
+      ...(optionHeaders || {}),
     },
-    ...options,
   })
 
   const json = await response.json().catch(() => ({}))
@@ -120,6 +121,13 @@ export default function AdminCompanyManagementPage() {
     setNotice('')
   }
 
+  const handleCompanyRowKeyDown = (event, company) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleSelectCompany(company)
+    }
+  }
+
   const handleNewCompany = () => {
     setSelectedCompanyId(null)
     setForm(emptyForm)
@@ -198,15 +206,15 @@ export default function AdminCompanyManagementPage() {
       <section className="company-admin-header">
         <div>
           <p className="company-admin-kicker">Administración</p>
-          <h1>Compañias</h1>
+          <h1>Compañías</h1>
         </div>
 
         <button type="button" className="company-admin-primary" onClick={handleNewCompany}>
-          Nueva compañia
+          Nueva compañía
         </button>
       </section>
 
-      <section className="company-admin-summary" aria-label="Resumen de compañias">
+      <section className="company-admin-summary" aria-label="Resumen de compañías">
         <div>
           <span>Total</span>
           <strong>{activeCompanies}</strong>
@@ -247,7 +255,7 @@ export default function AdminCompanyManagementPage() {
                 {loading && (
                   <tr>
                     <td colSpan="4" className="company-admin-empty">
-                      Cargando compañias
+                      Cargando compañías
                     </td>
                   </tr>
                 )}
@@ -257,7 +265,10 @@ export default function AdminCompanyManagementPage() {
                     <tr
                       key={company.companyId}
                       className={company.companyId === selectedCompanyId ? 'selected' : ''}
+                      role="button"
+                      tabIndex={0}
                       onClick={() => handleSelectCompany(company)}
+                      onKeyDown={(event) => handleCompanyRowKeyDown(event, company)}
                     >
                       <td>{company.name}</td>
                       <td>{company.rtn}</td>
@@ -269,7 +280,7 @@ export default function AdminCompanyManagementPage() {
                 {!loading && filteredCompanies.length === 0 && (
                   <tr>
                     <td colSpan="4" className="company-admin-empty">
-                      No hay compañias para mostrar
+                      No hay compañías para mostrar
                     </td>
                   </tr>
                 )}
@@ -280,8 +291,8 @@ export default function AdminCompanyManagementPage() {
 
         <form className="company-admin-form-panel" onSubmit={handleSubmit}>
           <div className="company-admin-form-heading">
-            <p>{selectedCompany ? 'Editar compañia' : 'Nueva compañia'}</p>
-            <span>{selectedCompany ? selectedCompany.rtn : 'Regístro administrativo'}</span>
+            <p>{selectedCompany ? 'Editar compañía' : 'Nueva compañía'}</p>
+            <span>{selectedCompany ? selectedCompany.rtn : 'Registro administrativo'}</span>
           </div>    
 
           {error && <div className="company-admin-alert error">{error}</div>}
@@ -342,7 +353,7 @@ export default function AdminCompanyManagementPage() {
 
           {selectedCompany && (
             <button type="button" className="company-admin-danger" onClick={handleDelete} disabled={saving}>
-              Eliminar compañia
+              Eliminar compañía
             </button>
           )}
         </form>
