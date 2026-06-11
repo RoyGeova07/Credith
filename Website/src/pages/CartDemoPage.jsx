@@ -1,36 +1,8 @@
 import { useEffect, useState } from 'react'
+import BagIcon from '../assets/icons/BagIcon'
+import BoxIcon from '../assets/icons/BoxIcon'
+import CartIcon from '../assets/icons/CartIcon'
 import './CartDemoPage.css'
-
-function CartIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M4.4 5.8h2.1l1.7 8.4a2 2 0 0 0 2 1.6h6.4a2 2 0 0 0 1.9-1.4l1.2-4.6H8.1" />
-      <path d="M10.4 20.2a.9.9 0 1 0 0-1.8.9.9 0 0 0 0 1.8Z" />
-      <path d="M17.2 20.2a.9.9 0 1 0 0-1.8.9.9 0 0 0 0 1.8Z" />
-    </svg>
-  )
-}
-
-function BagIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M7.5 8.2h9l.7 10a2 2 0 0 1-2 2.2H8.8a2 2 0 0 1-2-2.2l.7-10Z" />
-      <path d="M9.2 8.2V6.9a2.8 2.8 0 0 1 5.6 0v1.3" />
-      <path d="M10 12.2h4" />
-    </svg>
-  )
-}
-
-function BoxIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="m12 3.3 7.1 4.1v8.2L12 19.7l-7.1-4.1V7.4L12 3.3Z" />
-      <path d="m4.9 7.4 7.1 4.1 7.1-4.1" />
-      <path d="M12 11.5v8.2" />
-      <path d="m8.4 5.4 7.1 4.1" />
-    </svg>
-  )
-}
 
 function buildSparkles() {
   return Array.from({ length: 16 }, (_, index) => {
