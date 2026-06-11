@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { LeftArrow, RightArrow } from '@/assets/icons'
 import './DataTable.css'
 
 export function DataColumn({ propertyName, title }) {
@@ -94,15 +95,11 @@ export function DataTable({
             </table>
             <div className='data-table-paging'>
                 <button onClick={handlePrev} disabled={page <= 1}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="grid-paging-btn">
-                        <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-4.28 9.22a.75.75 0 0 0 0 1.06l3 3a.75.75 0 1 0 1.06-1.06l-1.72-1.72h5.69a.75.75 0 0 0 0-1.5h-5.69l1.72-1.72a.75.75 0 0 0-1.06-1.06l-3 3Z" clipRule="evenodd" />
-                    </svg>
+                    <LeftArrow className="grid-paging-btn"/>
                 </button>
                 <h3>Pagina: {page}/{totalPages}</h3>
                 <button onClick={handleNext} disabled={page >= totalPages}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="grid-paging-btn">
-                        <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z" clipRule="evenodd" />
-                    </svg>
+                    <RightArrow className="grid-paging-btn"/>
                 </button>
             </div>
         </div>
