@@ -35,7 +35,7 @@ const roleMiddleware=require('../middlewares/roleMiddleware')
  *       200:
  *         description: Lista de productos obtenida correctamente
  */
-router.get("/products", Products.getProduct)
+router.get("/products", Products.getPagedProducts)
 
 /**
  * @swagger

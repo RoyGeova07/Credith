@@ -41,4 +41,4 @@ export function getSession()
 export const Get = async (path) => request('GET', path);
 export const Put = async (path, body) => request('PUT', path, body);
 export const Post = async (path, body) => request('POST', path, body);
-export const Delete = async (path) => request('DELETE', path, {});
+export const Delete = async (path) => request('DELETE', path);

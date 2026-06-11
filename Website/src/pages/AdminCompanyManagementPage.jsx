@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState, useCallback } from 'react'
+import { DataGrid, DataGridHeader, HeaderTextFilter } from '@/components/dataGrid/DataGrid'
+import { ActionColumn, DataColumn, DataTable, DeleteAction, UpdateAction } from '@/components/dataGrid/DataTable'
+import FormDialog from '@/components/dialogs/SubmitDialog'
+import { Get, Post, Put, Delete } from '@/helpers/fetcher'
 import './AdminCompanyManagementPage.css'
-
-const API_BASE = import.meta.env.VITE_BASE_ROUTE || 'http://localhost:3000'
 
 const emptyForm = {
   name: '',
@@ -10,137 +12,50 @@ const emptyForm = {
   address: '',
 }
 
-function normalizeCompany(company) {
-  return {
-    companyId: company.companyId,
-    name: company.name || '',
-    rtn: company.rtn || '',
-    email: company.email || '',
-    address: company.address || '',
-  }
-}
-
-async function apiRequest(path, options = {}) {
-  const { headers: optionHeaders, ...rest } = options
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...rest,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(optionHeaders || {}),
-    },
-  })
-
-  const json = await response.json().catch(() => ({}))
-
-  if (!response.ok) {
-    throw new Error(json.message || 'No se pudo completar la solicitud')
-  }
-
-  return json
-}
-
 export default function AdminCompanyManagementPage() {
-  const [companies, setCompanies] = useState([])
-  const [selectedCompanyId, setSelectedCompanyId] = useState(null)
+  const [filter, setFilter] = useState('')
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingCompany, setEditingCompany] = useState(null)
   const [form, setForm] = useState(emptyForm)
-  const [search, setSearch] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
+  const [refreshKey, setRefreshKey] = useState(0)
 
-  const selectedCompany = useMemo(
-    () => companies.find((company) => company.companyId === selectedCompanyId),
-    [companies, selectedCompanyId]
-  )
-
-  const filteredCompanies = useMemo(() => {
-    const term = search.trim().toLowerCase()
-
-    if (!term) {
-      return companies
+  const loadCompanies = useCallback(async (offset, limit) => {
+    const res = await Get(`/api/companies?filter=${filter}&offset=${offset}&limit=${limit}&_=${refreshKey}`)
+    if (res.status !== 200) {
+      throw new Error(res.json.message || 'No se pudieron cargar las compañías')
     }
-
-    return companies.filter((company) =>
-      [company.name, company.rtn, company.email, company.address]
-        .join(' ')
-        .toLowerCase()
-        .includes(term)
-    )
-  }, [companies, search])
-
-  const activeCompanies = companies.length
-
-  useEffect(() => {
-    let isMounted = true
-
-    apiRequest('/api/companies?limit=100&offset=0')
-      .then((data) => {
-        if (!isMounted) {
-          return
-        }
-
-        setCompanies((data.companies || []).map(normalizeCompany))
-      })
-      .catch((requestError) => {
-        if (!isMounted) {
-          return
-        }
-
-        setError(requestError.message)
-      })
-      .finally(() => {
-        if (isMounted) {
-          setLoading(false)
-        }
-      })
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
+    return res.json
+  }, [filter, refreshKey])
 
   const handleFormChange = (event) => {
     setForm((current) => ({
       ...current,
       [event.target.name]: event.target.value,
     }))
-    setNotice('')
-  }
-
-  const handleSelectCompany = (company) => {
-    setSelectedCompanyId(company.companyId)
-    setForm({
-      name: company.name,
-      rtn: company.rtn,
-      email: company.email,
-      address: company.address,
-    })
     setError('')
-    setNotice('')
   }
 
-  const handleCompanyRowKeyDown = (event, company) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
-      handleSelectCompany(company)
-    }
-  }
-
-  const handleNewCompany = () => {
-    setSelectedCompanyId(null)
+  const openNewDialog = () => {
+    setEditingCompany(null)
     setForm(emptyForm)
     setError('')
-    setNotice('')
+    setIsDialogOpen(true)
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    setSaving(true)
+  const openEditDialog = (company) => {
+    setEditingCompany(company)
+    setForm({
+      name: company.name || '',
+      rtn: company.rtn || '',
+      email: company.email || '',
+      address: company.address || '',
+    })
     setError('')
-    setNotice('')
+    setIsDialogOpen(true)
+  }
 
+  const handleAccept = async () => {
     const payload = {
       name: form.name.trim(),
       rtn: form.rtn.trim(),
@@ -149,155 +64,85 @@ export default function AdminCompanyManagementPage() {
     }
 
     try {
-      if (selectedCompanyId) {
-        const data = await apiRequest(`/api/companies/${selectedCompanyId}`, {
-          method: 'PUT',
-          body: JSON.stringify(payload),
-        })
+      let res
 
-        const updatedCompany = normalizeCompany(data.company)
-        setCompanies((current) =>
-          current.map((company) => (company.companyId === selectedCompanyId ? updatedCompany : company))
-        )
-        setNotice('Empresa actualizada correctamente')
+      if (editingCompany) {
+        res = await Put(`/api/companies/${editingCompany.companyId}`, JSON.stringify(payload))
       } else {
-        const data = await apiRequest('/api/companies', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        })
-
-        const createdCompany = normalizeCompany(data.company)
-        setCompanies((current) => [createdCompany, ...current])
-        setSelectedCompanyId(createdCompany.companyId)
-        setNotice('Empresa creada correctamente')
+        res = await Post('/api/companies', JSON.stringify(payload))
       }
+
+      if (res.status !== 200 && res.status !== 201) {
+        throw new Error(res.json.message || 'No se pudo completar la solicitud')
+      }
+
+      setIsDialogOpen(false)
+      setRefreshKey((k) => k + 1)
     } catch (requestError) {
       setError(requestError.message)
-    } finally {
-      setSaving(false)
     }
   }
 
-  const handleDelete = async () => {
-    if (!selectedCompanyId || !selectedCompany) {
-      return
-    }
-
-    setSaving(true)
-    setError('')
-    setNotice('')
+  const handleDelete = async (company) => {
+    if (!window.confirm(`¿Eliminar la compañía "${company.name}"?`)) return
 
     try {
-      await apiRequest(`/api/companies/${selectedCompanyId}`, {
-        method: 'DELETE',
-      })
-      setCompanies((current) => current.filter((company) => company.companyId !== selectedCompanyId))
-      handleNewCompany()
-      setNotice('Empresa eliminada correctamente')
+      const res = await Delete(`/api/companies/${company.companyId}`)
+      if (res.status !== 200) {
+        throw new Error(res.json.message || 'No se pudo eliminar la compañía')
+      }
+      setRefreshKey((k) => k + 1)
     } catch (requestError) {
       setError(requestError.message)
-    } finally {
-      setSaving(false)
     }
+  }
+
+  const handleClose = () => {
+    setIsDialogOpen(false)
+    setError('')
   }
 
   return (
-    <main className="company-admin-page">
-      <section className="company-admin-header">
-        <div>
-          <p className="company-admin-kicker">Administración</p>
-          <h1>Compañías</h1>
-        </div>
+    <DataGrid>
+      <DataGridHeader
+        title='Compañías'
+        description='Administración'
+        addButtonTxt='Nueva compañía'
+        onAddClick={openNewDialog}>
+        <HeaderTextFilter
+          filterPlaceholder='Nombre, RTN, correo o dirección'
+          className='grid-main-filter'
+          value={filter}
+          onChange={setFilter}
+        />
+      </DataGridHeader>
 
-        <button type="button" className="company-admin-primary" onClick={handleNewCompany}>
-          Nueva compañía
-        </button>
-      </section>
+      <DataTable
+        onLoad={loadCompanies}
+        rowTitle='Click para editar'
+        onRowClick={openEditDialog}>
+        <DataColumn propertyName='name' title='Nombre' />
+        <DataColumn propertyName='rtn' title='RTN' />
+        <DataColumn propertyName='email' title='Correo' />
+        <DataColumn propertyName='address' title='Dirección' />
+        <ActionColumn>
+          <UpdateAction onClick={(row) => openEditDialog(row)} />
+          <DeleteAction onClick={(row) => handleDelete(row)} />
+        </ActionColumn>
+      </DataTable>
 
-      <section className="company-admin-summary" aria-label="Resumen de compañías">
-        <div>
-          <span>Total</span>
-          <strong>{activeCompanies}</strong>
-        </div>
-        <div>
-          <span>Vista</span>
-          <strong>{filteredCompanies.length}</strong>
-        </div>
-        <div>
-          <span>Selección</span>
-          <strong>{selectedCompany ? 'Edición' : 'Nueva'}</strong>
-        </div>
-      </section>
+      <FormDialog
+        title={editingCompany ? 'Editar compañía' : 'Nueva compañía'}
+        isOpen={isDialogOpen}
+        setIsOpen={setIsDialogOpen}
+        onAccept={handleAccept}
+        acceptText='Guardar'
+        onClose={handleClose}
+        closeText='Cancelar'>
 
-      <section className="company-admin-layout">
-        <div className="company-admin-list-panel">
-          <div className="company-admin-toolbar">
-            <label htmlFor="company-search">Buscar</label>
-            <input
-              id="company-search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Nombre, RTN, correo o dirección"
-            />
-          </div>
+        {error && <div className="company-admin-alert error">{error}</div>}
 
-          <div className="company-admin-table-wrap">
-            <table className="company-admin-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>RTN</th>
-                  <th>Correo</th>
-                  <th>Dirección</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading && (
-                  <tr>
-                    <td colSpan="4" className="company-admin-empty">
-                      Cargando compañías
-                    </td>
-                  </tr>
-                )}
-
-                {!loading &&
-                  filteredCompanies.map((company) => (
-                    <tr
-                      key={company.companyId}
-                      className={company.companyId === selectedCompanyId ? 'selected' : ''}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => handleSelectCompany(company)}
-                      onKeyDown={(event) => handleCompanyRowKeyDown(event, company)}
-                    >
-                      <td>{company.name}</td>
-                      <td>{company.rtn}</td>
-                      <td>{company.email || 'Sin correo'}</td>
-                      <td>{company.address || 'Sin dirección'}</td>
-                    </tr>
-                  ))}
-
-                {!loading && filteredCompanies.length === 0 && (
-                  <tr>
-                    <td colSpan="4" className="company-admin-empty">
-                      No hay compañías para mostrar
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <form className="company-admin-form-panel" onSubmit={handleSubmit}>
-          <div className="company-admin-form-heading">
-            <p>{selectedCompany ? 'Editar compañía' : 'Nueva compañía'}</p>
-            <span>{selectedCompany ? selectedCompany.rtn : 'Registro administrativo'}</span>
-          </div>    
-
-          {error && <div className="company-admin-alert error">{error}</div>}
-          {notice && <div className="company-admin-alert success">{notice}</div>}
-
+        <form className="company-dialog-form">
           <label>
             Nombre
             <input
@@ -341,23 +186,8 @@ export default function AdminCompanyManagementPage() {
               rows="4"
             />
           </label>
-
-          <div className="company-admin-actions">
-            <button type="submit" className="company-admin-primary" disabled={saving}>
-              {saving ? 'Guardando' : 'Guardar'}
-            </button>
-            <button type="button" className="company-admin-secondary" onClick={handleNewCompany}>
-              Limpiar
-            </button>
-          </div>
-
-          {selectedCompany && (
-            <button type="button" className="company-admin-danger" onClick={handleDelete} disabled={saving}>
-              Eliminar compañía
-            </button>
-          )}
         </form>
-      </section>
-    </main>
+      </FormDialog>
+    </DataGrid>
   )
 }

@@ -124,7 +124,7 @@ async function recoverProduct(req, res) {
     }
 }
 
-async function getProduct(req, res) {
+async function getPagedProducts(req, res) {
     try {
         const limit=parseInt(req.query.limit)||10
         const offset=parseInt(req.query.offset)||0
@@ -144,7 +144,7 @@ async function getProduct(req, res) {
             limit: limit,
             offset: offset
         });
-        res.json({total:products.count,products:products.rows})
+        res.json({total:products.count,data:products.rows})
     } catch (err) {
         res.status(500).json({message:err.message})
     }
@@ -170,7 +170,7 @@ module.exports = {
     postProduct,
     updateProduct,
     deleteProduct,
-    getProduct,
+    getPagedProducts,
     recoverProduct,
     getProductById
 }

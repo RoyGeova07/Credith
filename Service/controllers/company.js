@@ -36,7 +36,7 @@ const createCompany = async (req, res) => {
 }
 
 // Obtener empresas
-const getCompanies = async (req, res) => {
+const getPagedCompanies = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10
     const offset = parseInt(req.query.offset) || 0
@@ -48,7 +48,7 @@ const getCompanies = async (req, res) => {
 
     res.json({
       total: companies.count,
-      companies: companies.rows
+      data: companies.rows
     })
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -137,7 +137,7 @@ const deleteCompany = async (req, res) => {
 
 module.exports = {
   createCompany,
-  getCompanies,
+  getPagedCompanies,
   getCompanyById,
   updateCompany,
   deleteCompany

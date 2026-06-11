@@ -2,8 +2,8 @@ const router = require('express').Router()
 
 const {
   createCaiRange,
-  getCaiRanges,
-  getCaiRangesByCai,
+  getPagedCaiRanges,
+  getPagedCaiRangesByCai,
   getCaiRangeById,
   updateCaiRange,
   deleteCaiRange
@@ -19,7 +19,7 @@ const {
  *       200:
  *         description: Lista de rangos obtenida correctamente
  */
-router.get('/cai-ranges', getCaiRanges)
+router.get('/cai-ranges', getPagedCaiRanges)
 
 /**
  * @swagger
@@ -40,7 +40,7 @@ router.get('/cai-ranges', getCaiRanges)
  *       404:
  *         description: CAI no encontrado
  */
-router.get('/cais/:caiId/ranges', getCaiRangesByCai)
+router.get('/cais/:caiId/ranges', getPagedCaiRangesByCai)
 
 /**
  * @swagger

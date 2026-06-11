@@ -41,7 +41,7 @@ const createStore = async (req, res) => {
 }
 
 // Obtener tiendas
-const getStores = async (req, res) => {
+const getPagedStores = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10
     const offset = parseInt(req.query.offset) || 0
@@ -60,7 +60,7 @@ const getStores = async (req, res) => {
 
     res.json({
       total: stores.count,
-      stores: stores.rows
+      data: stores.rows
     })
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -193,7 +193,7 @@ const activateStore = async (req, res) => {
 
 module.exports = {
   createStore,
-  getStores,
+  getPagedStores,
   getStoreById,
   updateStore,
   deactivateStore,
