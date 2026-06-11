@@ -2,7 +2,7 @@ const router = require('express').Router()
 
 const {
   createCai,
-  getCais,
+  getPagedCais,
   deleteCai
 } = require('../controllers/cai')
 
@@ -33,7 +33,7 @@ const {
  *       200:
  *         description: Lista de CAI obtenida correctamente
  */
-router.get('/cais', getCais)
+router.get('/cais', getPagedCais)
 
 /**
  * @swagger

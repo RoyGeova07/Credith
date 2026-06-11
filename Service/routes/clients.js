@@ -2,13 +2,13 @@ const router = require('express').Router()
 
 const {
   createClient,
-  getClients,
+  getPagedClients,
   getClientById,
   updateClient,
   deleteClient
 } = require('../controllers/clients')
 
-router.get('/clients', getClients)
+router.get('/clients', getPagedClients)
 
 router.get('/clients/:id', getClientById)
 

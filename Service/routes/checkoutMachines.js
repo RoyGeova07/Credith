@@ -2,7 +2,7 @@ const router = require('express').Router()
 
 const {
   createCheckoutMachine,
-  getCheckoutMachines,
+  getPagedCheckoutMachines,
   getCheckoutMachineById,
   updateCheckoutMachine,
   deactivateCheckoutMachine,
@@ -38,7 +38,7 @@ const {
  *       200:
  *         description: Lista de maquinas de checkout obtenida correctamente
  */
-router.get('/checkout-machines', getCheckoutMachines)
+router.get('/checkout-machines', getPagedCheckoutMachines)
 
 /**
  * @swagger

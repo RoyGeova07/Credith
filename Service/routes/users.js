@@ -1,7 +1,7 @@
 const router=require("express").Router()
 const authMiddleware=require("../middlewares/authMiddleware")
 
-const{createUser,getUsers, getUserById, desactivateUser, activateUser,updatePassword,loginUser,logoutUser}=require("../controllers/users")
+const{createUser,getPagedUsers, getUserById, desactivateUser, activateUser,updatePassword,loginUser,logoutUser}=require("../controllers/users")
 
 /**
  * @swagger
@@ -13,7 +13,7 @@ const{createUser,getUsers, getUserById, desactivateUser, activateUser,updatePass
  *       200:
  *         description: Lista de usuarios
  */
-router.get("/users",getUsers)
+router.get("/users",getPagedUsers)
 
 /**
  * @swagger

@@ -172,7 +172,7 @@ const createCai = async (req, res) => {
 }
 
 // Listado paginado
-const getCais = async (req, res) => {
+const getPagedCais = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10
     const offset = parseInt(req.query.offset) || 0
@@ -191,7 +191,7 @@ const getCais = async (req, res) => {
 
     res.json({
       total: cais.count,
-      cais: cais.rows
+      data: cais.rows
     })
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -229,6 +229,6 @@ const deleteCai = async (req, res) => {
 
 module.exports = {
   createCai,
-  getCais,
+  getPagedCais,
   deleteCai
 }
