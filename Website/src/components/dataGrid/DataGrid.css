@@ -1,0 +1,119 @@
+.data-grid {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-top: 28px;
+}
+
+.data-grid-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.data-grid-header > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.data-grid-kicker {
+  color: var(--blue);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.data-grid-header-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.add-element-click {
+  min-height: 42px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 0 16px;
+  transition: filter 0.2s, box-shadow 0.2s, transform 0.2s;
+  background: linear-gradient(120deg, var(--green-dark), var(--green-mid) 62%, var(--blue));
+  color: #ffffff;
+}
+
+.add-element-click:hover:not(:disabled) {
+  filter: brightness(1.03);
+  box-shadow: 0 10px 24px rgba(26, 122, 60, 0.14);
+  transform: translateY(-1px);
+}
+
+.data-grid-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.data-grid-filters input[type='text'],
+.data-grid-filters input[type='search'] {
+  border: 1.5px solid var(--gray-light);
+  border-radius: 8px;
+  background: white;
+  color: var(--text-dark);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  padding: 11px 13px;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.data-grid-filters input[type='text']:focus,
+.data-grid-filters input[type='search']:focus {
+  background: #ffffff;
+  border-color: var(--green-mid);
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.13);
+}
+
+.data-grid-filters input[type='button'],
+.data-grid-filters input[type='submit'] {
+  min-height: 42px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 0 16px;
+  transition: filter 0.2s, box-shadow 0.2s, transform 0.2s;
+  background: linear-gradient(120deg, var(--green-dark), var(--green-mid) 62%, var(--blue));
+  color: #ffffff;
+}
+
+.data-grid-filters input[type='button']:hover:not(:disabled),
+.data-grid-filters input[type='submit']:hover:not(:disabled) {
+  filter: brightness(1.03);
+  box-shadow: 0 10px 24px rgba(26, 122, 60, 0.14);
+  transform: translateY(-1px);
+}
+
+.grid-main-filter {
+  flex: 1;
+  min-width: 200px;
+}
+
+@media (max-width: 680px) {
+  .data-grid-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
