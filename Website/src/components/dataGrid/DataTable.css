@@ -47,6 +47,39 @@
     border-bottom: none;
 }
 
+.data-table .actions-cell {
+    display: flex;
+    gap: 6px;
+    white-space: nowrap;
+    justify-content: flex-end;
+}
+
+.data-table .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 6px;
+    line-height: 0;
+    transition: filter 0.2s, transform 0.15s;
+}
+
+.data-table .action-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.data-table .action-btn:active {
+    transform: translateY(0);
+}
+
+.data-table .action-icon {
+    width: 16px;
+    height: 16px;
+}
+
 .data-table-empty {
     color: var(--text-mid);
     height: 180px;

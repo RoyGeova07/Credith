@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react'
 import { DataGrid, DataGridHeader, HeaderTextFilter } from '@/components/dataGrid/DataGrid'
-import { DataColumn, DataTable } from '@/components/dataGrid/DataTable'
+import { ActionColumn, DataColumn, DataTable, DeleteAction, UpdateAction } from '@/components/dataGrid/DataTable'
 import FormDialog from '@/components/dialogs/SubmitDialog'
-import { Get, Post, Put } from '@/helpers/fetcher'
+import { Get, Post, Put, Delete } from '@/helpers/fetcher'
 import './AdminCompanyManagementPage.css'
 
 const emptyForm = {
@@ -83,6 +83,20 @@ export default function AdminCompanyManagementPage() {
     }
   }
 
+  const handleDelete = async (company) => {
+    if (!window.confirm(`¿Eliminar la compañía "${company.name}"?`)) return
+
+    try {
+      const res = await Delete(`/api/companies/${company.companyId}`)
+      if (res.status !== 200) {
+        throw new Error(res.json.message || 'No se pudo eliminar la compañía')
+      }
+      setRefreshKey((k) => k + 1)
+    } catch (requestError) {
+      setError(requestError.message)
+    }
+  }
+
   const handleClose = () => {
     setIsDialogOpen(false)
     setError('')
@@ -111,6 +125,10 @@ export default function AdminCompanyManagementPage() {
         <DataColumn propertyName='rtn' title='RTN' />
         <DataColumn propertyName='email' title='Correo' />
         <DataColumn propertyName='address' title='Dirección' />
+        <ActionColumn>
+          <UpdateAction onClick={(row) => openEditDialog(row)} />
+          <DeleteAction onClick={(row) => handleDelete(row)} />
+        </ActionColumn>
       </DataTable>
 
       <FormDialog

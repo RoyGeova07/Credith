@@ -1,9 +1,45 @@
-import { useState, useEffect } from 'react'
-import { LeftArrow, RightArrow } from '@/assets/icons'
+import { useState, useEffect, Children, cloneElement } from 'react'
+import { LeftArrow, RightArrow, Pencil, Tash } from '@/assets/icons'
 import './DataTable.css'
 
 export function DataColumn({ propertyName, title }) {
     return <></>
+}
+
+export function CustomAction({ row, backgroundColor, color = '#ffffff', icon: Icon, onClick, tooltip }) {
+    return (
+        <button
+            className='action-btn'
+            style={{ backgroundColor, color }}
+            title={tooltip}
+            onClick={(e) => { e.stopPropagation(); onClick?.(row) }}>
+            {Icon && <Icon className='action-icon' />}
+        </button>
+    )
+}
+
+export function UpdateAction(props) {
+    return <CustomAction {...props} backgroundColor="#1a7a3c" color="#ffffff" icon={Pencil} tooltip="Editar" />
+}
+
+export function DeleteAction(props) {
+    return <CustomAction {...props} backgroundColor="#dc2626" color="#ffffff" icon={Tash} tooltip="Eliminar" />
+}
+
+export function ActionColumn({ children, row }) {
+    return (
+        <td>
+            <div className='actions-cell'>
+                {Children.map(children, child =>
+                    child?.type?.name === 'CustomAction' ||
+                    child?.type?.name === 'UpdateAction' ||
+                    child?.type?.name === 'DeleteAction'
+                        ? cloneElement(child, { row })
+                        : child
+                )}
+            </div>
+        </td>
+    )
 }
 
 export function DataTable({
@@ -21,25 +57,32 @@ export function DataTable({
 
     const columns = []
     for (let c of children) {
-        if (c.type?.name !== 'DataColumn')
-            continue
+        if (!c || !c.type) continue
 
-        const props = c.props
-        let title = null
-        let propertyName = null
+        if (c.type.name === 'DataColumn') {
+            const props = c.props
+            let title = null
+            let propertyName = null
 
-        if ('title' in props)
-            title = props['title']
+            if ('title' in props)
+                title = props['title']
 
-        if ('propertyName' in props)
-            propertyName = props['propertyName']
+            if ('propertyName' in props)
+                propertyName = props['propertyName']
 
-        if (!title && !propertyName) continue
+            if (!title && !propertyName) continue
 
-        columns.push({
-            title: title || propertyName,
-            propertyName: propertyName || title,
-        })
+            columns.push({
+                type: 'data',
+                title: title || propertyName,
+                propertyName: propertyName || title,
+            })
+        } else if (c.type.name === 'ActionColumn') {
+            columns.push({
+                type: 'action',
+                element: c,
+            })
+        }
     }
 
     useEffect(() => {
@@ -58,11 +101,15 @@ export function DataTable({
         return () => { cancelled = true; };
     }, [page, rowsPerPage, onLoad])
 
+    const dataColumnCount = columns.filter(c => c.type !== 'action').length
+
     const header = (
         <thead>
             <tr className='table-header'>
                 {columns.map((col, i) => (
-                    <th key={i} className='table-header-item'>{col.title}</th>
+                    col.type === 'action'
+                        ? <th key={i} className='table-header-item table-header-action'></th>
+                        : <th key={i} className='table-header-item'>{col.title}</th>
                 ))}
             </tr>
         </thead>
@@ -71,13 +118,15 @@ export function DataTable({
     const rows = data.length === 0
         ? (
             <tr>
-                <td colSpan={columns.length || 1}><h3>Sin datos</h3></td>
+                <td colSpan={dataColumnCount || 1}><h3>Sin datos</h3></td>
             </tr>
         )
         : data.map((row, rowIndex) => (
             <tr key={rowIndex} title={rowTitle} onClick={() => onRowClick ? onRowClick(row) : {}}>
                 {columns.map((col, colIndex) => (
-                    <td key={colIndex}>{row[col.propertyName]}</td>
+                    col.type === 'action'
+                        ? cloneElement(col.element, { key: colIndex, row })
+                        : <td key={colIndex}>{row[col.propertyName]}</td>
                 ))}
             </tr>
         ))
