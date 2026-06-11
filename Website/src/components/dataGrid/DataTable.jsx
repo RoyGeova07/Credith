@@ -146,7 +146,7 @@ export function DataTable({
                 <button onClick={handlePrev} disabled={page <= 1}>
                     <LeftArrow className="grid-paging-btn"/>
                 </button>
-                <h3>Pagina: {page}/{totalPages}</h3>
+                <h3>Total: {maxCount}&nbsp;Pagina: {page}/{totalPages}</h3>
                 <button onClick={handleNext} disabled={page >= totalPages}>
                     <RightArrow className="grid-paging-btn"/>
                 </button>
