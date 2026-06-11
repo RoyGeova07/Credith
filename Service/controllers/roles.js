@@ -48,7 +48,7 @@ const createRole = async (req, res) => {
 }
 
 // Obtener roles paginados
-const getRoles = async (req, res) => {
+const getPagedRoles = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10
     const offset = parseInt(req.query.offset) || 0
@@ -61,7 +61,7 @@ const getRoles = async (req, res) => {
 
     res.json({
       total: roles.count,
-      roles: roles.rows
+      data: roles.rows
     })
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -209,7 +209,7 @@ const associateRoleToUser = async (req, res) => {
 
 module.exports = {
   createRole,
-  getRoles,
+  getPagedRoles,
   getRoleById,
   updateRole,
   deleteRole,

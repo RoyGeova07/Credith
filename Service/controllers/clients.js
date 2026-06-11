@@ -34,7 +34,7 @@ const createClient = async (req, res) => {
 }
 
 // Obtener clientes paginados
-const getClients = async (req, res) => {
+const getPagedClients = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10
     const offset = parseInt(req.query.offset) || 0
@@ -47,7 +47,7 @@ const getClients = async (req, res) => {
 
     res.json({
       total: clients.count,
-      clients: clients.rows
+      data: clients.rows
     })
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -145,7 +145,7 @@ const deleteClient = async (req, res) => {
 
 module.exports = {
   createClient,
-  getClients,
+  getPagedClients,
   getClientById,
   updateClient,
   deleteClient

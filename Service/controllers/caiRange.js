@@ -176,7 +176,7 @@ const createCaiRange = async (req, res) => {
 }
 
 // Obtener rangos paginados
-const getCaiRanges = async (req, res) => {
+const getPagedCaiRanges = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10
     const offset = parseInt(req.query.offset) || 0
@@ -195,7 +195,7 @@ const getCaiRanges = async (req, res) => {
 
     res.json({
       total: caiRanges.count,
-      caiRanges: caiRanges.rows
+      data: caiRanges.rows
     })
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -203,7 +203,7 @@ const getCaiRanges = async (req, res) => {
 }
 
 // Obtener rangos paginados por CAI
-const getCaiRangesByCai = async (req, res) => {
+const getPagedCaiRangesByCai = async (req, res) => {
   try {
     const { caiId } = req.params
     const limit = parseInt(req.query.limit) || 10
@@ -230,7 +230,7 @@ const getCaiRangesByCai = async (req, res) => {
 
     res.json({
       total: caiRanges.count,
-      caiRanges: caiRanges.rows
+      data: caiRanges.rows
     })
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -447,8 +447,8 @@ const deleteCaiRange = async (req, res) => {
 
 module.exports = {
   createCaiRange,
-  getCaiRanges,
-  getCaiRangesByCai,
+  getPagedCaiRanges,
+  getPagedCaiRangesByCai,
   getCaiRangeById,
   updateCaiRange,
   deleteCaiRange

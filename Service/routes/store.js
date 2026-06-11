@@ -2,7 +2,7 @@ const router = require('express').Router()
 
 const {
   createStore,
-  getStores,
+  getPagedStores,
   getStoreById,
   updateStore,
   deactivateStore,
@@ -36,7 +36,7 @@ const {
  *       200:
  *         description: Lista de tiendas obtenida correctamente
  */
-router.get('/stores', getStores)
+router.get('/stores', getPagedStores)
 
 /**
  * @swagger

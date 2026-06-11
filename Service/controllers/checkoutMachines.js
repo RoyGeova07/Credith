@@ -54,7 +54,7 @@ const createCheckoutMachine = async (req, res) => {
 }
 
 // Obtener maquinas de checkout paginadas
-const getCheckoutMachines = async (req, res) => {
+const getPagedCheckoutMachines = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10
     const offset = parseInt(req.query.offset) || 0
@@ -74,7 +74,7 @@ const getCheckoutMachines = async (req, res) => {
 
     res.json({
       total: checkoutMachines.count,
-      checkoutMachines: checkoutMachines.rows
+      data: checkoutMachines.rows
     })
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -287,7 +287,7 @@ const deleteCheckoutMachine = async (req, res) => {
 
 module.exports = {
   createCheckoutMachine,
-  getCheckoutMachines,
+  getPagedCheckoutMachines,
   getCheckoutMachineById,
   updateCheckoutMachine,
   deactivateCheckoutMachine,

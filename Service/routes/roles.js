@@ -2,7 +2,7 @@ const router = require('express').Router()
 
 const {
   createRole,
-  getRoles,
+  getPagedRoles,
   getRoleById,
   updateRole,
   deleteRole,
@@ -36,7 +36,7 @@ const {
  *       200:
  *         description: Lista de roles obtenida correctamente
  */
-router.get('/roles', getRoles)
+router.get('/roles', getPagedRoles)
 
 /**
  * @swagger

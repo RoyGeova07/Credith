@@ -1,7 +1,7 @@
 const router = require('express').Router()
 
 
-const{createCategory,getCategories,updateCategory,activateCategory,deactivateCategory}=require('../controllers/category')
+const{createCategory,getPagedCategories,updateCategory,activateCategory,deactivateCategory}=require('../controllers/category')
 
 /**
  * @swagger
@@ -43,7 +43,7 @@ router.post('/categories',createCategory)
  *       200:
  *         description: Lista de categorías obtenida correctamente
  */
-router.get('/categories',getCategories)
+router.get('/categories',getPagedCategories)
 
 /**
  * @swagger

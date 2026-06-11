@@ -46,14 +46,16 @@ const createCategory=async(req,res)=>
 
 }
 
-const getCategories=async(req,res)=>
+const getPagedCategories=async(req,res)=>
 {
 
     try{
+        const limit=parseInt(req.query.limit)||10
+        const offset=parseInt(req.query.offset)||0
 
-        const categories=await Categories.findAll({order:[['createdAt','DESC']]})
+        const categories=await Categories.findAndCountAll({limit,offset,order:[['createdAt','DESC']]})
 
-        return res.status(200).json(categories)
+        return res.status(200).json({total:categories.count,data:categories.rows})
 
     }catch(error){
 
@@ -184,4 +186,4 @@ const deactivateCategory=async(req,res)=>
     }
 };
 
-module.exports={createCategory,getCategories,updateCategory,activateCategory,deactivateCategory};
+module.exports={createCategory,getPagedCategories,updateCategory,activateCategory,deactivateCategory};

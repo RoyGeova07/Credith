@@ -2,7 +2,7 @@ const router = require('express').Router()
 
 const {
   createCompany,
-  getCompanies,
+  getPagedCompanies,
   getCompanyById,
   updateCompany,
   deleteCompany
@@ -32,7 +32,7 @@ const {
  *       200:
  *         description: Lista de empresas obtenida correctamente
  */
-router.get('/companies', getCompanies)
+router.get('/companies', getPagedCompanies)
 
 /**
  * @swagger

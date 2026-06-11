@@ -231,7 +231,7 @@ const updatePassword=async(req,res)=>
 }
 
 
-const getUsers=async(req,res)=>
+const getPagedUsers=async(req,res)=>
 {
 
     try
@@ -243,7 +243,7 @@ const getUsers=async(req,res)=>
         //                      mas profesional :O
         const users=await Users.findAndCountAll({limit,offset,attributes:{exclude:["password"]}})
 
-        res.json({total:users.count,users:users.rows})
+        res.json({total:users.count,data:users.rows})
 
     }catch(error){
 
@@ -371,4 +371,4 @@ const logoutUser=(req,res)=>
 
 
 
-module.exports={createUser,desactivateUser,activateUser,getUsers,getUserById,updatePassword,loginUser,logoutUser}
+module.exports={createUser,desactivateUser,activateUser,getPagedUsers,getUserById,updatePassword,loginUser,logoutUser}
