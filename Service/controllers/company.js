@@ -48,7 +48,7 @@ const getCompanies = async (req, res) => {
 
     res.json({
       total: companies.count,
-      companies: companies.rows
+      data: companies.rows
     })
   } catch (error) {
     res.status(500).json({ message: error.message })

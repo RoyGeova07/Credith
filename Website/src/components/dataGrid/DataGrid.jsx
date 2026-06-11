@@ -36,8 +36,10 @@ export function DataGridHeader({
         <>
             <div className='data-grid-header'>
                 <div>
+                    {description && (
+                        <p className='data-grid-kicker'>{description}</p>
+                    )}
                     <h1 className='data-grid-header-title'>{title}</h1>
-                    <label>{description}</label>
                 </div>
                 <button className='add-element-click'
                     onClick={onAddClick}>

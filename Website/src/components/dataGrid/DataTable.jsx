@@ -1,52 +1,108 @@
+import { useState, useEffect } from 'react'
 import './DataTable.css'
 
-export function DataColumn({
-    propertyName,
-    title,
-}) {
-    return <th>{title}</th>
+export function DataColumn({ propertyName, title }) {
+    return <></>
 }
 
-export function DataTable({ 
+export function DataTable({
     onLoad,
     children,
+    rowTitle,
+    onRowClick,
+    rowsPerPage = 10,
 }) {
-    let names = []
+    const [data, setData] = useState([])
+    const [maxCount, setMaxCount] = useState(0)
+    const [page, setPage] = useState(1)
 
-    for(let c of children) {
-        if (c.type.name !== 'DataColumn')
+    const totalPages = Math.max(1, Math.ceil(maxCount / rowsPerPage))
+
+    const columns = []
+    for (let c of children) {
+        if (c.type?.name !== 'DataColumn')
             continue
 
-        const props = c.props;
-        let prop = null
+        const props = c.props
+        let title = null
+        let propertyName = null
 
         if ('title' in props)
-            prop = props['title']
+            title = props['title']
 
         if ('propertyName' in props)
-            prop = props['propertyName']
+            propertyName = props['propertyName']
 
-        if (!prop) continue
+        if (!title && !propertyName) continue
 
-        names.push(prop)
+        columns.push({
+            title: title || propertyName,
+            propertyName: propertyName || title,
+        })
     }
+
+    useEffect(() => {
+        if (!onLoad) return
+
+        let cancelled = false;
+        const offset = (page - 1) * rowsPerPage
+
+        onLoad(offset, rowsPerPage).then(res => {
+            if (!cancelled) {
+                setData(res.data || [])
+                setMaxCount(res.total ?? 0)
+            }
+        })
+
+        return () => { cancelled = true; };
+    }, [page, rowsPerPage, onLoad])
+
+    const header = (
+        <thead>
+            <tr className='table-header'>
+                {columns.map((col, i) => (
+                    <th key={i} className='table-header-item'>{col.title}</th>
+                ))}
+            </tr>
+        </thead>
+    )
+
+    const rows = data.length === 0
+        ? (
+            <tr>
+                <td colSpan={columns.length || 1}><h3>Sin datos</h3></td>
+            </tr>
+        )
+        : data.map((row, rowIndex) => (
+            <tr key={rowIndex} title={rowTitle} onClick={() => onRowClick ? onRowClick(row) : {}}>
+                {columns.map((col, colIndex) => (
+                    <td key={colIndex}>{row[col.propertyName]}</td>
+                ))}
+            </tr>
+        ))
+
+    const handlePrev = () => setPage(p => Math.max(1, p - 1))
+    const handleNext = () => setPage(p => Math.min(totalPages, p + 1))
 
     return (
         <div className='data-table-div'>
             <table className='data-table'>
-                <tr>
-                    {children}
-                </tr>
+                {header}
+                <tbody>
+                    {rows}
+                </tbody>
             </table>
             <div className='data-table-paging'>
-                <button>
-                       |-
+                <button onClick={handlePrev} disabled={page <= 1}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="grid-paging-btn">
+                        <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-4.28 9.22a.75.75 0 0 0 0 1.06l3 3a.75.75 0 1 0 1.06-1.06l-1.72-1.72h5.69a.75.75 0 0 0 0-1.5h-5.69l1.72-1.72a.75.75 0 0 0-1.06-1.06l-3 3Z" clipRule="evenodd" />
+                    </svg>
                 </button>
-                <p>
-                Pagina: X/Y
-                </p>
-                <button>
-                       -|
+                <h3>Pagina: {page}/{totalPages}</h3>
+                <button onClick={handleNext} disabled={page >= totalPages}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="grid-paging-btn">
+                        <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z" clipRule="evenodd" />
+                    </svg>
                 </button>
             </div>
         </div>
