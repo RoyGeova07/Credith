@@ -1,0 +1,86 @@
+.store-admin-page {
+  min-height: 100vh;
+  background: #eef6f4;
+  color: var(--text-dark);
+  padding: 28px;
+}
+
+.store-admin-alert {
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+}
+
+.store-admin-alert.error {
+  background: #fff3f1;
+  color: #9f3127;
+  border: 1px solid rgba(192, 57, 43, 0.18);
+}
+
+.store-admin-alert.success {
+  background: #effaf3;
+  color: var(--green-dark);
+  border: 1px solid rgba(39, 174, 96, 0.22);
+}
+
+.store-admin-page .data-table tbody tr:hover td:first-child {
+  box-shadow: inset 5px 0 0 var(--gold);
+}
+
+.store-admin-page .data-table th:last-child,
+.store-admin-page .data-table td:last-child {
+  width: 116px;
+}
+
+.store-dialog-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.store-dialog-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-mid);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.store-dialog-form input,
+.store-dialog-form select {
+  width: 100%;
+  border: 1.5px solid var(--gray-light);
+  border-radius: 8px;
+  background: #f8fbf9;
+  color: var(--text-dark);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  padding: 11px 13px;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.store-dialog-form select {
+  cursor: pointer;
+}
+
+.store-dialog-form input:focus,
+.store-dialog-form select:focus {
+  background: #ffffff;
+  border-color: var(--green-mid);
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.13);
+}
+
+@media (max-width: 680px) {
+  .store-admin-page {
+    padding: 18px;
+  }
+
+  .store-admin-page .data-table {
+    min-width: 760px;
+  }
+}
