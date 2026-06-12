@@ -3,6 +3,7 @@ import DataGridTest from "./pages/DataGridTest";
 import RegisterPage from './pages/RegisterPage'
 import LoginPage from "./pages/LoginPage";
 import AdminCompanyManagementPage from '@/pages/AdminCompanyManagementPage'
+import CartDemoPage from '@/pages/CartDemoPage'
 import Home from './pages/Home'
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
                 <Route path="/data-grid" element={<DataGridTest/>}/>
                 <Route path="/login" element={<LoginPage/>}/>
                 <Route path="/admin/companies" element={<AdminCompanyManagementPage/>}/>
+                <Route path="/cart" element={<CartDemoPage/>}/>
                 <Route path="/*" element={<Home/>}/>
             </Routes>
         </BrowserRouter>
