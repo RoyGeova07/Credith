@@ -4,6 +4,7 @@ import { ActionColumn, DataColumn, DataTable, DeleteAction, UpdateAction } from 
 import FormDialog from '@/components/dialogs/SubmitDialog'
 import { Get, Post, Put, Delete } from '@/helpers/fetcher'
 import './AdminCompanyManagementPage.css'
+import { toast } from 'react-toastify'
 
 const emptyForm = {
   name: '',
@@ -76,10 +77,13 @@ export default function AdminCompanyManagementPage() {
         throw new Error(res.json.message || 'No se pudo completar la solicitud')
       }
 
+      toast.success(editingCompany?`Compañia ${payload.name} actualizada correctamente`:`Compañia ${payload.name} creada correctamente`)
+
       setIsDialogOpen(false)
       setRefreshKey((k) => k + 1)
     } catch (requestError) {
       setError(requestError.message)
+      toast.error(requestError.message)
     }
   }
 
@@ -91,9 +95,13 @@ export default function AdminCompanyManagementPage() {
       if (res.status !== 200) {
         throw new Error(res.json.message || 'No se pudo eliminar la compañía')
       }
+
+      toast.success(`Compañia ${company.name} eliminada exitosamente`)
+
       setRefreshKey((k) => k + 1)
     } catch (requestError) {
       setError(requestError.message)
+      toast.error(requestError.message)
     }
   }
 
@@ -110,7 +118,7 @@ export default function AdminCompanyManagementPage() {
         addButtonTxt='Nueva compañía'
         onAddClick={openNewDialog}>
         <HeaderTextFilter
-          filterPlaceholder='Nombre, RTN, correo o dirección'
+          filterPlaceholder='NOMBRE'
           className='grid-main-filter'
           value={filter}
           onChange={setFilter}
@@ -118,6 +126,7 @@ export default function AdminCompanyManagementPage() {
       </DataGridHeader>
 
       <DataTable
+        key={`${filter}-${refreshKey}`}
         onLoad={loadCompanies}
         rowTitle='Click para editar'
         onRowClick={openEditDialog}>

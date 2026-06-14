@@ -1,5 +1,9 @@
 const { Products } = require('../models/entities/product');
+const{Stores}=require('../models/entities/store')
+const{Categories}=require('../models/entities/category');
+const{Op}=require("sequelize")
 
+//----------------------------AGREGAR STOCK DESPUES------------------------------------------------
 async function postProduct(req, res) {
     const {
         name,
@@ -9,6 +13,8 @@ async function postProduct(req, res) {
         minGainPercentage,
         inStock,
         stores,
+        imageUrl,
+        categoryId,
     } = req.body;
 
     if (!name || name === "") {
@@ -19,72 +25,106 @@ async function postProduct(req, res) {
         return res.status(400).json({message:"El precio del producto es necesario"});
     }
 
+    if(!categoryId)
+    {
+
+        return res.status(400).json({message: "La categoría es necesaria"});
+
+    }
+
     let stock = inStock;
     if (!inStock || inStock < 0) {
         stock = 1;
     }
 
     try {
-        await Products.create({
+
+        const category=await Categories.findByPk(categoryId)
+
+        if(!category)
+        {
+
+            return res.status(404).json({message:'La categoria no existe'})
+
+        }
+
+        const product=await Products.create({
             name: name,
             description: description,
             buyPrice: buyPrice || 0,
             sellPrice: sellPrice,
             minGainPercentage: minGainPercentage,
             inStock: stock,
-            stores: stores
+            stores: stores,
+            imageUrl:imageUrl,
         })
 
+        await product.addCategory(category)
+
         res.status(201).json({message:"Producto agregado existosamente"})
+
     } catch (err) {
+
         res.status(500).json({message:err.message})
+
     }
 }
 
-async function updateProduct(req, res) {
-    const {
-        id,
-        productId,
-        name,
-        buyPrice,
-        sellPrice,
-        minGainPercentage,
-        inStock
-    } = req.body;
+//AGREGAR STOCK DESPUES
+async function updateProduct(req, res) 
+{
+    const{productId,name,description,buyPrice,sellPrice,minGainPercentage,imageUrl,categoryId}=req.body;
+    const{id}=req.params
 
     if (!id || id !== productId) {
-        return res.status(500).json({message:"El id enviado por la ruta debe encajar con el del producto a modificar"});
+        return res.status(400).json({message:"El id enviado por la ruta debe encajar con el del producto a modificar"});
     }
 
     if (!name || name === "") {
         return res.status(400).json({message:"El nombre de producto es necesario"});
     }
 
-    if (!buyPrice || sellPrice < 0) {
-        return res.status(400).json({message:"El precio del producto es necesario"});
+    if (sellPrice==null || sellPrice < 0) 
+    {
+
+        return res.status(400).json({message:"El precio de venta es invalido"});
+
     }
 
-    let stock = inStock;
-    if (!inStock || inStock < 0) {
-        stock = 0;
-    }
+    try 
+    {
 
-    try {
-        const product = await Products.findByPk(productId);
+        const product = await Products.findByPk(productId,{paranoid:false,include:[{model:Categories,as:"categories"}]});
 
-        if (!product) new Error(`Producto [${productId}] no existe`)
+        if(!product) 
+        {
 
-        await product.update({
-            name: name,
-            buyPrice: buyPrice,
-            sellPrice: sellPrice,
-            minGainPercentage: minGainPercentage,
-            inStock: inStock
-        });
+            return res.status(404).json({message:`Producto [${id}] no existe`});
 
-        res.status(201).json({message:"Producto editado existosamente"});
+        }
+
+        await product.update({name,description,buyPrice: buyPrice || 0,sellPrice,minGainPercentage,imageUrl});
+
+        if(categoryId)
+        {
+
+            const category=await Categories.findByPk(categoryId)
+
+            if(!category)
+            {
+
+                return res.status(404).json({message:"La categoría no existe"});
+
+            }
+            await product.setCategories([category])
+
+        }
+        res.status(200).json({message:"Producto editado exitosamente"})
+
     } catch (err) {
+
         res.status(500).json({message:err.message})
+
     }
 }
 
@@ -96,7 +136,12 @@ async function deleteProduct(req, res) {
     try {
         const product = await Products.findByPk(id);
 
-        if (!product) new Error(`Producto [${id}] no existe`)
+        if(!product)
+        {
+
+            return res.status(404).json({message:`Producto [${id}] no existe`})
+
+        }
 
         await product.destroy();
 
@@ -114,7 +159,12 @@ async function recoverProduct(req, res) {
     try {
         const product = await Products.findByPk(id, { paranoid: false });
 
-        if (!product) new Error(`Producto [${id}] no existe`)
+        if(!product)
+        {
+
+            return res.status(404).json({message:`Producto [${id}] no existe`});
+
+        }
 
         await product.restore();
 
@@ -125,10 +175,14 @@ async function recoverProduct(req, res) {
 }
 
 async function getPagedProducts(req, res) {
-    try {
+    try 
+    {
+
         const limit=parseInt(req.query.limit)||10
         const offset=parseInt(req.query.offset)||0
-        const storeId = req.query.storeId||null;
+        const storeId = req.query.storeId||null
+        const category=req.query.category||null
+        const archived=req.query.archived==="true"
 
         let whereStmt = {}
         if (storeId !== null) {
@@ -139,14 +193,37 @@ async function getPagedProducts(req, res) {
             }
         }
 
+        const categoyInclude={model:Categories,as:"categories",through:{attributes:[]},attributes:["categoryId","name","description"]}
+
+        if(category)
+        {
+
+            categoyInclude.where={name:category}
+
+        }
+        if(archived)
+        {
+
+            whereStmt.deletedAt={[Op.not]:null}
+
+        }
+
         const products = await Products.findAndCountAll({
             where: whereStmt,
             limit: limit,
-            offset: offset
+            offset: offset,
+            distinct:true,
+            include:[categoyInclude],
+            paranoid:!archived,
+
         });
+
         res.json({total:products.count,data:products.rows})
+
     } catch (err) {
+
         res.status(500).json({message:err.message})
+
     }
 }
 
@@ -156,11 +233,30 @@ async function getProductById(req, res) {
     } = req.params;
 
     try {
-        const product = await Products.findByPk(id);
+        const product = await Products.findByPk(id,{
 
-        if (!product) new Error(`Producto [${id}] no existe`)
+            include:[
 
-        res.status(201).json(product);
+                {
+
+                    model:Categories,
+                    as:"categories",
+                    through:{attributes:[]}
+
+                }
+
+            ]
+
+        });
+
+        if(!product) 
+        {
+
+            return res.status(404).json({message: `Producto [${id}] no existe`});
+
+        }
+
+        res.status(200).json(product);
     } catch (err) {
         res.status(500).json({message:err.message})
     }
@@ -172,5 +268,5 @@ module.exports = {
     deleteProduct,
     getPagedProducts,
     recoverProduct,
-    getProductById
+    getProductById,
 }

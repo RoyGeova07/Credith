@@ -1,9 +1,12 @@
 import { useState, useEffect, Children, cloneElement } from 'react'
-import { LeftArrow, RightArrow, Pencil, Tash } from '@/assets/icons'
+import { LeftArrow, RightArrow, Pencil, Tash,Restore } from '@/assets/icons'
 import './DataTable.css'
 
-export function DataColumn({ propertyName, title }) {
+export function DataColumn({propertyName,title,render}) 
+{
+
     return <></>
+
 }
 
 export function CustomAction({ row, backgroundColor, color = '#ffffff', icon: Icon, onClick, tooltip }) {
@@ -23,7 +26,7 @@ export function UpdateAction(props) {
 }
 
 export function DeleteAction(props) {
-    return <CustomAction {...props} backgroundColor="#dc2626" color="#ffffff" icon={Tash} tooltip="Eliminar" />
+    return <CustomAction {...props} backgroundColor="#dc2626" color="#ffffff" icon={Tash} tooltip="Eliminar-Archivar" />
 }
 
 export function ActionColumn({ children, row }) {
@@ -32,14 +35,34 @@ export function ActionColumn({ children, row }) {
             <div className='actions-cell'>
                 {Children.map(children, child =>
                     child?.type?.name === 'CustomAction' ||
-                    child?.type?.name === 'UpdateAction' ||
-                    child?.type?.name === 'DeleteAction'
+                        child?.type?.name === 'UpdateAction' ||
+                        child?.type?.name === 'DeleteAction' ||
+                        child?.type?.name==='RestoreAction'
                         ? cloneElement(child, { row })
                         : child
                 )}
             </div>
         </td>
     )
+}
+
+export function RestoreAction(props)
+{
+
+    return(
+
+        <CustomAction
+
+            {...props}
+            backgroundColor="#2563eb"
+            color="#ffffff"
+            icon={Restore}
+            tooltip="Restaurar"
+
+        />
+
+    )
+
 }
 
 export function DataTable({
@@ -76,6 +99,7 @@ export function DataTable({
                 type: 'data',
                 title: title || propertyName,
                 propertyName: propertyName || title,
+                render: props.render
             })
         } else if (c.type.name === 'ActionColumn') {
             columns.push({
@@ -126,7 +150,13 @@ export function DataTable({
                 {columns.map((col, colIndex) => (
                     col.type === 'action'
                         ? cloneElement(col.element, { key: colIndex, row })
-                        : <td key={colIndex}>{row[col.propertyName]}</td>
+                        : <td key={colIndex}>
+                            {
+                                col.render
+                                    ? col.render(row)
+                                    : row[col.propertyName]
+                            }
+                        </td>
                 ))}
             </tr>
         ))
@@ -144,11 +174,11 @@ export function DataTable({
             </table>
             <div className='data-table-paging'>
                 <button onClick={handlePrev} disabled={page <= 1}>
-                    <LeftArrow className="grid-paging-btn"/>
+                    <LeftArrow className="grid-paging-btn" />
                 </button>
                 <h3>Total: {maxCount}&nbsp;Pagina: {page}/{totalPages}</h3>
                 <button onClick={handleNext} disabled={page >= totalPages}>
-                    <RightArrow className="grid-paging-btn"/>
+                    <RightArrow className="grid-paging-btn" />
                 </button>
             </div>
         </div>

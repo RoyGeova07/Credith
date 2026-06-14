@@ -186,4 +186,4 @@ const deactivateCategory=async(req,res)=>
     }
 };
 
-module.exports={createCategory,getPagedCategories,updateCategory,activateCategory,deactivateCategory};
+module.exports={createCategory,getPagedCategories,updateCategory,activateCategory,deactivateCategory,};

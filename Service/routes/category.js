@@ -1,7 +1,7 @@
 const router = require('express').Router()
 
 
-const{createCategory,getPagedCategories,updateCategory,activateCategory,deactivateCategory}=require('../controllers/category')
+const{createCategory,getPagedCategories,updateCategory,activateCategory,deactivateCategory,}=require('../controllers/category')
 
 /**
  * @swagger
