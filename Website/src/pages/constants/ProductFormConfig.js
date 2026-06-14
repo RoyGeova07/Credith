@@ -50,10 +50,21 @@ export class ProductFormConfig
 
         }
 
-        if(form.minGainPercentage!==""&&(isNaN(form.minGainPercentage)||Number(form.minGainPercentage)<0||Number(form.minGainPercentage)>100))
+        if(!form.minGainPercentage)
         {
 
+            errors.minGainPercentage="El porcentaje minimo de ganancia es requerido"
+
+        }else if(form.minGainPercentage!==""&&(isNaN(form.minGainPercentage)||Number(form.minGainPercentage)<0||Number(form.minGainPercentage)>100)){
+
             errors.minGainPercentage="Ingrese un porcentaje valido entre 0 y 100"
+
+        }
+
+        if(!form.categories||form.categories.length===0)
+        {
+
+            errors.categories="La categoria es necesaria"
 
         }
 

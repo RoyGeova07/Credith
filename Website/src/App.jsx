@@ -22,22 +22,14 @@ export default function App()
 
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/data-grid" element={<DataGridTest />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/data-grid" element={<DataGridTest />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/admin/companies" element={<AdminCompanyManagementPage />} />
                 <Route path="/products" element={<ProductsPage />} />
-                <Route path="/" element={<Home />} />
-                <Route path="*" element={<Home />} />
-                
-                <Route path="/register" element={<RegisterPage/>}/>
-                <Route path="/data-grid" element={<DataGridTest/>}/>
-                <Route path="/login" element={<LoginPage/>}/>
-                <Route path="/admin/companies" element={<AdminCompanyManagementPage/>}/>
                 <Route path="/admin/roles" element={<AdminRoleManagementPage/>}/>
                 <Route path="/admin/stores" element={<AdminStoreManagementPage/>}/>
                 <Route path="/cart" element={<CartDemoPage/>}/>
                 <Route path="/*" element={<Home/>}/>
+                
             </Routes>
 
             <ToastContainer
