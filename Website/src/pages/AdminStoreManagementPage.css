@@ -5,26 +5,6 @@
   padding: 28px;
 }
 
-.store-admin-alert {
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  line-height: 1.4;
-  margin-bottom: 18px;
-  padding: 12px 14px;
-}
-
-.store-admin-alert.error {
-  background: #fff3f1;
-  color: #9f3127;
-  border: 1px solid rgba(192, 57, 43, 0.18);
-}
-
-.store-admin-alert.success {
-  background: #effaf3;
-  color: var(--green-dark);
-  border: 1px solid rgba(39, 174, 96, 0.22);
-}
 
 .store-admin-page .data-table tbody tr:hover td:first-child {
   box-shadow: inset 5px 0 0 var(--gold);
