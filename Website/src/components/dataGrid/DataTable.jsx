@@ -120,7 +120,7 @@ export function DataTable({ onLoad, children, rowTitle, onRowClick, rowsPerPage 
       </tr>
     ) : (
       data.map((row, rowIndex) => (
-        <tr key={row.storeId || row.companyId || rowIndex} title={rowTitle} onClick={() => onRowClick?.(row)}>
+        <tr key={row.storeId || row.companyId || row.roleId || rowIndex} title={rowTitle} onClick={() => onRowClick?.(row)}>
           {columns.map((column, columnIndex) =>
             column.type === 'action' ? (
               cloneElement(column.element, { key: columnIndex, row })
