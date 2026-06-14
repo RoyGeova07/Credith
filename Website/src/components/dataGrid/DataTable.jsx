@@ -10,19 +10,23 @@ export function DataColumn({propertyName,title,render})
 }
 
 export function CustomAction({ row, backgroundColor, color = '#ffffff', icon: Icon, onClick, tooltip }) {
-    return (
-        <button
-            className='action-btn'
-            style={{ backgroundColor, color }}
-            title={tooltip}
-            onClick={(e) => { e.stopPropagation(); onClick?.(row) }}>
-            {Icon && <Icon className='action-icon' />}
-        </button>
-    )
+  return (
+    <button
+      className="action-btn"
+      style={{ backgroundColor, color }}
+      title={tooltip}
+      onClick={(event) => {
+        event.stopPropagation()
+        onClick?.(row)
+      }}
+    >
+      {Icon && <Icon className="action-icon" />}
+    </button>
+  )
 }
 
 export function UpdateAction(props) {
-    return <CustomAction {...props} backgroundColor="#1a7a3c" color="#ffffff" icon={Pencil} tooltip="Editar" />
+  return <CustomAction {...props} backgroundColor="#1a7a3c" color="#ffffff" icon={Pencil} tooltip="Editar" />
 }
 
 export function DeleteAction(props) {
@@ -108,36 +112,13 @@ export function DataTable({
             })
         }
     }
+  }
 
-    useEffect(() => {
-        if (!onLoad) return
+  useEffect(() => {
+    if (!onLoad) return undefined
 
-        let cancelled = false;
-        const offset = (page - 1) * rowsPerPage
-
-        onLoad(offset, rowsPerPage).then(res => {
-            if (!cancelled) {
-                setData(res.data || [])
-                setMaxCount(res.total ?? 0)
-            }
-        })
-
-        return () => { cancelled = true; };
-    }, [page, rowsPerPage, onLoad])
-
-    const dataColumnCount = columns.filter(c => c.type !== 'action').length
-
-    const header = (
-        <thead>
-            <tr className='table-header'>
-                {columns.map((col, i) => (
-                    col.type === 'action'
-                        ? <th key={i} className='table-header-item table-header-action'></th>
-                        : <th key={i} className='table-header-item'>{col.title}</th>
-                ))}
-            </tr>
-        </thead>
-    )
+    let cancelled = false
+    const offset = (page - 1) * rowsPerPage
 
     const rows = data.length === 0
         ? (
@@ -183,4 +164,30 @@ export function DataTable({
             </div>
         </div>
     )
+
+  const handlePrev = () => setPage((current) => Math.max(1, current - 1))
+  const handleNext = () => setPage((current) => Math.min(totalPages, current + 1))
+
+  return (
+    <div className="data-table-div">
+      <div className="data-table-wrap">
+        <table className="data-table">
+          {header}
+          <tbody>{rows}</tbody>
+        </table>
+      </div>
+
+      <div className="data-table-paging">
+        <button onClick={handlePrev} disabled={page <= 1}>
+          <LeftArrow className="grid-paging-btn" />
+        </button>
+        <h3>
+          Total: {maxCount}&nbsp;Pagina: {page}/{totalPages}
+        </h3>
+        <button onClick={handleNext} disabled={page >= totalPages}>
+          <RightArrow className="grid-paging-btn" />
+        </button>
+      </div>
+    </div>
+  )
 }

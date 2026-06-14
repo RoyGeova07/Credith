@@ -1,13 +1,13 @@
 .data-table-div {
-    background: #ffffff;
-    border: 1px solid rgba(26, 122, 60, 0.08);
-    border-radius: 8px;
-    box-shadow: 0 12px 34px rgba(26, 122, 60, 0.08);
-    overflow: hidden;
+  background: #ffffff;
+  border: 1px solid rgba(26, 122, 60, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 12px 34px rgba(26, 122, 60, 0.08);
+  overflow: hidden;
 }
 
 .data-table-wrap {
-    overflow-x: auto;
+  overflow-x: auto;
 }
 
 .data-table {
@@ -27,57 +27,57 @@
 }
 
 .data-table th {
-    color: var(--text-mid);
-    background: #f8fbf9;
-    font-size: 0.76rem;
-    font-weight: 800;
-    text-transform: uppercase;
+  color: var(--text-mid);
+  background: #f8fbf9;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .data-table tbody tr {
-    cursor: pointer;
-    transition: background 0.15s;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
 .data-table tbody tr:hover {
-    background: #f0faf4;
+  background: #f0faf4;
 }
 
 .data-table tbody tr:last-child td {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .data-table .actions-cell {
-    display: flex;
-    gap: 6px;
-    white-space: nowrap;
-    justify-content: flex-end;
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+  justify-content: flex-end;
 }
 
 .data-table .action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 6px;
-    line-height: 0;
-    transition: filter 0.2s, transform 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 6px;
+  line-height: 0;
+  transition: filter 0.2s, transform 0.15s;
 }
 
 .data-table .action-btn:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
 
 .data-table .action-btn:active {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 
 .data-table .action-icon {
-    width: 16px;
-    height: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .data-table-empty {
@@ -91,49 +91,49 @@
 }
 
 .data-table-paging {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px;
-    border-top: 1px solid var(--gray-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-top: 1px solid var(--gray-light);
 }
 
 .data-table-paging h3 {
-    color: var(--text-mid);
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.88rem;
-    font-weight: 700;
+  color: var(--text-mid);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
 }
 
 .data-table-paging button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 36px;
-    min-width: 36px;
-    border: 0;
-    border-radius: 8px;
-    cursor: pointer;
-    padding: 6px;
-    transition: filter 0.2s, box-shadow 0.2s, transform 0.2s;
-    background: linear-gradient(120deg, var(--green-dark), var(--green-mid) 62%, var(--blue));
-    color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  min-width: 36px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 6px;
+  transition: filter 0.2s, box-shadow 0.2s, transform 0.2s;
+  background: linear-gradient(120deg, var(--green-dark), var(--green-mid) 62%, var(--blue));
+  color: #ffffff;
 }
 
 .data-table-paging button:hover:not(:disabled) {
-    filter: brightness(1.03);
-    box-shadow: 0 10px 24px rgba(26, 122, 60, 0.14);
-    transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 10px 24px rgba(26, 122, 60, 0.14);
+  transform: translateY(-1px);
 }
 
 .data-table-paging button:disabled {
-    cursor: not-allowed;
-    opacity: 0.72;
+  cursor: not-allowed;
+  opacity: 0.72;
 }
 
 .grid-paging-btn {
-    width: 20px;
-    height: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 
