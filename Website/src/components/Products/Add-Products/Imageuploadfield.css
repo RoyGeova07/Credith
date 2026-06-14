@@ -1,0 +1,175 @@
+.image-upload-field
+{
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+}
+
+.image-upload-field label
+{
+
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+
+}
+
+.image-upload-row
+{
+
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+
+}
+
+.image-upload-row input
+{
+
+    flex: 1;
+    padding: 11px 14px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    background: var(--off-white);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+
+}
+
+.image-upload-row input::placeholder
+{
+
+    color: #b0bdb6;
+    font-size: 0.9rem;
+
+}
+
+.image-upload-row input:focus
+{
+
+    border-color: var(--green-mid);
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.13);
+    background: #fff;
+
+}
+
+.upload-btn
+{
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 16px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    background: var(--off-white);
+    color: var(--text-mid);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+    white-space: nowrap;
+
+}
+
+.upload-btn:hover
+{
+
+    border-color: #2A68D2;
+    background: #f0f5ff;
+    color: #2A68D2;
+
+}
+
+.upload-btn svg
+{
+
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+
+}
+
+.upload-hint
+{
+
+    font-size: 0.73rem;
+    color: #b0bdb6;
+    margin-top: 2px;
+
+}
+
+.image-preview-container
+{
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+
+}
+
+.preview-title
+{
+
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+
+}
+
+.image-preview
+{
+
+    width: 120px;
+    height: 120px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--off-white);
+
+}
+
+.image-preview img
+{
+
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+}
+
+.image-upload-row input:read-only
+{
+
+    cursor: default;
+    background: #f8fbf9;
+    color: var(--text-mid);
+
+}
+
+.image-upload-row input:read-only:focus
+{
+
+    border-color: var(--gray-light);
+    box-shadow: none;
+
+}
+
+.upload-btn:disabled
+{
+
+    cursor: not-allowed;
+    opacity: .7;
+
+}

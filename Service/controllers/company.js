@@ -1,4 +1,5 @@
 const { Companies } = require('../models/entities/company')
+const{Op}=require('sequelize')
 
 // Crear empresa
 const createCompany = async (req, res) => {
@@ -40,10 +41,21 @@ const getPagedCompanies = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10
     const offset = parseInt(req.query.offset) || 0
+    const filter=req.query.filter||""
+
+    let whereStmt={}
+
+    if(filter.trim()!=="")
+    {
+
+      whereStmt={name:{[Op.iLike]:`%${filter}%`}}
+
+    }
 
     const companies = await Companies.findAndCountAll({
+      where:whereStmt,
       limit,
-      offset
+      offset,
     })
 
     res.json({

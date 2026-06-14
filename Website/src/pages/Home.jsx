@@ -117,19 +117,29 @@ export default function Home()
 
         {
 
+          //boton de cerrar sesion y producto
           currentUser&&
           (
             
-            <button
+            <div className="user-actions">
 
-              className="logout-btn"
-              onClick={handleLogout}
+              <button className="products-btn" onClick={() => navigate('/products')}>
 
-            >
+                Productos
 
-              Cerrar sesión
+              </button>
 
-            </button>
+              <button className="logout-btn"
+
+                onClick={handleLogout}
+
+              >
+
+                Cerrar sesión
+
+              </button>
+
+            </div>
 
           )
 
