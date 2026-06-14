@@ -78,8 +78,8 @@ module.exports = {
     // Roles
     await queryInterface.bulkInsert({ schema: 'cd', tableName: 'roles' }, [
       { role_id: roleIds[0], name: 'ADMIN', description: 'Administrador del sistema con acceso completo' },
-      { role_id: roleIds[1], name: 'CASHIER', description: 'Cajero puede facturar y cobrar' },
-      { role_id: roleIds[2], name: 'INVENTORY_MANAGER', description: 'Encargado de inventario y productos' },
+      { role_id: roleIds[1], name: 'OWNER', description: 'Dueño de todo puede hacer lo que sea' },
+      { role_id: roleIds[2], name: 'EMPLOYEE', description: 'Encargado de inventario y productos' },
     ]);
 
     // Users

@@ -10,13 +10,14 @@ import { getCategories } from '@/helpers/categories'
 import { createProduct, updateProduct } from '@/helpers/products'
 import { toast } from 'react-toastify'
 
-export default function ProductForm({isOpen,setIsOpen,onCreated,product=null})
+export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,setSelectedProduct})
 {
 
     const[form,setForm]=useState(ProductFormConfig.INITIAL_FORM)
     const[errors,setErrors]=useState({})
     const[touched,setTouched]=useState({})
     const[saving,setSaving]=useState(false)//evitar doble click
+    const[uploadingImage,setUploadingImage]=useState(false)
 
 
     const handleChange=(field)=>(e)=>
@@ -65,7 +66,10 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null})
     const handleCategories=(selected)=>
     {
 
-        setForm(prev=>({...prev,categories:selected&&selected.length>0?[selected[selected.length-1]]:[]}))
+        const value=selected&&selected.length>0?[selected[selected.length-1]]:[]
+        setForm(prev => ({...prev,categories: value}))
+        setTouched(prev => ({...prev,categories: true}))
+        setErrors(ProductFormConfig.validateProduct({...form,categories: value}))
 
     }
 
@@ -107,6 +111,7 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null})
     {
 
         setIsOpen(false)
+        setSelectedProduct?.(null)
         setForm(ProductFormConfig.INITIAL_FORM)
         setErrors({})
         setTouched({})
@@ -117,15 +122,25 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null})
     const handleAccept=async()=>
     {
 
-        /* marcar todos los campos como tocados para mostrar errores */
+        if(uploadingImage)
+        {
+
+            toast.warning("Espere a que termine de subirse la imagen")
+            return
+
+        }
         setSaving(true)
         const allTouched=Object.keys(ProductFormConfig.INITIAL_FORM).reduce((acc, key)=>({ ...acc,[key]:true}),{})
         setTouched(allTouched)
         const errs=ProductFormConfig.validateProduct(form)
         setErrors(errs)
         if(Object.keys(errs).length>0)
+        {
+            
+            setSaving(false)
             return
 
+        }
         try
         {
 
@@ -198,10 +213,9 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null})
             setIsOpen={setIsOpen}
             onAccept={handleAccept}
             onClose={handleClose}
-            acceptText={saving?"Guardando...":product?"Actualizar Producto":"Guardar Producto"}
+            acceptDisabled={uploadingImage||saving}
+            acceptText={uploadingImage?"Subiendo imagen...":saving?"Guardando...":product?"Actualizar producto":"Guardar producto"}
             closeText="Cancelar"
-
-            
 
         >
 
@@ -231,6 +245,7 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null})
                         value={form.imageUrl}
                         onChange={handleChange('imageUrl')}
                         onUpload={handleUpload}
+                        onUploadingChange={setUploadingImage}
 
                     />
 
@@ -336,6 +351,20 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null})
                             onLoad={loadCategories}
                             pageSize={10}
                         />
+
+                        {
+
+                            touched.categories&&errors.categories&&(
+
+                                <span className="error-msg">
+
+                                    ⚠ {errors.categories}
+
+                                </span>
+
+                            )
+
+                        }
 
 
                     </div>

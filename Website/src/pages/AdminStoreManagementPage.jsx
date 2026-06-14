@@ -5,6 +5,7 @@ import { ActionColumn, CustomAction, DataColumn, DataTable, UpdateAction } from 
 import FormDialog from '@/components/dialogs/SubmitDialog'
 import { Get, Post, Put } from '@/helpers/fetcher'
 import './AdminStoreManagementPage.css'
+import { toast } from 'react-toastify'
 
 const emptyForm = {
   address: '',
@@ -41,7 +42,6 @@ export default function AdminStoreManagementPage() {
   const [form, setForm] = useState(emptyForm)
   const [companies, setCompanies] = useState([])
   const [error, setError] = useState('')
-  const [feedback, setFeedback] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
@@ -57,17 +57,14 @@ export default function AdminStoreManagementPage() {
           throw new Error(response.json.message || 'No se pudieron cargar las empresas')
         }
 
-        setCompanies((response.json.companies || []).map(normalizeCompany))
+        setCompanies((response.json.data || []).map(normalizeCompany))
       })
       .catch((requestError) => {
         if (!isMounted) {
           return
         }
 
-        setFeedback({
-          type: 'error',
-          message: requestError.message,
-        })
+        toast.error(requestError.message)
       })
 
     return () => {
@@ -79,13 +76,14 @@ export default function AdminStoreManagementPage() {
     async (offset, limit) => {
       try {
         const response = await Get(`/api/stores?limit=500&offset=0&_=${refreshKey}`)
+        console.log(response.json)
 
         if (response.status !== 200) {
           throw new Error(response.json.message || 'No se pudieron cargar las tiendas')
         }
 
         const term = filter.trim().toLowerCase()
-        const stores = (response.json.stores || []).map(normalizeStore)
+        const stores = (response.json.data || []).map(normalizeStore)
         const filteredStores = !term
           ? stores
           : stores.filter((store) =>
@@ -100,10 +98,7 @@ export default function AdminStoreManagementPage() {
           total: filteredStores.length,
         }
       } catch (requestError) {
-        setFeedback({
-          type: 'error',
-          message: requestError.message,
-        })
+        toast.error(requestError.message)
 
         return {
           data: [],
@@ -169,12 +164,10 @@ export default function AdminStoreManagementPage() {
 
       setIsDialogOpen(false)
       setRefreshKey((current) => current + 1)
-      setFeedback({
-        type: 'success',
-        message: editingStore ? 'Tienda actualizada correctamente' : 'Tienda creada correctamente',
-      })
+      toast.success(editingStore?'Tienda actualizada correctamente':'Tienda creada correctamente')
     } catch (requestError) {
       setError(requestError.message)
+      toast.error(requestError.message)
     }
   }
 
@@ -196,15 +189,9 @@ export default function AdminStoreManagementPage() {
       }
 
       setRefreshKey((current) => current + 1)
-      setFeedback({
-        type: 'success',
-        message: store.isActive ? 'Tienda desactivada correctamente' : 'Tienda activada correctamente',
-      })
+      toast.success(store.isActive?'Tienda desactivada correctamente':'Tienda activada correctamente')
     } catch (requestError) {
-      setFeedback({
-        type: 'error',
-        message: requestError.message,
-      })
+      toast.error(requestError.message)
     }
   }
 
@@ -230,7 +217,6 @@ export default function AdminStoreManagementPage() {
           />
         </DataGridHeader>
 
-        {feedback && <div className={`store-admin-alert ${feedback.type}`}>{feedback.message}</div>}
 
         <DataTable onLoad={loadStores} rowTitle="Click para editar" onRowClick={openEditDialog}>
           <DataColumn propertyName="address" title="Dirección" />
@@ -258,7 +244,7 @@ export default function AdminStoreManagementPage() {
           onClose={handleClose}
           closeText="Cancelar"
         >
-          {error && <div className="store-admin-alert error">{error}</div>}
+        
 
           <form className="store-dialog-form">
             <label>

@@ -53,7 +53,8 @@ const getPagedStores = async (req, res) => {
         {
           model: Companies,
           as: 'company',
-          attributes: ['companyId', 'name', 'rtn']
+          attributes: ['companyId', 'name', 'rtn'],
+          required:true,
         }
       ]
     })
@@ -77,7 +78,8 @@ const getStoreById = async (req, res) => {
         {
           model: Companies,
           as: 'company',
-          attributes: ['companyId', 'name', 'rtn']
+          attributes: ['companyId', 'name', 'rtn'],
+          required:true,
         }
       ]
     })

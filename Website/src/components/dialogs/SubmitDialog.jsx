@@ -9,7 +9,7 @@ export default function FormDialog({
     closeText,
     children,
     isOpen,
-    setIsOpen }) {
+    setIsOpen,acceptDisabled=false}) {
     const acceptTxt = acceptText || 'Aceptar'
     const closeTxt = closeText || 'Cancelar'
 
@@ -28,8 +28,14 @@ export default function FormDialog({
                     </button>
 
                     <button className="submit-btn"
-                        onClick={onAccept}>
+
+                        onClick={onAccept}
+                        disabled={acceptDisabled}
+
+                    >
+
                         {acceptTxt}
+
                     </button>
                 </div>
             </Dialog>

@@ -97,7 +97,13 @@ export default function ProductsPage()
 
             <ProductHeader
 
-                onCreate={() => setIsOpen(true)}
+                onCreate={() => 
+                {
+
+                    setSelectedProduct(null)
+                    setIsOpen(true)
+
+                }}
 
             />
 
@@ -328,6 +334,7 @@ export default function ProductsPage()
                 setIsOpen={setIsOpen}
                 onCreated={()=>setReload(prev=>prev+1)}
                 product={selectedProduct}
+                setSelectedProduct={setSelectedProduct}
 
             />
 

@@ -12,10 +12,15 @@ import ProductsPage from './pages/ProductsPage'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-export default function App() {
-  return (
+export default function App() 
+{
+  
+  return(
+    
     <BrowserRouter>
+    
       <Routes>
+    
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -27,9 +32,11 @@ export default function App() {
         <Route path="/manager/employees" element={<ManagerEmployeesManagementPage />} />
         <Route path="/cart" element={<CartDemoPage />} />
         <Route path="*" element={<Home />} />
+          
       </Routes>
 
       <ToastContainer
+
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -45,7 +52,11 @@ export default function App() {
           fontWeight: '600',
           boxShadow: '0 8px 20px rgba(0,0,0,.18)',
         }}
+        
       />
+
     </BrowserRouter>
+
   )
+  
 }
