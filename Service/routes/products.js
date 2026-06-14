@@ -74,6 +74,7 @@ router.get("/products/:id", Products.getProductById)
  *               - name
  *               - sellPrice
  *               - description
+ *               - categoryId
  *             properties:
  *               name:
  *                 type: string
@@ -93,6 +94,13 @@ router.get("/products/:id", Products.getProductById)
  *               inStock:
  *                 type: integer
  *                 example: 5
+ *               imageUrl:
+ *                 type: string
+ *                 example: https://miservidor.com/images/laptop.jpg
+ *               categoryId:
+ *                 type: string
+ *                 description: ID de la categoría del producto
+ *                 example: 7d4d0f83-f2d7-4d58-a48b-cf2d2f75d4d1
  *               stores:
  *                 type: array
  *                 items:
@@ -102,6 +110,8 @@ router.get("/products/:id", Products.getProductById)
  *         description: Producto agregado exitosamente
  *       400:
  *         description: Datos inválidos
+ *       404:
+ *         description: La categoría no existe
  */
 router.post("/products", Products.postProduct)
 
@@ -135,6 +145,9 @@ router.post("/products", Products.postProduct)
  *               name:
  *                 type: string
  *                 example: Laptop Lenovo
+ *               description:
+ *                 type: string
+ *                 example: Laptop Lenovo Core i7 16GB RAM
  *               buyPrice:
  *                 type: number
  *                 example: 12000
@@ -144,16 +157,24 @@ router.post("/products", Products.postProduct)
  *               minGainPercentage:
  *                 type: integer
  *                 example: 15
- *               inStock:
- *                 type: integer
- *                 example: 10
+ *               imageUrl:
+ *                 type: string
+ *                 example: https://miservidor.com/images/laptop.jpg
+ *               categoryId:
+ *                 type: string
+ *                 description: ID de la categoría del producto
+ *                 example: 7d4d0f83-f2d7-4d58-a48b-cf2d2f75d4d1
  *     responses:
  *       200:
  *         description: Producto actualizado correctamente
+ *       400:
+ *         description: Datos inválidos
  *       404:
- *         description: Producto no encontrado
+ *         description: Producto o categoría no encontrados
+ *       500:
+ *         description: Error interno del servidor
  */
-router.put("/products/:id", Products.updateProduct)
+router.put("/products/:id",Products.updateProduct)
 
 /**
  * @swagger
@@ -199,6 +220,5 @@ router.post("/products/:id/recover", Products.recoverProduct)
 
 // Solo admins
 //router.delete("/products/:id", authMiddleware, roleMiddleware('Admin'), deleteProduct)
-
 
 module.exports=router

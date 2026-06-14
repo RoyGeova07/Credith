@@ -1,5 +1,5 @@
 import { Children, cloneElement, useEffect, useState } from 'react'
-import { LeftArrow, Pencil, RightArrow, Tash } from '@/assets/icons'
+import { LeftArrow, Pencil, Restore, RightArrow, Tash } from '@/assets/icons'
 import './DataTable.css'
 
 export function DataColumn() {
@@ -27,7 +27,11 @@ export function UpdateAction(props) {
 }
 
 export function DeleteAction(props) {
-  return <CustomAction {...props} backgroundColor="#dc2626" color="#ffffff" icon={Tash} tooltip="Eliminar" />
+  return <CustomAction {...props} backgroundColor="#dc2626" color="#ffffff" icon={Tash} tooltip="Eliminar-Archivar" />
+}
+
+export function RestoreAction(props) {
+  return <CustomAction {...props} backgroundColor="#2563eb" color="#ffffff" icon={Restore} tooltip="Restaurar" />
 }
 
 export function ActionColumn({ children, row }) {
@@ -37,7 +41,8 @@ export function ActionColumn({ children, row }) {
         {Children.map(children, (child) =>
           child?.type?.name === 'CustomAction' ||
           child?.type?.name === 'UpdateAction' ||
-          child?.type?.name === 'DeleteAction'
+          child?.type?.name === 'DeleteAction' ||
+          child?.type?.name === 'RestoreAction'
             ? cloneElement(child, { row })
             : child
         )}
@@ -58,7 +63,7 @@ export function DataTable({ onLoad, children, rowTitle, onRowClick, rowsPerPage 
     if (!child || !child.type) continue
 
     if (child.type.name === 'DataColumn') {
-      const { title, propertyName } = child.props
+      const { title, propertyName, render } = child.props
 
       if (!title && !propertyName) continue
 
@@ -66,6 +71,7 @@ export function DataTable({ onLoad, children, rowTitle, onRowClick, rowsPerPage 
         type: 'data',
         title: title || propertyName,
         propertyName: propertyName || title,
+        render,
       })
     } else if (child.type.name === 'ActionColumn') {
       columns.push({
@@ -115,17 +121,21 @@ export function DataTable({ onLoad, children, rowTitle, onRowClick, rowsPerPage 
     data.length === 0 ? (
       <tr>
         <td className="data-table-empty" colSpan={dataColumnCount}>
-          Sin datos
+          <h3>Sin datos</h3>
         </td>
       </tr>
     ) : (
       data.map((row, rowIndex) => (
-        <tr key={row.storeId || row.companyId || row.roleId || rowIndex} title={rowTitle} onClick={() => onRowClick?.(row)}>
+        <tr
+          key={row.storeId || row.companyId || row.roleId || row.productId || row.categoryId || row.clientId || row.userId || rowIndex}
+          title={rowTitle}
+          onClick={() => onRowClick?.(row)}
+        >
           {columns.map((column, columnIndex) =>
             column.type === 'action' ? (
               cloneElement(column.element, { key: columnIndex, row })
             ) : (
-              <td key={columnIndex}>{row[column.propertyName]}</td>
+              <td key={columnIndex}>{column.render ? column.render(row) : row[column.propertyName]}</td>
             )
           )}
         </tr>

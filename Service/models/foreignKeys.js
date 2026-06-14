@@ -42,16 +42,21 @@ function createFKs() {
         as: 'employee'
     })
 
-    Products.belongsToMany(Categories, {
+    Products.belongsToMany(Categories,
+    {
         through: ProductsCategories,
-        as: 'categories',
+        foreignKey: 'product_id',
+        otherKey: 'category_id',
+        as: 'categories'
     })
 
-    Categories.belongsToMany(Products, {
+    Categories.belongsToMany(Products, 
+    {
         through: ProductsCategories,
+        foreignKey: 'category_id',
+        otherKey: 'product_id',
         as: 'products'
     })
-
     Products.belongsToMany(Stores, {
         through: StoresInventories,
         foreignKey: 'productId',

@@ -80,3 +80,33 @@ export function Pencil({ className }) {
     </svg>
   )
 }
+
+export function Restore({className})
+{
+
+    return(
+
+        <svg
+
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className={className}
+
+        >
+
+            <path
+
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.023 9.348h4.992V4.356m0 0-5.364 5.364a8.25 8.25 0 1 0 2.122 5.53"
+
+            />
+
+        </svg>
+
+    )
+
+}
