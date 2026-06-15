@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import CartDrawerButton from '@/components/cart/CartDrawerButton'
 import MultiSelect from '@/components/multiSelect/MultiSelect'
+import { CartIcon } from '@/assets/icons'
 import { Get } from '@/helpers/fetcher'
 import logo from '@/assets/logo.png'
+import { toast } from 'react-toastify'
 import './HomePreviewPage.css'
 
 const fallbackCategories = [
@@ -71,6 +73,8 @@ const fallbackProducts = [
   },
 ]
 
+const pageSizeOptions = [15, 30, 45, 60, 100]
+
 function toCurrency(value) {
   const numericValue = Number(value || 0)
   return new Intl.NumberFormat('es-HN', {
@@ -115,6 +119,10 @@ export default function HomePreviewPage() {
   const [selectedCategories, setSelectedCategories] = useState([])
   const [products, setProducts] = useState(fallbackProducts.map(normalizeProduct))
   const [search, setSearch] = useState('')
+  const [visibleLimit, setVisibleLimit] = useState(pageSizeOptions[0])
+  const [isLimitMenuOpen, setIsLimitMenuOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [cartItems, setCartItems] = useState([])
 
   useEffect(() => {
     let isMounted = true
@@ -162,7 +170,7 @@ export default function HomePreviewPage() {
   useEffect(() => {
     let isMounted = true
 
-    Get('/api/products?limit=24&offset=0')
+    Get('/api/products?limit=100&offset=0')
       .then((response) => {
         if (!isMounted || response.status !== 200) {
           return
@@ -242,6 +250,56 @@ export default function HomePreviewPage() {
     }
   }
 
+  const totalPages = Math.max(1, Math.ceil(visibleProducts.length / visibleLimit))
+  const displayedProducts = visibleProducts.slice((currentPage - 1) * visibleLimit, currentPage * visibleLimit)
+  const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1)
+
+  const handleLogoClick = () => {
+    setSelectedCategories([])
+    setSearch('')
+    setCurrentPage(1)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleLimitSelect = (limit) => {
+    setVisibleLimit(limit)
+    setCurrentPage(1)
+    setIsLimitMenuOpen(false)
+  }
+
+  const handleCategorySelect = (selected) => {
+    setSelectedCategories(selected || [])
+    setCurrentPage(1)
+  }
+
+  const handleSearchChange = (event) => {
+    setSearch(event.target.value)
+    setCurrentPage(1)
+  }
+
+  const goToPage = (page) => {
+    setCurrentPage(Math.min(Math.max(page, 1), totalPages))
+    window.requestAnimationFrame(() => {
+      document.querySelector('.storefront-products')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
+
+  const handleAddToCart = (product) => {
+    setCartItems((items) => {
+      const currentItem = items.find((item) => item.productId === product.productId)
+
+      if (currentItem) {
+        return items.map((item) =>
+          item.productId === product.productId ? { ...item, quantity: item.quantity + 1 } : item
+        )
+      }
+
+      return [...items, { ...product, quantity: 1 }]
+    })
+
+    toast.success(`${product.name} agregado al carrito`)
+  }
+
   return (
     <main className="home-preview-page" id="home-preview-top">
       <header className="storefront-header">
@@ -249,7 +307,7 @@ export default function HomePreviewPage() {
           <button
             type="button"
             className="storefront-logo-button"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={handleLogoClick}
             aria-label="Volver al inicio"
           >
             <img src={logo} alt="ServiCredith" className="storefront-logo" />
@@ -265,7 +323,7 @@ export default function HomePreviewPage() {
             <input
               type="search"
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={handleSearchChange}
               placeholder="Buscar en nuestra tienda"
             />
           </label>
@@ -274,13 +332,13 @@ export default function HomePreviewPage() {
             <MultiSelect
               title="Categorías"
               selected={selectedCategories}
-              onSelect={(selected) => setSelectedCategories(selected || [])}
+              onSelect={handleCategorySelect}
               onLoad={loadCategoryOptions}
               pageSize={10}
             />
           </div>
 
-          <CartDrawerButton compact buttonClassName="storefront-cart-button" />
+          <CartDrawerButton compact buttonClassName="storefront-cart-button" items={cartItems} />
         </div>
       </header>
 
@@ -290,11 +348,46 @@ export default function HomePreviewPage() {
             <p className="storefront-kicker">Categoría activa</p>
             <h2>{activeCategoryTitle}</h2>
           </div>
-          <span>{visibleProducts.length} resultados</span>
+          <div className="storefront-results-tools">
+            <div className="storefront-limit-select">
+              <button
+                type="button"
+                className="storefront-limit-button"
+                onClick={() => setIsLimitMenuOpen((isOpen) => !isOpen)}
+                aria-haspopup="listbox"
+                aria-expanded={isLimitMenuOpen}
+              >
+                <span>Ver</span>
+                <strong>{visibleLimit}</strong>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+
+              {isLimitMenuOpen && (
+                <div className="storefront-limit-menu" role="listbox" aria-label="Cantidad de productos visibles">
+                  {pageSizeOptions.map((option) => (
+                    <button
+                      type="button"
+                      key={option}
+                      className={`storefront-limit-option ${visibleLimit === option ? 'active' : ''}`}
+                      onClick={() => handleLimitSelect(option)}
+                      role="option"
+                      aria-selected={visibleLimit === option}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <span>{visibleProducts.length} resultados</span>
+          </div>
         </div>
 
+        {/* Card estandarizada de producto: reutilizar este bloque en admin, catálogo o en otras páginas. */}
         <div className="storefront-grid">
-          {visibleProducts.map((product) => (
+          {displayedProducts.map((product) => (
             <article className="storefront-card" key={product.productId}>
               <div className="storefront-card-media">
                 <img src={product.imageUrl} alt={product.name} />
@@ -304,12 +397,53 @@ export default function HomePreviewPage() {
                   {formatCategoryName(product.categories?.[0]?.name || selectedCategoryNames[0] || 'destacado')}
                 </p>
                 <h3>{product.name}</h3>
-                <p>{product.description}</p>
-                <strong>{toCurrency(product.sellPrice)}</strong>
+                <strong className="storefront-card-price">{toCurrency(product.sellPrice)}</strong>
+                <button type="button" className="storefront-add-cart-button" onClick={() => handleAddToCart(product)}>
+                  <CartIcon />
+                  <span>Agregar al Carrito</span>
+                </button>
               </div>
             </article>
           ))}
         </div>
+
+        <nav className="storefront-pagination" aria-label="Paginación de productos">
+            <button
+              type="button"
+              className="storefront-page-arrow"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              aria-label="Página anterior"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m15 6-6 6 6 6" />
+              </svg>
+            </button>
+
+            {pageNumbers.map((page) => (
+              <button
+                type="button"
+                key={page}
+                className={`storefront-page-number ${currentPage === page ? 'active' : ''}`}
+                onClick={() => goToPage(page)}
+                aria-current={currentPage === page ? 'page' : undefined}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              className="storefront-page-arrow"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              aria-label="Página siguiente"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m9 6 6 6-6 6" />
+              </svg>
+            </button>
+        </nav>
       </section>
     </main>
   )
