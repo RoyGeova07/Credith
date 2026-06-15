@@ -12,6 +12,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"
 import { Navigate } from "react-router-dom";
 import { getUserRole } from "./helpers/session";
+import OwnerCategoryManagementPage from "./pages/OwnerCategoryManagementPage";
 
 function ProtectedRoute({children,allowedRoles})
 {
@@ -50,6 +51,7 @@ export default function App()
                 <Route path="/products" element={<ProtectedRoute allowedRoles={["OWNER","ADMIN"]}><ProductsPage/></ProtectedRoute>} />
                 <Route path="/admin/roles" element={<ProtectedRoute allowedRoles={["OWNER"]}><AdminRoleManagementPage/></ProtectedRoute>}/>
                 <Route path="/admin/stores" element={<ProtectedRoute allowedRoles={["OWNER","ADMIN"]}><AdminStoreManagementPage/></ProtectedRoute>}/>
+                <Route path="/owner/category"element={<ProtectedRoute allowedRoles={["OWNER"]}><OwnerCategoryManagementPage/></ProtectedRoute>}/>
                 <Route path="/cart" element={<CartDemoPage/>}/>
                 <Route path="/*" element={<Home/>}/>
                 
