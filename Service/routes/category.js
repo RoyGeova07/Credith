@@ -1,4 +1,6 @@
 const router = require('express').Router()
+const authMiddleware=require("../middlewares/authMiddleware")
+const roleMiddleware=require("../middlewares/roleMiddleware")
 
 
 const{createCategory,getPagedCategories,updateCategory,activateCategory,deactivateCategory,}=require('../controllers/category')
@@ -31,7 +33,7 @@ const{createCategory,getPagedCategories,updateCategory,activateCategory,deactiva
  *       400:
  *         description: Datos inválidos o categoría ya existente
  */
-router.post('/categories',createCategory)
+router.post('/categories',authMiddleware,roleMiddleware("Owner"),createCategory)
 
 /**
  * @swagger
@@ -43,7 +45,7 @@ router.post('/categories',createCategory)
  *       200:
  *         description: Lista de categorías obtenida correctamente
  */
-router.get('/categories',getPagedCategories)
+router.get('/categories',authMiddleware,roleMiddleware("Owner"),getPagedCategories)
 
 /**
  * @swagger
@@ -82,7 +84,7 @@ router.get('/categories',getPagedCategories)
  *       404:
  *         description: Categoría no encontrada
  */
-router.put('/categories/:categoryId',updateCategory)
+router.put('/categories/:categoryId',authMiddleware,roleMiddleware("Owner"),updateCategory)
 
 /**
  * @swagger
@@ -103,7 +105,7 @@ router.put('/categories/:categoryId',updateCategory)
  *       404:
  *         description: Categoría no encontrada
  */
-router.patch('/categories/:categoryId/activate',activateCategory)
+router.patch('/categories/:categoryId/activate',authMiddleware,roleMiddleware("Owner"),activateCategory)
 
 /**
  * @swagger
@@ -124,6 +126,6 @@ router.patch('/categories/:categoryId/activate',activateCategory)
  *       404:
  *         description: Categoría no encontrada
  */
-router.patch('/categories/:categoryId/deactivate',deactivateCategory)
+router.patch('/categories/:categoryId/deactivate',authMiddleware,roleMiddleware("Owner"),deactivateCategory)
 
 module.exports=router

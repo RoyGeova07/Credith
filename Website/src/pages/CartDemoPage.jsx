@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-import BagIcon from '../assets/icons/BagIcon'
-import BoxIcon from '../assets/icons/BoxIcon'
-import CartIcon from '../assets/icons/CartIcon'
+import { BoxIcon,BagIcon,CartIcon } from '@/assets/icons'
 import './CartDemoPage.css'
 
 function buildSparkles() {

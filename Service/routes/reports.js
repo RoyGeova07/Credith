@@ -131,7 +131,7 @@ const {
  *       500:
  *         description: Error interno del servidor
  */
-router.get('/reports/products', getProductReport)
+router.get('/reports/products', authMiddleware,roleMiddleware("Owner"),getProductReport)
 
 /**
  * @swagger
@@ -226,7 +226,7 @@ router.get('/reports/products', getProductReport)
  *       500:
  *         description: Error interno del servidor
  */
-router.get('/reports/stores', getStoreReport)
+router.get('/reports/stores', authMiddleware,roleMiddleware("Owner"),getStoreReport)
 
 /**
  * @swagger
@@ -325,7 +325,7 @@ router.get('/reports/stores', getStoreReport)
  *       500:
  *         description: Error interno del servidor
  */
-router.get('/reports/companies', getCompanyReport)
+router.get('/reports/companies', authMiddleware,roleMiddleware("Owner"),getCompanyReport)
 
 // Admin o owner
 //router.get("/reports", authMiddleware, roleMiddleware('Admin', 'owner'), getReports)

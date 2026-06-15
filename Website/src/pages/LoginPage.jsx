@@ -8,6 +8,7 @@ import{LoginFormConfig}from'@/pages/constants/FormConfig'
 import{Link}from'react-router-dom'
 
 
+
 export default function LoginPage() {
   const [form, setForm] = useState(LoginFormConfig.INITIAL_LOG)
   const [errors, setErrors] = useState({})
@@ -62,7 +63,7 @@ export default function LoginPage() {
 
       } 
 
-      navigate('/');
+      navigate("/",{state:{toastType:"login"}});
 
     }catch(error){
 
@@ -133,7 +134,7 @@ export default function LoginPage() {
 
           <FormField
             inputName="password"
-            description="Contrasena"
+            description="Contraseña"
             placeholder="Ingresa tu contrasena"
             type="password"
             value={form.password}

@@ -3,6 +3,7 @@
 const now = new Date();
 const futureDate = new Date('2027-12-31');
 const pastDate = new Date('2025-01-01');
+const bcrypt = require("bcrypt")
 
 const companyIds = [
   'a1b2c3d4-e5f6-4789-abcd-ef0123456789',
@@ -84,22 +85,29 @@ module.exports = {
 
     // Users
     await queryInterface.bulkInsert({ schema: 'cd', tableName: 'users' }, [
-      { user_id: userIds[0], first_name: 'Carlos', second_name: 'Eduardo', first_last_name: 'Martínez', second_last_name: 'López', email: 'carlos.martinez@credith.hn', password: '$2b$10$hashedpassword1', is_active: true, store_id: storeIds[0], created_at: now, updated_at: now },
-      { user_id: userIds[1], first_name: 'María', second_name: 'Fernanda', first_last_name: 'García', second_last_name: 'Ramírez', email: 'maria.garcia@credith.hn', password: '$2b$10$hashedpassword2', is_active: true, store_id: storeIds[0], created_at: now, updated_at: now },
-      { user_id: userIds[2], first_name: 'José', second_name: 'Antonio', first_last_name: 'Hernández', second_last_name: 'Cruz', email: 'jose.hernandez@credith.hn', password: '$2b$10$hashedpassword3', is_active: true, store_id: storeIds[1], created_at: now, updated_at: now },
-      { user_id: userIds[3], first_name: 'Ana', second_name: 'Lucía', first_last_name: 'Pérez', second_last_name: 'Flores', email: 'ana.perez@credith.hn', password: '$2b$10$hashedpassword4', is_active: true, store_id: storeIds[2], created_at: now, updated_at: now },
-      { user_id: userIds[4], first_name: 'Pedro', second_name: 'Pascal', first_last_name: 'Sánchez', second_last_name: 'Vargas', email: 'pedro.sanchez@credith.hn', password: '$2b$10$hashedpassword5', is_active: false, store_id: storeIds[1], created_at: now, updated_at: now },
+      { user_id: userIds[0], first_name: 'Carlos', second_name: 'Eduardo', first_last_name: 'Martínez', second_last_name: 'López', email: 'carlos.martinez@credith.hn', password: await bcrypt.hash("123456", 10), is_active: true, store_id: storeIds[0], created_at: now, updated_at: now },
+      { user_id: userIds[1], first_name: 'María', second_name: 'Fernanda', first_last_name: 'García', second_last_name: 'Ramírez', email: 'maria.garcia@credith.hn', password: await bcrypt.hash("123456", 10), is_active: true, store_id: storeIds[0], created_at: now, updated_at: now },
+      { user_id: userIds[2], first_name: 'José', second_name: 'Antonio', first_last_name: 'Hernández', second_last_name: 'Cruz', email: 'jose.hernandez@credith.hn', password: await bcrypt.hash("123456", 10), is_active: true, store_id: storeIds[1], created_at: now, updated_at: now },
+      { user_id: userIds[3], first_name: 'Ana', second_name: 'Lucía', first_last_name: 'Pérez', second_last_name: 'Flores', email: 'ana.perez@credith.hn', password: await bcrypt.hash("123456", 10), is_active: true, store_id: storeIds[2], created_at: now, updated_at: now },
+      { user_id: userIds[4], first_name: 'Pedro', second_name: 'Pascal', first_last_name: 'Sánchez', second_last_name: 'Vargas', email: 'pedro.sanchez@credith.hn', password: await bcrypt.hash("123456", 10), is_active: false, store_id: storeIds[1], created_at: now, updated_at: now },
     ]);
 
     // Users-Roles junction
     await queryInterface.bulkInsert({ schema: 'cd', tableName: 'users_roles' }, [
-      { user_id: userIds[0], role_id: roleIds[0] },
+      // Carlos -> OWNER
       { user_id: userIds[0], role_id: roleIds[1] },
-      { user_id: userIds[1], role_id: roleIds[1] },
-      { user_id: userIds[2], role_id: roleIds[1] },
+
+      // María -> ADMIN
+      { user_id: userIds[1], role_id: roleIds[0] },
+
+      // José -> EMPLOYEE
       { user_id: userIds[2], role_id: roleIds[2] },
-      { user_id: userIds[3], role_id: roleIds[1] },
-      { user_id: userIds[4], role_id: roleIds[2] },
+
+      // Ana -> EMPLOYEE
+      { user_id: userIds[3], role_id: roleIds[2] },
+
+      // Pedro -> ADMIN
+      { user_id: userIds[4], role_id: roleIds[0] },
     ]);
 
     // Categories
@@ -154,8 +162,8 @@ module.exports = {
 
     // CAI Ranges
     await queryInterface.bulkInsert({ schema: 'cd', tableName: 'cai_ranges' }, [
-      { cai_range_id: caiRangeIds[0], min_range: 1, max_range: 5000,current_number:0,expiration_date: futureDate, is_active: true, cai_id: caiIds[0], created_at: now, updated_at: now },
-      { cai_range_id: caiRangeIds[1], min_range: 5001, max_range: 10000,current_number:5000,expiration_date: pastDate, is_active: false, cai_id: caiIds[1], created_at: now, updated_at: now },
+      { cai_range_id: caiRangeIds[0], min_range: 1, max_range: 5000, current_number: 0, expiration_date: futureDate, is_active: true, cai_id: caiIds[0], created_at: now, updated_at: now },
+      { cai_range_id: caiRangeIds[1], min_range: 5001, max_range: 10000, current_number: 5000, expiration_date: pastDate, is_active: false, cai_id: caiIds[1], created_at: now, updated_at: now },
     ]);
 
     // Checkout Machines

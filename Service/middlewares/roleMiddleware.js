@@ -10,7 +10,14 @@ const roleMiddleware=(...allowedRoles)=>
             return res.status(401).json({message:"Usuario no autenticado"})
 
         }
-        if(!allowedRoles.includes(req.user.role))
+        let userRole=req.user.role
+        if(!userRole||userRole==="sin-rol")
+        {
+
+            userRole="Employee"
+
+        }
+        if(!allowedRoles.includes(userRole))
         {
 
             return res.status(403).json({message:"No tienes permiso para realizar esta accion"})

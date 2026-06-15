@@ -1,4 +1,7 @@
 const router = require('express').Router()
+const authMiddleware=require("../middlewares/authMiddleware")
+const roleMiddleware=require("../middlewares/roleMiddleware")
+
 
 const {
   createStore,
@@ -36,7 +39,7 @@ const {
  *       200:
  *         description: Lista de tiendas obtenida correctamente
  */
-router.get('/stores', getPagedStores)
+router.get('/stores',getPagedStores)
 
 /**
  * @swagger
@@ -89,7 +92,7 @@ router.get('/stores/:id', getStoreById)
  *       404:
  *         description: Empresa no encontrada
  */
-router.post('/stores', createStore)
+router.post('/stores',authMiddleware,createStore,roleMiddleware("Admin","Owner"))
 
 /**
  * @swagger
@@ -125,7 +128,7 @@ router.post('/stores', createStore)
  *       404:
  *         description: Tienda o empresa no encontrada
  */
-router.put('/stores/:id', updateStore)
+router.put('/stores/:id', authMiddleware,roleMiddleware("Admin","Owner"),updateStore)
 
 /**
  * @swagger
@@ -148,7 +151,7 @@ router.put('/stores/:id', updateStore)
  *       404:
  *         description: Tienda no encontrada
  */
-router.put('/stores/deactivate/:id', deactivateStore)
+router.put('/stores/deactivate/:id',authMiddleware,roleMiddleware("Admin","Owner"), deactivateStore)
 
 /**
  * @swagger
@@ -171,6 +174,6 @@ router.put('/stores/deactivate/:id', deactivateStore)
  *       404:
  *         description: Tienda no encontrada
  */
-router.put('/stores/activate/:id', activateStore)
+router.put('/stores/activate/:id',authMiddleware,roleMiddleware("Admin","Owner"), activateStore)
 
 module.exports = router

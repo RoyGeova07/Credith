@@ -10,6 +10,29 @@ import Home from './pages/Home'
 import ProductsPage from "./pages/ProductsPage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"
+import { Navigate } from "react-router-dom";
+import { getUserRole } from "./helpers/session";
+
+function ProtectedRoute({children,allowedRoles})
+{
+
+    let role=getUserRole()
+    if(role==="sin-rol")
+    {
+
+        role="EMPLOYEE"
+
+    }
+
+    if(!allowedRoles.includes(role))
+    {
+
+        return <Navigate to="/"replace/>
+
+    }
+    return children
+
+}
 
 export default function App() 
 {
@@ -23,10 +46,10 @@ export default function App()
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/data-grid" element={<DataGridTest />} />
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/admin/companies" element={<AdminCompanyManagementPage />} />
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/admin/roles" element={<AdminRoleManagementPage/>}/>
-                <Route path="/admin/stores" element={<AdminStoreManagementPage/>}/>
+                <Route path="/admin/companies" element={<ProtectedRoute allowedRoles={["OWNER"]}><AdminCompanyManagementPage/></ProtectedRoute>}/>
+                <Route path="/products" element={<ProtectedRoute allowedRoles={["OWNER","ADMIN"]}><ProductsPage/></ProtectedRoute>} />
+                <Route path="/admin/roles" element={<ProtectedRoute allowedRoles={["OWNER"]}><AdminRoleManagementPage/></ProtectedRoute>}/>
+                <Route path="/admin/stores" element={<ProtectedRoute allowedRoles={["OWNER","ADMIN"]}><AdminStoreManagementPage/></ProtectedRoute>}/>
                 <Route path="/cart" element={<CartDemoPage/>}/>
                 <Route path="/*" element={<Home/>}/>
                 

@@ -81,32 +81,384 @@ export function Pencil({ className }) {
   )
 }
 
-export function Restore({className})
+export function Restore({ className }) {
+
+  return (
+
+    <svg
+
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}
+
+    >
+
+      <path
+
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16.023 9.348h4.992V4.356m0 0-5.364 5.364a8.25 8.25 0 1 0 2.122 5.53"
+
+      />
+
+    </svg>
+
+  )
+
+}
+
+export function HomeIcon({ className }) {
+
+  return (
+
+    <svg
+
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}
+
+    >
+
+      <path
+
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m2.25 12 8.954-8.955a1.125 1.125 0 0 1 1.592 0L21.75 12M4.5 9.75v10.125A1.125 1.125 0 0 0 5.625 21h3.75v-4.875A1.125 1.125 0 0 1 10.5 15h3a1.125 1.125 0 0 1 1.125 1.125V21h3.75a1.125 1.125 0 0 0 1.125-1.125V9.75"
+
+      />
+
+    </svg>
+
+  )
+
+}
+
+export function BuildingIcon({ className }) {
+
+  return (
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}>
+
+      <path
+
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3.75 21h16.5M5.25 21V6.75A.75.75 0 0 1 6 6h3v15m0 0V3.75A.75.75 0 0 1 9.75 3h4.5a.75.75 0 0 1 .75.75V21m0 0h3V9.75A.75.75 0 0 0 17.25 9h-3"
+
+      />
+
+    </svg>
+
+  )
+
+}
+
+export function StoreIcon({ className }) {
+
+  return (
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}>
+
+      <path
+
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 9.75h18M4.5 9.75v8.25A2.25 2.25 0 0 0 6.75 20.25h10.5A2.25 2.25 0 0 0 19.5 18V9.75M7.5 9.75V6.375A1.875 1.875 0 0 1 9.375 4.5h5.25A1.875 1.875 0 0 1 16.5 6.375V9.75"
+
+      />
+
+    </svg>
+
+  )
+
+}
+
+export function UsersIcon({ className }) {
+
+  return (
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}>
+
+      <path
+
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M18 18.72a8.97 8.97 0 0 0-6-2.22 8.97 8.97 0 0 0-6 2.22M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+
+      />
+
+    </svg>
+
+  )
+
+}
+
+export function TagIcon({ className }) {
+
+  return (
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}>
+
+      <path
+
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m9 5.25 10.5 10.5-4.5 4.5L4.5 9.75V5.25H9Z"
+
+      />
+
+    </svg>
+
+  )
+
+}
+
+export function CreditCardIcon({ className }) {
+
+  return (
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}>
+
+      <path
+
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M2.25 8.25h19.5m-18 0v8.25A2.25 2.25 0 0 0 6 18.75h12a2.25 2.25 0 0 0 2.25-2.25V8.25"
+
+      />
+
+    </svg>
+
+  )
+
+}
+
+export function DocumentIcon({ className }) {
+
+  return (
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}>
+
+      <path
+
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M19.5 21H9a2.25 2.25 0 0 1-2.25-2.25V5.25A2.25 2.25 0 0 1 9 3h6.879a2.25 2.25 0 0 1 1.591.659l2.871 2.871A2.25 2.25 0 0 1 21 8.121V19.5A1.5 1.5 0 0 1 19.5 21Z"
+
+      />
+
+    </svg>
+
+  )
+
+}
+
+export function ChartIcon({ className }) {
+
+  return (
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}>
+
+      <path
+
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 3v18h18M8 16V9m4 7V5m4 11v-8"
+
+      />
+
+    </svg>
+
+  )
+
+}
+
+//botoncito de configuracion, no se usa pero lo dejo por si acaso
+export function CogIcon({ className }) {
+  return (
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}>
+
+      <path
+
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.592c.55 0 1.02.398 1.11.94l.213 1.277a7.53 7.53 0 0 1 1.555.9l1.192-.48a1.125 1.125 0 0 1 1.375.486l1.296 2.244a1.125 1.125 0 0 1-.265 1.45l-.98.818c.045.33.068.666.068 1.005 0 .339-.023.675-.068 1.005l.98.818a1.125 1.125 0 0 1 .265 1.45l-1.296 2.244a1.125 1.125 0 0 1-1.375.486l-1.192-.48a7.53 7.53 0 0 1-1.555.9l-.213 1.277c-.09.542-.56.94-1.11.94h-2.592c-.55 0-1.02-.398-1.11-.94l-.213-1.277a7.53 7.53 0 0 1-1.555-.9l-1.192.48a1.125 1.125 0 0 1-1.375-.486L2.53 15.633a1.125 1.125 0 0 1 .265-1.45l.98-.818A7.787 7.787 0 0 1 3.707 12c0-.339.023-.675.068-1.005l-.98-.818a1.125 1.125 0 0 1-.265-1.45l1.296-2.244a1.125 1.125 0 0 1 1.375-.486l1.192.48a7.53 7.53 0 0 1 1.555-.9l.213-1.277Z"
+
+      />
+
+    </svg>
+
+  )
+
+}
+
+export function BagIcon() {
+  return (
+
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+
+      <path d="M7.5 8.2h9l.7 10a2 2 0 0 1-2 2.2H8.8a2 2 0 0 1-2-2.2l.7-10Z" />
+      <path d="M9.2 8.2V6.9a2.8 2.8 0 0 1 5.6 0v1.3" />
+      <path d="M10 12.2h4" />
+
+    </svg>
+
+  )
+
+}
+
+export function BoxIcon({ className }) {
+
+  return (
+
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}
+    >
+
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21 7.5 12 3 3 7.5m18 0v9L12 21m9-13.5L12 12M3 7.5v9L12 21m0-9v9"
+      />
+
+    </svg>
+
+  )
+
+}
+
+export function CartIcon() {
+
+  return (
+
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+
+      <path d="M4.4 5.8h2.1l1.7 8.4a2 2 0 0 0 2 1.6h6.4a2 2 0 0 0 1.9-1.4l1.2-4.6H8.1" />
+      <path d="M10.4 20.2a.9.9 0 1 0 0-1.8.9.9 0 0 0 0 1.8Z" />
+      <path d="M17.2 20.2a.9.9 0 1 0 0-1.8.9.9 0 0 0 0 1.8Z" />
+
+    </svg>
+
+  )
+
+}
+
+export function UserRoleIcon({className}) 
 {
 
-    return(
+  return(
 
-        <svg
+    <svg
 
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}
 
-        >
+    >
 
-            <path
+      <path
 
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16.023 9.348h4.992V4.356m0 0-5.364 5.364a8.25 8.25 0 1 0 2.122 5.53"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.118a7.5 7.5 0 0 1 15 0M18.75 9.75l2.25.75v3c0 2.485-1.53 4.69-3.75 5.625-2.22-.935-3.75-3.14-3.75-5.625v-3l2.25-.75a4.7 4.7 0 0 0 3 0Z"
 
-            />
+      />
 
-        </svg>
+    </svg>
 
-    )
+  )
+
+}
+
+export function SalesIcon({className}) 
+{
+
+  return(
+
+    <svg
+
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}
+
+    >
+
+      <path
+
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M2.25 3h1.386a1.125 1.125 0 0 1 1.106.93l.383 2.298m0 0h13.739a1.125 1.125 0 0 1 1.097 1.374l-1.125 4.5a1.125 1.125 0 0 1-1.097.853H7.031a1.125 1.125 0 0 1-1.106-.93L5.125 6.228Zm2.625 13.272a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm11.25 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"
+        
+      />
+
+    </svg>
+
+  )
 
 }
