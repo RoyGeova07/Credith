@@ -69,7 +69,7 @@ export default function RegisterPage()
 
             setSuccess(true);
 
-            navigate('/*');
+            navigate('/',{state:{toastType:"register"}});
 
         }catch(error){
 

@@ -4,6 +4,7 @@ const app = express()
 const cookieParser=require('cookie-parser')
 
 app.use(cors({ origin: 'http://localhost:5173',credentials:true }))//permite solicitudes desde el frontend y el envio de cookies
+app.use(cookieParser())
 app.use(express.json())
 if (process.env.NODE_ENV !== 'test') {
     const LoggerMiddleware=require('./middlewares/loggerMiddleware.js')
@@ -37,7 +38,6 @@ app.use('/api', clientRoutes)
 app.use('/api', categoryRoutes)
 app.use('/api', paymentPlanRoutes)
 app.use('/api', reportRoutes)
-app.use(cookieParser())
 
 app.get('/', (_, res) => {
   res.json({ message: 'Hello from the backend!' })

@@ -6,6 +6,7 @@ import { Post } from '@/helpers/fetcher'
 import { LoginFormConfig } from '@/pages/constants/FormConfig'
 import './LoginPage.css'
 
+
 export default function LoginPage() {
   const [form, setForm] = useState(LoginFormConfig.INITIAL_LOG)
   const [errors, setErrors] = useState({})
@@ -45,9 +46,19 @@ export default function LoginPage() {
     try {
       const response = await Post('/api/users/login', JSON.stringify(form))
 
-      if (response.status !== 200) {
-        throw new Error(response.json.message || 'Credenciales incorrectas')
-      }
+        throw new Error(response.json.message ||'Credenciales incorrectas');
+
+      } 
+
+      navigate("/",{state:{toastType:"login"}});
+
+    }catch(error){
+
+      setErrors({password:error.message});
+      
+    }finally{
+
+      setLoading(false);
 
       navigate('/')
     } catch (error) {
@@ -81,47 +92,53 @@ export default function LoginPage() {
                 </div>
               )}
             </div>
+          )}
+        </div>
 
-            <form onSubmit={handleSubmit} noValidate>
-              <FormField
-                inputName="email"
-                description="Correo"
-                placeholder="correo@servicredith.com"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={errors.email}
-                touched={touched.email}
-                required
-                className="full"
-              />
+        <form onSubmit={handleSubmit} noValidate>
+          <FormField
+            inputName="email"
+            description="Correo"
+            placeholder="correo@servicredith.com"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.email}
+            touched={touched.email}
+            required
+            className="full"
+          />
 
-              <FormField
-                inputName="password"
-                description="Contraseña"
-                placeholder="Ingresa tu contraseña"
-                type="password"
-                value={form.password}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={errors.password}
-                touched={touched.password}
-                required
-                className="full"
-              />
+          <FormField
+            inputName="password"
+            description="Contraseña"
+            placeholder="Ingresa tu contrasena"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.password}
+            touched={touched.password}
+            required
+            className="full"
+          />
 
-              <button type="submit" className="btn-login" disabled={loading}>
-                {loading ? 'Validando...' : 'Entrar'}
-              </button>
-            </form>
+          <button type="submit" className="btn-login" disabled={loading}>
+            {loading ? 'Validando...' : 'Entrar'}
+          </button>
+        </form>
 
-            <p className="register-prompt">
-              ¿No tienes una cuenta?
-              <Link to="/register"> Regístrate</Link>
-            </p>
-          </section>
-        </main>
+        <p className="register-prompt">
+
+          ¿No tienes una cuenta?
+          <Link to="/register"> Regístrate</Link>
+
+        </p>
+
+        
+      </section>
+    </main>
       </div>
     </div>
   )

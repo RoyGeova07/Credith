@@ -241,7 +241,19 @@ const getPagedUsers=async(req,res)=>
         const offset=parseInt(req.query.offset)||0
 
         //                      mas profesional :O
-        const users=await Users.findAndCountAll({limit,offset,attributes:{exclude:["password"]}})
+        const users=await Users.findAndCountAll({limit,offset,attributes:{exclude:["password"]},
+        
+            include:[
+            {
+
+                model:Roles,
+                as:"roles",
+                through:{attributes:[]},
+                attributes:["roleId","name","description",]
+
+            }]
+        
+        })
 
         res.json({total:users.count,data:users.rows})
 
@@ -261,7 +273,19 @@ const getUserById=async(req,res)=>
     {
 
         const{id}=req.params
-        const user=await Users.findByPk(id,{attributes:{exclude:["password"]}})
+        const user=await Users.findByPk(id,{attributes:{exclude:["password"]},
+
+            include:[
+            {
+
+                model:Roles,
+                as:"Roles",
+                through:{attributes:[]},
+                attributes:["roleId","name","description",]
+
+            }]
+
+        })
 
         if(!user)
         {
