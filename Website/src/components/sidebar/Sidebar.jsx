@@ -44,7 +44,7 @@ export default function SideBar() {
         {
             text: "Categorías",
             icon: TagIcon,
-            path: "#"
+            path: "/owner/category"
         },
         {
             text: "Planes de crédito",
