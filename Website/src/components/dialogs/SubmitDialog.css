@@ -36,3 +36,18 @@
 .close-btn:hover {
     background-color: #4b5563;
 }
+
+.submit-btn:disabled
+{
+    background: #b8b8b8;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: .85;
+}
+
+.submit-btn:disabled:hover
+{
+    filter: none;
+    transform: none;
+}

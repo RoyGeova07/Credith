@@ -73,7 +73,7 @@ export default function ManagerEmployeesManagementPage() {
           throw new Error(response.json.message || 'No se pudieron cargar las tiendas')
         }
 
-        setStores((response.json.stores || []).map(normalizeStore))
+        setStores((response.json.data || []).map(normalizeStore))
       })
       .catch((requestError) => {
         if (!isMounted) {

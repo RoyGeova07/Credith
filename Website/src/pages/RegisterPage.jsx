@@ -37,7 +37,7 @@ export default function RegisterPage()
     {
 
         setTouched((prev) => ({ ...prev, [e.target.name]: true }));
-        const newErrors = RegisterFormConfig.validate(form)
+        const newErrors = RegisterFormConfig.validateRegister(form)
         setErrors((prev) => ({ ...prev, [e.target.name]: newErrors[e.target.name] }));
 
     };
@@ -69,7 +69,7 @@ export default function RegisterPage()
 
             setSuccess(true);
 
-            navigate('/*');
+            navigate('/',{state:{toastType:"register"}});
 
         }catch(error){
 
@@ -103,7 +103,8 @@ export default function RegisterPage()
 
                 }
 
-                setStores(respuesta.json.stores)
+                console.log(respuesta.json.data)
+                setStores(respuesta.json.data)
 
             }catch(error){
 
@@ -305,9 +306,10 @@ export default function RegisterPage()
 
                                     <option value="" disabled>Selecciona tu tienda</option>
 
-                                    {stores.map((store)=>(
+                                   {stores.filter(store => store.company).map(store => 
+                                    (
 
-                                        <option 
+                                        <option
 
                                             key={store.storeId}
                                             value={store.storeId}
@@ -315,8 +317,9 @@ export default function RegisterPage()
                                         >
 
                                             {`${store.company.name} - ${store.address}`}
-                                           
+
                                         </option>
+
                                     ))}
                                             
 

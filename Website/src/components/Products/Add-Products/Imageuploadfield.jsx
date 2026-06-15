@@ -2,7 +2,7 @@ import "./Imageuploadfield.css"
 import { useRef,useState } from "react"
 import { uploadImage } from "@/helpers/cloudinary"
 
-export default function ImageUploadField({value,onUpload})
+export default function ImageUploadField({value,onUpload,onUploadingChange})
 {
 
     const fileInputRef=useRef(null)
@@ -35,6 +35,7 @@ export default function ImageUploadField({value,onUpload})
         {
 
             setUploading(true)
+            onUploadingChange?.(true)
             const url=await uploadImage(file)
             onUpload?.(url)
 
@@ -46,6 +47,7 @@ export default function ImageUploadField({value,onUpload})
         }finally{
 
             setUploading(false)
+            onUploadingChange?.(false)
             fileInputRef.current.value=""
 
         }
@@ -109,7 +111,7 @@ export default function ImageUploadField({value,onUpload})
  
                     {
 
-                        uploading?"Subiendo":"Subir"
+                        uploading?"Subiendo...":"Subir"
 
                     }
 

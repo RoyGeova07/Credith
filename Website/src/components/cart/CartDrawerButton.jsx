@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import BagIcon from '@/assets/icons/BagIcon'
-import BoxIcon from '@/assets/icons/BoxIcon'
-import CartIcon from '@/assets/icons/CartIcon'
+import { BagIcon, BoxIcon, CartIcon } from '@/assets/icons'
 import './CartDrawerButton.css'
 
 function buildSparkles() {

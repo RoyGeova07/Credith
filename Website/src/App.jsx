@@ -12,23 +12,39 @@ import Home from './pages/Home'
 import ProductsPage from './pages/ProductsPage'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { Navigate } from 'react-router-dom'
+import { getUserRole } from './helpers/session'
+import OwnerCategoryManagementPage from './pages/OwnerCategoryManagementPage'
+
+function ProtectedRoute({ children, allowedRoles }) {
+  let role = getUserRole()
+  if (role === 'sin-rol') {
+    role = 'EMPLOYEE'
+  }
+
+  if (!allowedRoles.includes(role)) {
+    return <Navigate to="/" replace />
+  }
+
+  return children
+}
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/home-preview" element={<HomePreviewPage />} />
         <Route path="/data-grid" element={<DataGridTest />} />
-        <Route path="/admin/companies" element={<AdminCompanyManagementPage />} />
-        <Route path="/admin/roles" element={<AdminRoleManagementPage />} />
-        <Route path="/admin/stores" element={<AdminStoreManagementPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin/companies" element={<ProtectedRoute allowedRoles={['OWNER']}><AdminCompanyManagementPage /></ProtectedRoute>} />
+        <Route path="/products" element={<ProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><ProductsPage /></ProtectedRoute>} />
+        <Route path="/admin/roles" element={<ProtectedRoute allowedRoles={['OWNER']}><AdminRoleManagementPage /></ProtectedRoute>} />
+        <Route path="/admin/stores" element={<ProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><AdminStoreManagementPage /></ProtectedRoute>} />
+        <Route path="/owner/category" element={<ProtectedRoute allowedRoles={['OWNER']}><OwnerCategoryManagementPage /></ProtectedRoute>} />
         <Route path="/manager/employees" element={<ManagerEmployeesManagementPage />} />
+        <Route path="/home-preview" element={<HomePreviewPage />} />
         <Route path="/cart" element={<CartDemoPage />} />
-        <Route path="*" element={<Home />} />
+        <Route path="/*" element={<Home />} />
       </Routes>
 
       <ToastContainer

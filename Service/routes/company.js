@@ -1,4 +1,6 @@
 const router = require('express').Router()
+const authMiddleware=require("../middlewares/authMiddleware")
+const roleMiddleware=require("../middlewares/roleMiddleware")
 
 const {
   createCompany,
@@ -32,7 +34,7 @@ const {
  *       200:
  *         description: Lista de empresas obtenida correctamente
  */
-router.get('/companies', getPagedCompanies)
+router.get('/companies', authMiddleware,roleMiddleware("OWNER"),getPagedCompanies)
 
 /**
  * @swagger
@@ -53,7 +55,7 @@ router.get('/companies', getPagedCompanies)
  *       404:
  *         description: Empresa no encontrada
  */
-router.get('/companies/:id', getCompanyById)
+router.get('/companies/:id', authMiddleware,roleMiddleware("OWNER"),getCompanyById)
 
 
 /**
@@ -90,7 +92,7 @@ router.get('/companies/:id', getCompanyById)
  *       400:
  *         description: Datos inválidos o RTN ya existente
  */
-router.post('/companies', createCompany)
+router.post('/companies',authMiddleware,roleMiddleware("OWNER"),createCompany)
 
 /**
  * @swagger
@@ -132,7 +134,7 @@ router.post('/companies', createCompany)
  *       404:
  *         description: Empresa no encontrada
  */
-router.put('/companies/:id', updateCompany)
+router.put('/companies/:id', authMiddleware,roleMiddleware("OWNER"),updateCompany)
 
 /**
  * @swagger
@@ -153,6 +155,6 @@ router.put('/companies/:id', updateCompany)
  *       404:
  *         description: Empresa no encontrada
  */
-router.delete('/companies/:id', deleteCompany)
+router.delete('/companies/:id', authMiddleware,roleMiddleware("OWNER"),deleteCompany)
 
 module.exports = router

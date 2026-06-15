@@ -4,6 +4,7 @@ import { ActionColumn, DataColumn, DataTable, DeleteAction, UpdateAction } from 
 import FormDialog from '@/components/dialogs/SubmitDialog'
 import { Delete, Get, Post, Put } from '@/helpers/fetcher'
 import './AdminRoleManagementPage.css'
+import { toast } from 'react-toastify'
 
 const roleOptions = ['Employee', 'Admin', 'Owner']
 
@@ -26,7 +27,6 @@ export default function AdminRoleManagementPage() {
   const [editingRole, setEditingRole] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
-  const [feedback, setFeedback] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
   const loadRoles = useCallback(
@@ -49,10 +49,7 @@ export default function AdminRoleManagementPage() {
           total: filteredRoles.length,
         }
       } catch (requestError) {
-        setFeedback({
-          type: 'error',
-          message: requestError.message,
-        })
+        toast.error(requestError.message)
 
         return {
           data: [],
@@ -105,12 +102,10 @@ export default function AdminRoleManagementPage() {
 
       setIsDialogOpen(false)
       setRefreshKey((current) => current + 1)
-      setFeedback({
-        type: 'success',
-        message: editingRole ? 'Rol actualizado correctamente' : 'Rol creado correctamente',
-      })
+      toast.success(editingRole?`Rol: ${payload.name} actualizado correctamente`:`Rol: ${payload.name} creado correctamente`)
     } catch (requestError) {
       setError(requestError.message)
+      toast.error(requestError.message)
     }
   }
 
@@ -127,15 +122,9 @@ export default function AdminRoleManagementPage() {
       }
 
       setRefreshKey((current) => current + 1)
-      setFeedback({
-        type: 'success',
-        message: 'Rol eliminado correctamente',
-      })
+      toast.success(`Rol: ${role.name} eliminado correctamente`)
     } catch (requestError) {
-      setFeedback({
-        type: 'error',
-        message: requestError.message,
-      })
+      toast.error(requestError.message)
     }
   }
 
@@ -161,7 +150,7 @@ export default function AdminRoleManagementPage() {
           />
         </DataGridHeader>
 
-        {feedback && <div className={`role-admin-alert ${feedback.type}`}>{feedback.message}</div>}
+        
 
         <DataTable onLoad={loadRoles} rowTitle="Click para editar" onRowClick={openEditDialog}>
           <DataColumn propertyName="name" title="Nombre" />
