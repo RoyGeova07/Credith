@@ -1,11 +1,12 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import DataGridTest from "./pages/DataGridTest";
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import DataGridTest from './pages/DataGridTest'
 import RegisterPage from './pages/RegisterPage'
-import LoginPage from "./pages/LoginPage";
+import LoginPage from './pages/LoginPage'
 import AdminCompanyManagementPage from '@/pages/AdminCompanyManagementPage'
 import AdminRoleManagementPage from '@/pages/AdminRoleManagementPage'
 import AdminStoreManagementPage from '@/pages/AdminStoreManagementPage'
 import CartDemoPage from '@/pages/CartDemoPage'
+import ManagerEmployeesManagementPage from '@/pages/ManagerEmployeesManagementPage'
 import Home from './pages/Home'
 import ProductsPage from "./pages/ProductsPage";
 import { ToastContainer } from "react-toastify";

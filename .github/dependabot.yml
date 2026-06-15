@@ -1,0 +1,34 @@
+version: 2
+
+updates:
+  # Backend
+  - package-ecosystem: "npm"
+    directory: "/Service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "backend"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  # Frontend
+  - package-ecosystem: "npm"
+    directory: "/Website"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "frontend"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"

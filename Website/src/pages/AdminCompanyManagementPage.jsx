@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { DataGrid, DataGridHeader, HeaderTextFilter } from '@/components/dataGrid/DataGrid'
 import { ActionColumn, DataColumn, DataTable, DeleteAction, UpdateAction } from '@/components/dataGrid/DataTable'
 import FormDialog from '@/components/dialogs/SubmitDialog'
-import { Get, Post, Put, Delete } from '@/helpers/fetcher'
+import { Delete, Get, Post, Put } from '@/helpers/fetcher'
 import './AdminCompanyManagementPage.css'
 import { toast } from 'react-toastify'
 
@@ -21,13 +21,16 @@ export default function AdminCompanyManagementPage() {
   const [error, setError] = useState('')
   const [refreshKey, setRefreshKey] = useState(0)
 
-  const loadCompanies = useCallback(async (offset, limit) => {
-    const res = await Get(`/api/companies?filter=${filter}&offset=${offset}&limit=${limit}&_=${refreshKey}`)
-    if (res.status !== 200) {
-      throw new Error(res.json.message || 'No se pudieron cargar las compañías')
-    }
-    return res.json
-  }, [filter, refreshKey])
+  const loadCompanies = useCallback(
+    async (offset, limit) => {
+      const res = await Get(`/api/companies?filter=${filter}&offset=${offset}&limit=${limit}&_=${refreshKey}`)
+      if (res.status !== 200) {
+        throw new Error(res.json.message || 'No se pudieron cargar las compañías')
+      }
+      return res.json
+    },
+    [filter, refreshKey]
+  )
 
   const handleFormChange = (event) => {
     setForm((current) => ({
@@ -77,10 +80,14 @@ export default function AdminCompanyManagementPage() {
         throw new Error(res.json.message || 'No se pudo completar la solicitud')
       }
 
-      toast.success(editingCompany?`Compañia ${payload.name} actualizada correctamente`:`Compañia ${payload.name} creada correctamente`)
+      toast.success(
+        editingCompany
+          ? `Compañía ${payload.name} actualizada correctamente`
+          : `Compañía ${payload.name} creada correctamente`
+      )
 
       setIsDialogOpen(false)
-      setRefreshKey((k) => k + 1)
+      setRefreshKey((current) => current + 1)
     } catch (requestError) {
       setError(requestError.message)
       toast.error(requestError.message)
@@ -88,7 +95,9 @@ export default function AdminCompanyManagementPage() {
   }
 
   const handleDelete = async (company) => {
-    if (!window.confirm(`¿Eliminar la compañía "${company.name}"?`)) return
+    if (!window.confirm(`¿Eliminar la compañía "${company.name}"?`)) {
+      return
+    }
 
     try {
       const res = await Delete(`/api/companies/${company.companyId}`)
@@ -96,9 +105,9 @@ export default function AdminCompanyManagementPage() {
         throw new Error(res.json.message || 'No se pudo eliminar la compañía')
       }
 
-      toast.success(`Compañia ${company.name} eliminada exitosamente`)
+      toast.success(`Compañía ${company.name} eliminada exitosamente`)
 
-      setRefreshKey((k) => k + 1)
+      setRefreshKey((current) => current + 1)
     } catch (requestError) {
       setError(requestError.message)
       toast.error(requestError.message)
@@ -113,13 +122,14 @@ export default function AdminCompanyManagementPage() {
   return (
     <DataGrid>
       <DataGridHeader
-        title='Compañías'
-        description='Administración'
-        addButtonTxt='Nueva compañía'
-        onAddClick={openNewDialog}>
+        title="Compañías"
+        description="Administración"
+        addButtonTxt="Nueva compañía"
+        onAddClick={openNewDialog}
+      >
         <HeaderTextFilter
-          filterPlaceholder='NOMBRE'
-          className='grid-main-filter'
+          filterPlaceholder="NOMBRE"
+          className="grid-main-filter"
           value={filter}
           onChange={setFilter}
         />
@@ -128,12 +138,13 @@ export default function AdminCompanyManagementPage() {
       <DataTable
         key={`${filter}-${refreshKey}`}
         onLoad={loadCompanies}
-        rowTitle='Click para editar'
-        onRowClick={openEditDialog}>
-        <DataColumn propertyName='name' title='Nombre' />
-        <DataColumn propertyName='rtn' title='RTN' />
-        <DataColumn propertyName='email' title='Correo' />
-        <DataColumn propertyName='address' title='Dirección' />
+        rowTitle="Click para editar"
+        onRowClick={openEditDialog}
+      >
+        <DataColumn propertyName="name" title="Nombre" />
+        <DataColumn propertyName="rtn" title="RTN" />
+        <DataColumn propertyName="email" title="Correo" />
+        <DataColumn propertyName="address" title="Dirección" />
         <ActionColumn>
           <UpdateAction onClick={(row) => openEditDialog(row)} />
           <DeleteAction onClick={(row) => handleDelete(row)} />
@@ -145,10 +156,10 @@ export default function AdminCompanyManagementPage() {
         isOpen={isDialogOpen}
         setIsOpen={setIsDialogOpen}
         onAccept={handleAccept}
-        acceptText='Guardar'
+        acceptText="Guardar"
         onClose={handleClose}
-        closeText='Cancelar'>
-
+        closeText="Cancelar"
+      >
         {error && <div className="company-admin-alert error">{error}</div>}
 
         <form className="company-dialog-form">

@@ -1,0 +1,121 @@
+.employees-admin-page {
+  min-height: 100vh;
+  background: #eef6f4;
+  color: var(--text-dark);
+  padding: 28px;
+}
+
+.employees-admin-alert {
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+}
+
+.employees-admin-alert.error {
+  background: #fff3f1;
+  color: #9f3127;
+  border: 1px solid rgba(192, 57, 43, 0.18);
+}
+
+.employees-admin-alert.success {
+  background: #effaf3;
+  color: var(--green-dark);
+  border: 1px solid rgba(39, 174, 96, 0.22);
+}
+
+.employees-admin-page .data-table tbody tr:hover td:first-child {
+  box-shadow: inset 5px 0 0 var(--gold);
+}
+
+.employees-admin-page .data-table th:last-child,
+.employees-admin-page .data-table td:last-child {
+  width: 84px;
+}
+
+.employee-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  padding: 6px 12px;
+}
+
+.employee-status-badge.active {
+  background: rgba(39, 174, 96, 0.12);
+  color: #1a7a3c;
+}
+
+.employee-status-badge.inactive {
+  background: rgba(217, 119, 6, 0.14);
+  color: #a8550f;
+}
+
+.employees-dialog-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.employees-dialog-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-mid);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.employees-dialog-form--wide {
+  grid-column: 1 / -1;
+}
+
+.employees-dialog-form input,
+.employees-dialog-form select {
+  width: 100%;
+  border: 1.5px solid var(--gray-light);
+  border-radius: 8px;
+  background: #f8fbf9;
+  color: var(--text-dark);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  padding: 11px 13px;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.employees-dialog-form select {
+  cursor: pointer;
+}
+
+.employees-dialog-form input:focus,
+.employees-dialog-form select:focus {
+  background: #ffffff;
+  border-color: var(--green-mid);
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.13);
+}
+
+@media (max-width: 760px) {
+  .employees-admin-page {
+    padding: 18px;
+  }
+
+  .employees-admin-page .data-table {
+    min-width: 760px;
+  }
+
+  .employees-dialog-form {
+    grid-template-columns: 1fr;
+  }
+
+  .employees-dialog-form--wide {
+    grid-column: auto;
+  }
+}
