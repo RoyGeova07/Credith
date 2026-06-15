@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import FormField from '@/components/form/FormField'
 import BrandPanel from '@/components/BrandPanel'
-import { Post } from '@/helpers/fetcher'
-import { LoginFormConfig } from '@/pages/constants/FormConfig'
 import './LoginPage.css'
+import{Post}from'@/helpers/fetcher'
+import{useNavigate }from'react-router-dom'
+import{LoginFormConfig}from'@/pages/constants/FormConfig'
+import{Link}from'react-router-dom'
+
 
 
 export default function LoginPage() {
@@ -13,24 +15,30 @@ export default function LoginPage() {
   const [touched, setTouched] = useState({})
   const [activeUser, setActiveUser] = useState(null)
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const navigate=useNavigate();
 
   const handleChange = (event) => {
     const updatedForm = { ...form, [event.target.name]: event.target.value }
     setForm(updatedForm)
     setActiveUser(null)
 
-    if (touched[event.target.name]) {
+    if (touched[event.target.name]) 
+    {
+
       setErrors(LoginFormConfig.validateLogin(updatedForm))
+
     }
   }
 
-  const handleBlur = (event) => {
+  const handleBlur = (event) => 
+  {
+
     setTouched((current) => ({ ...current, [event.target.name]: true }))
     setErrors(LoginFormConfig.validateLogin(form))
+
   }
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async(event) => {
     event.preventDefault()
 
     const currentErrors = LoginFormConfig.validateLogin(form)
@@ -43,8 +51,13 @@ export default function LoginPage() {
 
     setLoading(true)
 
-    try {
-      const response = await Post('/api/users/login', JSON.stringify(form))
+    try
+    {
+
+      const response=await Post('/api/users/login',JSON.stringify(form));
+
+      if(response.status!==200)
+      {
 
         throw new Error(response.json.message ||'Credenciales incorrectas');
 
@@ -60,37 +73,46 @@ export default function LoginPage() {
 
       setLoading(false);
 
-      navigate('/')
-    } catch (error) {
-      setErrors({ password: error.message })
-    } finally {
-      setLoading(false)
     }
+
+    
   }
 
-  return (
+  return(
+
     <div className="login-shell">
+
       <div className="login-brand-column">
-        <BrandPanel description="Acceso interno para administrar usuarios, reportes y operaciones de la sucursal." />
+
+        <BrandPanel
+        
+          description="Acceso interno para administrar usuarios,reportes y operaciones de la sucursal."
+
+        />
+
       </div>
 
       <div className="login-content-column">
-        <main className="login-panel">
-          <section className="login-card" aria-labelledby="login-title">
-            <div className="login-card-header">
-              <p className="login-eyebrow">Acceso administrativo</p>
-              <h2 id="login-title">Iniciar sesión</h2>
-              <p>Ingresa con un perfil autorizado para administrar la tienda.</p>
-            </div>
+    <main className="login-panel">
+      <section className="login-card" aria-labelledby="login-title">
 
-            <div className={`login-feedback ${activeUser ? 'login-feedback-visible' : ''}`}>
-              {activeUser && (
-                <div className="login-success" role="status">
-                  <span>Acceso concedido</span>
-                  <strong>{activeUser.role}</strong>
-                  <p>{activeUser.branch}</p>
-                </div>
-              )}
+        <div className="login-card-header">
+         
+          <p className="login-eyebrow">Acceso administrativo</p>
+
+          <h2 id="login-title">Iniciar sesion</h2>
+
+          <p>Ingresa con un perfil autorizado para administrar la tienda.</p>
+
+
+        </div>
+
+        <div className={`login-feedback ${activeUser ? 'login-feedback-visible' : ''}`}>
+          {activeUser && (
+            <div className="login-success" role="status">
+              <span>Acceso concedido</span>
+              <strong>{activeUser.role}</strong>
+              <p>{activeUser.branch}</p>
             </div>
           )}
         </div>

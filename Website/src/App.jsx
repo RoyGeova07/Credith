@@ -53,6 +53,7 @@ export default function App()
                 <Route path="/admin/roles" element={<ProtectedRoute allowedRoles={["OWNER"]}><AdminRoleManagementPage/></ProtectedRoute>}/>
                 <Route path="/admin/stores" element={<ProtectedRoute allowedRoles={["OWNER","ADMIN"]}><AdminStoreManagementPage/></ProtectedRoute>}/>
                 <Route path="/owner/category"element={<ProtectedRoute allowedRoles={["OWNER"]}><OwnerCategoryManagementPage/></ProtectedRoute>}/>
+                <Route path="/manager/employees" element={<ManagerEmployeesManagementPage />} />
                 <Route path="/cart" element={<CartDemoPage/>}/>
                 <Route path="/*" element={<Home/>}/>
                 
