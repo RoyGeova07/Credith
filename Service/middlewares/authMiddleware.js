@@ -7,7 +7,7 @@ const authMidleware=(req,res,next)=>
     try
     {
 
-        const token=req.headers.authorization
+        const token=req.cookies?.token
 
         if(!token)
         {

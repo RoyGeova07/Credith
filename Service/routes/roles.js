@@ -39,7 +39,7 @@ const {
  *       200:
  *         description: Lista de roles obtenida correctamente
  */
-router.get('/roles', authMiddleware,roleMiddleware("Owner"),getPagedRoles)
+router.get('/roles', authMiddleware,roleMiddleware("OWNER"),getPagedRoles)
 
 /**
  * @swagger
@@ -60,7 +60,7 @@ router.get('/roles', authMiddleware,roleMiddleware("Owner"),getPagedRoles)
  *       404:
  *         description: Rol no encontrado
  */
-router.get('/roles/:id', authMiddleware,roleMiddleware("Owner"),getRoleById)
+router.get('/roles/:id', authMiddleware,roleMiddleware("OWNER"),getRoleById)
 
 /**
  * @swagger
@@ -90,7 +90,7 @@ router.get('/roles/:id', authMiddleware,roleMiddleware("Owner"),getRoleById)
  *       400:
  *         description: Datos inválidos o rol ya existente
  */
-router.post('/roles', authMiddleware,roleMiddleware("Owner"),createRole)
+router.post('/roles', authMiddleware,roleMiddleware("OWNER"),createRole)
 
 /**
  * @swagger
@@ -122,7 +122,7 @@ router.post('/roles', authMiddleware,roleMiddleware("Owner"),createRole)
  *       404:
  *         description: Usuario o rol no encontrado
  */
-router.post('/roles/associate-user', authMiddleware,roleMiddleware("Owner"),associateRoleToUser)
+router.post('/roles/associate-user', authMiddleware,roleMiddleware("OWNER"),associateRoleToUser)
 
 /**
  * @swagger
@@ -159,7 +159,7 @@ router.post('/roles/associate-user', authMiddleware,roleMiddleware("Owner"),asso
  *       404:
  *         description: Rol no encontrado
  */
-router.put('/roles/:id', authMiddleware,roleMiddleware("Owner"),updateRole)
+router.put('/roles/:id', authMiddleware,roleMiddleware("OWNER"),updateRole)
 
 /**
  * @swagger
@@ -180,6 +180,6 @@ router.put('/roles/:id', authMiddleware,roleMiddleware("Owner"),updateRole)
  *       404:
  *         description: Rol no encontrado
  */
-router.delete('/roles/:id', authMiddleware,roleMiddleware("Owner"),deleteRole)
+router.delete('/roles/:id', authMiddleware,roleMiddleware("OWNER"),deleteRole)
 
 module.exports = router

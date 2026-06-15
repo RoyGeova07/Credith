@@ -92,7 +92,7 @@ router.get('/stores/:id', getStoreById)
  *       404:
  *         description: Empresa no encontrada
  */
-router.post('/stores',authMiddleware,createStore,roleMiddleware("Admin","Owner"))
+router.post('/stores',authMiddleware,roleMiddleware("ADMIN","OWNER"),createStore)
 
 /**
  * @swagger
@@ -128,7 +128,7 @@ router.post('/stores',authMiddleware,createStore,roleMiddleware("Admin","Owner")
  *       404:
  *         description: Tienda o empresa no encontrada
  */
-router.put('/stores/:id', authMiddleware,roleMiddleware("Admin","Owner"),updateStore)
+router.put('/stores/:id', authMiddleware,roleMiddleware("ADMIN","OWNER"),updateStore)
 
 /**
  * @swagger
@@ -151,7 +151,7 @@ router.put('/stores/:id', authMiddleware,roleMiddleware("Admin","Owner"),updateS
  *       404:
  *         description: Tienda no encontrada
  */
-router.put('/stores/deactivate/:id',authMiddleware,roleMiddleware("Admin","Owner"), deactivateStore)
+router.put('/stores/deactivate/:id',authMiddleware,roleMiddleware("ADMIN","OWNER"), deactivateStore)
 
 /**
  * @swagger
@@ -174,6 +174,6 @@ router.put('/stores/deactivate/:id',authMiddleware,roleMiddleware("Admin","Owner
  *       404:
  *         description: Tienda no encontrada
  */
-router.put('/stores/activate/:id',authMiddleware,roleMiddleware("Admin","Owner"), activateStore)
+router.put('/stores/activate/:id',authMiddleware,roleMiddleware("ADMIN","OWNER"), activateStore)
 
 module.exports = router

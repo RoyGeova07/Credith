@@ -36,7 +36,7 @@ const role = require("../models/entities/role")
  *       200:
  *         description: Lista de productos obtenida correctamente
  */
-router.get("/products", authMiddleware,roleMiddleware("Admin","Owner"),Products.getPagedProducts)
+router.get("/products", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.getPagedProducts)
 
 /**
  * @swagger
@@ -57,7 +57,7 @@ router.get("/products", authMiddleware,roleMiddleware("Admin","Owner"),Products.
  *       404:
  *         description: Producto no encontrado
  */
-router.get("/products/:id", authMiddleware,roleMiddleware("Admin","Owner"),Products.getProductById)
+router.get("/products/:id", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.getProductById)
 
 /**
  * @swagger
@@ -114,7 +114,7 @@ router.get("/products/:id", authMiddleware,roleMiddleware("Admin","Owner"),Produ
  *       404:
  *         description: La categoría no existe
  */
-router.post("/products", authMiddleware,roleMiddleware("Admin","Owner"),Products.postProduct)
+router.post("/products", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.postProduct)
 
 /**
  * @swagger
@@ -175,7 +175,7 @@ router.post("/products", authMiddleware,roleMiddleware("Admin","Owner"),Products
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/products/:id",authMiddleware,roleMiddleware("Admin","Owner"),Products.updateProduct)
+router.put("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.updateProduct)
 
 /**
  * @swagger
@@ -196,7 +196,7 @@ router.put("/products/:id",authMiddleware,roleMiddleware("Admin","Owner"),Produc
  *       404:
  *         description: Producto no encontrado
  */
-router.delete("/products/:id", authMiddleware,roleMiddleware("Admin","Owner"),Products.deleteProduct)
+router.delete("/products/:id", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.deleteProduct)
 
 /**
  * @swagger
@@ -217,7 +217,7 @@ router.delete("/products/:id", authMiddleware,roleMiddleware("Admin","Owner"),Pr
  *       404:
  *         description: Producto no encontrado
  */
-router.post("/products/:id/recover", authMiddleware,roleMiddleware("Admin","Owner"),Products.recoverProduct)
+router.post("/products/:id/recover", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.recoverProduct)
 
 // Solo admins
 //router.delete("/products/:id", authMiddleware, roleMiddleware('Admin'), deleteProduct)

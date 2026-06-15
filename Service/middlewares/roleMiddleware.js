@@ -14,7 +14,7 @@ const roleMiddleware=(...allowedRoles)=>
         if(!userRole||userRole==="sin-rol")
         {
 
-            userRole="Employee"
+            userRole="EMPLOYEE"
 
         }
         if(!allowedRoles.includes(userRole))
