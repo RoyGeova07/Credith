@@ -6,6 +6,7 @@ import AdminCompanyManagementPage from '@/pages/AdminCompanyManagementPage'
 import AdminRoleManagementPage from '@/pages/AdminRoleManagementPage'
 import AdminStoreManagementPage from '@/pages/AdminStoreManagementPage'
 import CartDemoPage from '@/pages/CartDemoPage'
+import HomePreviewPage from '@/pages/HomePreviewPage'
 import ManagerEmployeesManagementPage from '@/pages/ManagerEmployeesManagementPage'
 import Home from './pages/Home'
 import ProductsPage from './pages/ProductsPage'
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/products" element={<ProductsPage />} />
+        <Route path="/home-preview" element={<HomePreviewPage />} />
         <Route path="/data-grid" element={<DataGridTest />} />
         <Route path="/admin/companies" element={<AdminCompanyManagementPage />} />
         <Route path="/admin/roles" element={<AdminRoleManagementPage />} />
