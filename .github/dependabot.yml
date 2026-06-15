@@ -1,6 +1,7 @@
 version: 2
 
 updates:
+  # Backend
   - package-ecosystem: "npm"
     directory: "/Service"
     schedule:
@@ -11,7 +12,12 @@ updates:
     labels:
       - "dependencies"
       - "backend"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
 
+  # Frontend
   - package-ecosystem: "npm"
     directory: "/Website"
     schedule:
@@ -22,3 +28,7 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
