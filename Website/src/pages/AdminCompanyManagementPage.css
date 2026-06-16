@@ -1,3 +1,10 @@
+.company-admin-page {
+  flex: 1;
+  background: #eef6f4;
+  color: var(--text-dark);
+  padding: 28px;
+}
+
 .company-admin-alert {
   border-radius: 8px;
   font-size: 0.9rem;

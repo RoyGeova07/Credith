@@ -1,5 +1,5 @@
 .employees-admin-page {
-  min-height: 100vh;
+  flex: 1;
   background: #eef6f4;
   color: var(--text-dark);
   padding: 28px;

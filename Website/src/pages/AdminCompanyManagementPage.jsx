@@ -120,6 +120,7 @@ export default function AdminCompanyManagementPage() {
   }
 
   return (
+    <div className="company-admin-page">
     <DataGrid>
       <DataGridHeader
         title="Compañías"
@@ -209,5 +210,6 @@ export default function AdminCompanyManagementPage() {
         </form>
       </FormDialog>
     </DataGrid>
+    </div>
   )
 }
