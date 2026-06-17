@@ -18,6 +18,8 @@ const {
  *   get:
  *     summary: Obtener todos los roles
  *     tags: [Roles]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: query
  *         name: limit
@@ -47,6 +49,8 @@ router.get('/roles', authMiddleware,roleMiddleware("OWNER"),getPagedRoles)
  *   get:
  *     summary: Obtener rol por ID
  *     tags: [Roles]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -68,6 +72,8 @@ router.get('/roles/:id', authMiddleware,roleMiddleware("OWNER"),getRoleById)
  *   post:
  *     summary: Crear un nuevo rol
  *     tags: [Roles]
+ *     security:
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -79,7 +85,7 @@ router.get('/roles/:id', authMiddleware,roleMiddleware("OWNER"),getRoleById)
  *             properties:
  *               name:
  *                 type: string
- *                 enum: [Employee, Admin, Owner]
+ *                 enum: [EMPLOYEE, ADMIN, OWNER]
  *                 example: Admin
  *               description:
  *                 type: string
@@ -98,6 +104,8 @@ router.post('/roles', authMiddleware,roleMiddleware("OWNER"),createRole)
  *   post:
  *     summary: Asociar un rol a un usuario
  *     tags: [Roles]
+ *     security:
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -130,6 +138,8 @@ router.post('/roles/associate-user', authMiddleware,roleMiddleware("OWNER"),asso
  *   put:
  *     summary: Actualizar un rol
  *     tags: [Roles]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -146,7 +156,7 @@ router.post('/roles/associate-user', authMiddleware,roleMiddleware("OWNER"),asso
  *             properties:
  *               name:
  *                 type: string
- *                 enum: [Employee, Admin, Owner]
+ *                 enum: [EMPLOYEE, ADMIN, OWNER]
  *                 example: Owner
  *               description:
  *                 type: string
@@ -167,6 +177,8 @@ router.put('/roles/:id', authMiddleware,roleMiddleware("OWNER"),updateRole)
  *   delete:
  *     summary: Eliminar un rol
  *     tags: [Roles]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id

@@ -17,6 +17,8 @@ const {
  *   get:
  *     summary: Obtener todas las empresas
  *     tags: [Companies]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: query
  *         name: limit
@@ -42,6 +44,8 @@ router.get('/companies', authMiddleware,roleMiddleware("OWNER"),getPagedCompanie
  *   get:
  *     summary: Obtener empresa por ID
  *     tags: [Companies]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -64,6 +68,8 @@ router.get('/companies/:id', authMiddleware,roleMiddleware("OWNER"),getCompanyBy
  *   post:
  *     summary: Crear una nueva empresa
  *     tags: [Companies]
+ *     security:
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -100,6 +106,8 @@ router.post('/companies',authMiddleware,roleMiddleware("OWNER"),createCompany)
  *   put:
  *     summary: Actualizar una empresa
  *     tags: [Companies]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -142,6 +150,8 @@ router.put('/companies/:id', authMiddleware,roleMiddleware("OWNER"),updateCompan
  *   delete:
  *     summary: Eliminar una empresa
  *     tags: [Companies]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id

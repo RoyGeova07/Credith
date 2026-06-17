@@ -11,6 +11,8 @@ const{createCategory,getPagedCategories,updateCategory,activateCategory,deactiva
  *   post:
  *     summary: Crear una nueva categoría
  *     tags: [Categories]
+ *     security:
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -41,6 +43,8 @@ router.post('/categories',authMiddleware,roleMiddleware("OWNER"),createCategory)
  *   get:
  *     summary: Obtener todas las categorías
  *     tags: [Categories]
+ *     security:
+ *       - cookieAuth: []
  *     responses:
  *       200:
  *         description: Lista de categorías obtenida correctamente
@@ -53,6 +57,8 @@ router.get('/categories',authMiddleware,roleMiddleware("OWNER"),getPagedCategori
  *   put:
  *     summary: Actualizar una categoría
  *     tags: [Categories]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: categoryId
@@ -92,6 +98,8 @@ router.put('/categories/:categoryId',authMiddleware,roleMiddleware("OWNER"),upda
  *   patch:
  *     summary: Activar una categoría
  *     tags: [Categories]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: categoryId
@@ -113,6 +121,8 @@ router.patch('/categories/:categoryId/activate',authMiddleware,roleMiddleware("O
  *   patch:
  *     summary: Desactivar una categoría
  *     tags: [Categories]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: categoryId
