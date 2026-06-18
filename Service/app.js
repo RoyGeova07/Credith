@@ -3,7 +3,7 @@ const cors = require('cors')
 const app = express()
 const cookieParser=require('cookie-parser')
 
-app.use(cors({ origin: 'http://localhost:5173',credentials:true }))//permite solicitudes desde el frontend y el envio de cookies
+app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173', credentials: true }))//permite solicitudes desde el frontend y el envio de cookies
 app.use(cookieParser())
 app.use(express.json())
 if (process.env.NODE_ENV !== 'test') {
