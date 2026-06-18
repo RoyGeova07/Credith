@@ -57,14 +57,14 @@
   color: #a8550f;
 }
 
-.employees-dialog-form {
+.employees-admin-page .employees-dialog-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   margin-top: 12px;
 }
 
-.employees-dialog-form label {
+.employees-admin-page .employees-dialog-form label {
   display: grid;
   gap: 6px;
   color: var(--text-mid);
@@ -73,12 +73,12 @@
   text-transform: uppercase;
 }
 
-.employees-dialog-form--wide {
+.employees-admin-page .employees-dialog-form--wide {
   grid-column: 1 / -1;
 }
 
-.employees-dialog-form input,
-.employees-dialog-form select {
+.employees-admin-page .employees-dialog-form input,
+.employees-admin-page .employees-dialog-form select {
   width: 100%;
   border: 1.5px solid var(--gray-light);
   border-radius: 8px;
@@ -91,12 +91,12 @@
   transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-.employees-dialog-form select {
+.employees-admin-page .employees-dialog-form select {
   cursor: pointer;
 }
 
-.employees-dialog-form input:focus,
-.employees-dialog-form select:focus {
+.employees-admin-page .employees-dialog-form input:focus,
+.employees-admin-page .employees-dialog-form select:focus {
   background: #ffffff;
   border-color: var(--green-mid);
   box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.13);
@@ -111,11 +111,11 @@
     min-width: 760px;
   }
 
-  .employees-dialog-form {
+  .employees-admin-page .employees-dialog-form {
     grid-template-columns: 1fr;
   }
 
-  .employees-dialog-form--wide {
+  .employees-admin-page .employees-dialog-form--wide {
     grid-column: auto;
   }
 }

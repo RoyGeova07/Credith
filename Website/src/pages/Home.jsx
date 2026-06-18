@@ -4,7 +4,6 @@ import './Home.css'
 import { toast } from 'react-toastify'
 import SideBar from '@/components/sidebar/Sidebar'
 import AdminCompanyManagementPage from './AdminCompanyManagementPage'
-import AdminRoleManagementPage from './AdminRoleManagementPage'
 import AdminStoreManagementPage from './AdminStoreManagementPage'
 import CartDemoPage from './CartDemoPage'
 import ManagerEmployeesManagementPage from './ManagerEmployeesManagementPage'
@@ -28,11 +27,10 @@ function renderContent(page)
 {
     switch (page) {
         case '/admin/companies':    return <AdminCompanyManagementPage />
-        case '/admin/assign-roles': return <AdminRoleManagementPage />
         case '/admin/stores':       return <AdminStoreManagementPage />
         case '/owner/category':     return <OwnerCategoryManagementPage />
         case '/products':           return <ProductsPage />
-        case '/manager/employees':  return <ManagerEmployeesManagementPage />
+        case '/admin/employees':  return <ManagerEmployeesManagementPage />
         case '/cart':               return <CartDemoPage />
         default:                    return <DashboardHome />
     }

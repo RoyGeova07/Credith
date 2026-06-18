@@ -6,7 +6,8 @@ export function DataColumn() {
   return null
 }
 
-export function CustomAction({ row, backgroundColor, color = '#ffffff', icon: Icon, onClick, tooltip }) {
+export function CustomAction({ row, backgroundColor, color = '#ffffff', icon: Icon, onClick, tooltip, hidden }) {
+  if (typeof hidden === 'function' ? hidden(row) : hidden) return null
   return (
     <button
       className="action-btn"
