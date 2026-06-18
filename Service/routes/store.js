@@ -68,6 +68,8 @@ router.get('/stores/:id', getStoreById)
  *   post:
  *     summary: Crear una nueva tienda
  *     tags: [Stores]
+ *     security:
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -100,6 +102,8 @@ router.post('/stores',authMiddleware,roleMiddleware("ADMIN","OWNER"),createStore
  *   put:
  *     summary: Actualizar una tienda
  *     tags: [Stores]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -136,6 +140,8 @@ router.put('/stores/:id', authMiddleware,roleMiddleware("ADMIN","OWNER"),updateS
  *   put:
  *     summary: Desactivar una tienda
  *     tags: [Stores]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -159,6 +165,8 @@ router.put('/stores/deactivate/:id',authMiddleware,roleMiddleware("ADMIN","OWNER
  *   put:
  *     summary: Activar una tienda
  *     tags: [Stores]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id

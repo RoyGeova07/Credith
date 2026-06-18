@@ -9,6 +9,7 @@ import './ProductForm.css'
 import { getCategories } from '@/helpers/categories'
 import { createProduct, updateProduct } from '@/helpers/products'
 import { toast } from 'react-toastify'
+import { Get } from '@/helpers/fetcher'
 
 export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,setSelectedProduct})
 {
@@ -26,6 +27,48 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
         setForm(prev=>({...prev,[field]:e.target.value}))
 
     }
+    const loadStores=async(search,__loadedOptions,{page})=>
+    {
+
+        try
+        {
+
+            const response=await Get("/api/stores")
+            if(response.status!==200)
+            {
+
+                throw new Error(response.json?.message||"Error obteniendo tiendas")
+
+            }
+            const options=response.json.data.map(store=>({
+
+                value:store.storeId,
+                label:store.company?`${store.company.name} - ${store.address}`:store.address
+
+            })).filter(store=>
+
+                store.label.toLowerCase().includes(search.toLowerCase())
+
+            )
+
+            return{
+
+                options,hasMore:false,additional:{page:page+1}
+
+            }
+
+        }catch(error){
+
+            console.error(error)
+            return{
+
+                options:[],hasMore:false,additional:{page}
+
+            }
+
+        }
+
+    }
 
     useEffect(() => 
     {
@@ -41,7 +84,9 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
                 sellPrice:Number(product.sellPrice),
                 minGainPercentage:product.minGainPercentage,
                 imageUrl:product.imageUrl,
-                categories:product.categories.map(c=>({value:c.categoryId,label: c.name}))
+                storeId:"",
+                initialStock:"",
+                categories:product.categories.map(c=>({value:c.categoryId,label: c.name})),
 
             })
 
@@ -70,6 +115,16 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
         setForm(prev => ({...prev,categories: value}))
         setTouched(prev => ({...prev,categories: true}))
         setErrors(ProductFormConfig.validateProduct({...form,categories: value}))
+
+    }
+
+    const handleStore=(selected)=>
+    {
+
+        const value=selected&&selected.length>0?selected[selected.length-1]:null
+        setForm(prev=>({...prev,storeId:value?.value||"",storeName:value?.label||"",}))
+        setTouched(prev=>({...prev,storeId:true}))
+        setErrors(ProductFormConfig.validateProduct({...form,storeId:value?.value||""}))
 
     }
 
@@ -149,14 +204,16 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
 
                 await updateProduct({
 
-                   productId: product.productId,
+                    productId: product.productId,
                     name: form.name,
                     description: form.description,
                     buyPrice: Number(form.buyPrice),
                     sellPrice: Number(form.sellPrice),
                     minGainPercentage: Number(form.minGainPercentage),
                     imageUrl: form.imageUrl,
-                    categoryId: form.categories[0]?.value
+                    categoryId: form.categories[0]?.value,
+                    storeId:form.storeId,
+                    stock:Number(form.initialStock)
 
                 })
                 toast.success(`${form.name} actualizado exitosamente`)
@@ -167,16 +224,18 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
 
                     name: form.name,
                     description: form.description,
-                    buyPrice:
-                    Number(form.buyPrice),
-                    sellPrice:
-                    Number(form.sellPrice),
-                    minGainPercentage:
-                    Number(form.minGainPercentage),
-                    imageUrl:
-                    form.imageUrl,
-                    categoryId:
-                    form.categories[0]?.value
+
+                    buyPrice:Number(form.buyPrice),
+                    sellPrice:Number(form.sellPrice),
+                    minGainPercentage:Number(form.minGainPercentage),
+
+                    imageUrl:form.imageUrl,
+
+                    categoryId:form.categories[0]?.value,
+
+                    storeId:form.storeId,
+
+                    initialStock:Number(form.initialStock)
 
                 })
                 toast.success(`Producto ${form.name} agregado exitosamente`)
@@ -249,7 +308,53 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
 
                     />
 
-                     {/* Descripcion — fila completa */}
+                    {/**store id */}
+                    <div className="categories-field">
+
+                        <label>Tienda</label>
+
+                        <MultiSelect
+
+                            title="Buscar tienda..."
+                            selected={
+
+                            form.storeId
+                            ?[{
+
+                                value: form.storeId,
+                                label: form.storeName
+
+                            }]:[]}
+
+                            onSelect={handleStore}
+                            onLoad={loadStores}
+                            pageSize={10}
+
+                        />
+
+                        {
+
+                            touched.storeId&&errors.storeId&&(<span className="error-msg">⚠ {errors.storeId}</span>)
+
+                        }
+
+                    </div>
+
+                    <FormField 
+
+                        inputName="initialStock"
+                        description="Stock Inicial"
+                        type="number"
+                        value={form.initialStock}
+                        onChange={handleChange("initialStock")}
+                        onBlur={handleBlur("initialStock")}
+                        error={errors.initialStock}
+                        touched={touched.initialStock}
+                        required
+
+                    />
+
+                    {/* Descripcion — fila completa */}
                     <FormField
 
                         className="full"

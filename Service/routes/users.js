@@ -1,17 +1,34 @@
 const router=require("express").Router()
 const authMiddleware=require("../middlewares/authMiddleware")
 
-const{createUser,getPagedUsers, getUserById, desactivateUser, activateUser,updatePassword,loginUser,logoutUser}=require("../controllers/users")
+const{createUser,getPagedUsers, getUserById, desactivateUser, activateUser,updatePassword,loginUser,logoutUser,getPagedEmployees,}=require("../controllers/users")
 
 /**
  * @swagger
  * /api/users:
  *   get:
- *     summary: Obtener todos los usuarios
+ *     summary: Obtener todos los usuarios paginados
  *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           example: 10
+ *         description: Cantidad de usuarios a mostrar
+ *       - in: query
+ *         name: offset
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *           example: 0
+ *         description: Cantidad de registros a omitir
  *     responses:
  *       200:
- *         description: Lista de usuarios
+ *         description: Lista de usuarios obtenida correctamente
  */
 router.get("/users",getPagedUsers)
 
@@ -111,7 +128,7 @@ router.post("/users/login",loginUser)
  *     summary: Desactivar un usuario
  *     tags: [Users]
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -138,7 +155,7 @@ router.put("/users/desactivate/:id",authMiddleware,desactivateUser)
  *     summary: Activar un usuario
  *     tags: [Users]
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -166,7 +183,7 @@ router.put("/users/activate/:id",authMiddleware,activateUser)
  *     summary: Actualizar contraseña del usuario autenticado
  *     tags: [Users]
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -195,7 +212,48 @@ router.put("/users/activate/:id",authMiddleware,activateUser)
  */
 router.put("/users/update-password/",authMiddleware,updatePassword)
 
+/**
+ * @swagger
+ * /api/users/logout:
+ *   post:
+ *     summary: Cerrar sesión del usuario autenticado
+ *     tags: [Users]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Sesión cerrada correctamente
+ */
 router.post("/users/logout", logoutUser)
+
+/**
+ * @swagger
+ * /api/users/employees:
+ *   get:
+ *     summary: Obtener únicamente los usuarios con rol EMPLOYEE
+ *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *         description: Cantidad máxima de registros
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           example: 0
+ *         description: Desplazamiento para la paginación
+ *     responses:
+ *       200:
+ *         description: Lista de empleados obtenida correctamente
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get("/users/employees",getPagedEmployees)
+
+
 
 /**
  * @swagger

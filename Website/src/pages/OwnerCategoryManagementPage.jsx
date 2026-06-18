@@ -199,7 +199,7 @@ export default function OwnerCategoryManagementPage()
 
     return(
 
-        <main className="category-admin-page">
+        <div className="category-admin-page">
 
             <DataGrid>
 
@@ -331,7 +331,7 @@ export default function OwnerCategoryManagementPage()
                 
             </DataGrid>
 
-        </main>
+        </div>
 
     )
 

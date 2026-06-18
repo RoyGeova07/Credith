@@ -1,5 +1,5 @@
 .cart-demo-page {
-  min-height: 100vh;
+  flex: 1;
   background:
     radial-gradient(circle at 18% 18%, rgba(46, 204, 113, 0.12), transparent 28%),
     linear-gradient(135deg, #f7fbf9 0%, #eef8f8 48%, #e8f3fb 100%);

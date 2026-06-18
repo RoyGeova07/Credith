@@ -152,6 +152,8 @@ module.exports = {
       { product_id: productIds[4], store_id: storeIds[0], in_stock: 100 },
       { product_id: productIds[4], store_id: storeIds[1], in_stock: 60 },
       { product_id: productIds[4], store_id: storeIds[2], in_stock: 40 },
+      { product_id: productIds[5], store_id: storeIds[0], in_stock: 40 },
+      { product_id: productIds[5], store_id: storeIds[1], in_stock: 10 },
     ]);
 
     // CAIs

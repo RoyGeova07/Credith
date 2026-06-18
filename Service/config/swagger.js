@@ -31,12 +31,12 @@ const options=
             securitySchemes:
             {
 
-                bearerAuth:
+                cookieAuth:
                 {
 
-                    type:'http',
-                    scheme:'bearer',
-                    bearerFormat:'JWT'
+                    type:'apiKey',
+                    in:'cookie',
+                    name:'token'
 
                 }
 
