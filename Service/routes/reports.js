@@ -14,6 +14,8 @@ const {
  *   get:
  *     summary: Obtener reporte de rendimiento por producto
  *     tags: [Reports]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: query
  *         name: companyId
@@ -139,6 +141,8 @@ router.get('/reports/products', authMiddleware,roleMiddleware("OWNER"),getProduc
  *   get:
  *     summary: Obtener reporte mensual de una tienda
  *     tags: [Reports]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: query
  *         name: storeId
@@ -234,6 +238,8 @@ router.get('/reports/stores', authMiddleware,roleMiddleware("OWNER"),getStoreRep
  *   get:
  *     summary: Obtener reporte mensual de una compania
  *     tags: [Reports]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: query
  *         name: companyId

@@ -134,7 +134,7 @@ export default function AdminRoleManagementPage() {
   }
 
   return (
-    <main className="role-admin-page">
+    <div className="role-admin-page">
       <DataGrid>
         <DataGridHeader
           title="Roles"
@@ -197,6 +197,6 @@ export default function AdminRoleManagementPage() {
           </form>
         </FormDialog>
       </DataGrid>
-    </main>
+    </div>
   )
 }

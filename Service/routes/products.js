@@ -11,6 +11,8 @@ const role = require("../models/entities/role")
  *   get:
  *     summary: Obtener todos los productos
  *     tags: [Products]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: query
  *         name: limit
@@ -44,6 +46,8 @@ router.get("/products",authMiddleware,roleMiddleware("OWNER"),Products.getPagedP
  *   get:
  *     summary: Obtener producto por ID
  *     tags: [Products]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -65,6 +69,8 @@ router.get("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Produc
  *   post:
  *     summary: Crear un nuevo producto
  *     tags: [Products]
+ *     security:
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -126,6 +132,8 @@ router.post("/products",authMiddleware,roleMiddleware("OWNER"),Products.postProd
  *   put:
  *     summary: Actualizar un producto y opcionalmente su inventario
  *     tags: [Products]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -215,6 +223,8 @@ router.put("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Produc
  *   delete:
  *     summary: Eliminar un producto o quitarlo de una tienda
  *     tags: [Products]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -253,6 +263,8 @@ router.delete("/products/:id",/*authMiddleware,roleMiddleware("ADMIN","OWNER"),*
  *   post:
  *     summary: Restaurar un producto eliminado
  *     tags: [Products]
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - in: path
  *         name: id

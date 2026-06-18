@@ -201,7 +201,7 @@ export default function AdminStoreManagementPage() {
   }
 
   return (
-    <main className="store-admin-page">
+    <div className="store-admin-page">
       <DataGrid>
         <DataGridHeader
           title="Tiendas"
@@ -276,6 +276,6 @@ export default function AdminStoreManagementPage() {
           </form>
         </FormDialog>
       </DataGrid>
-    </main>
+    </div>
   )
 }

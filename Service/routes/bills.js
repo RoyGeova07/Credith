@@ -10,8 +10,6 @@ const {
  *   post:
  *     summary: Crear una nueva factura
  *     tags: [Bills]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -38,7 +36,7 @@ const {
  *                 enum: [CASH, INSTALLMENT]
  *                 example: "CASH"
  *               discountPercentage:
- *                 type: number
+ *                 type: integer
  *                 example: 0
  *               discountAmount:
  *                 type: number
@@ -50,17 +48,21 @@ const {
  *                 type: number
  *                 example: 0
  *               companyId:
- *                 type: integer
- *                 example: 1
+ *                 type: string
+ *                 format: uuid
+ *                 example: b75438e5-9ae8-4597-b95e-9889028f4737
  *               caiRangeId:
- *                 type: integer
- *                 example: 1
+ *                 type: string
+ *                 format: uuid
+ *                 example: a12345e5-9ae8-4597-b95e-9889028f1111
  *               userId:
- *                 type: integer
- *                 example: 1
+ *                 type: string
+ *                 format: uuid
+ *                 example: c98765e5-9ae8-4597-b95e-9889028f2222
  *               storeId:
- *                 type: integer
- *                 example: 1
+ *                 type: string
+ *                 format: uuid
+ *                 example: d55555e5-9ae8-4597-b95e-9889028f3333
  *               details:
  *                 type: array
  *                 items:
@@ -73,8 +75,9 @@ const {
  *                     - productName
  *                   properties:
  *                     productId:
- *                       type: integer
- *                       example: 1
+ *                       type: string
+ *                       format: uuid
+ *                       example: e11111e5-9ae8-4597-b95e-9889028f4444
  *                     quantity:
  *                       type: integer
  *                       example: 2
@@ -107,6 +110,11 @@ const {
  *                   customerAddress:
  *                     type: string
  *                     example: "Tegucigalpa, Honduras"
+ *                   clientId:
+ *                     type: string
+ *                     format: uuid
+ *                     description: Requerido cuando paymentType es INSTALLMENT
+ *                     example: "f22222e5-9ae8-4597-b95e-9889028f5555"
  *               paymentData:
  *                 type: object
  *                 properties:

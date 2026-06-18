@@ -3,12 +3,12 @@ import "./RegisterPage.css";
 import DualPanel from "@/components/DualPanel";
 import FormGrid from "@/components/form/FormGrid";
 import FormField from "@/components/form/FormField";
-import BrandPanel from "@/components/BrandPanel"; 
+import BrandPanel from "@/components/BrandPanel";
 import{RegisterFormConfig}from '@/pages/constants/FormConfig'
 import{Get,Post}from '@/helpers/fetcher'
-import { useNavigate } from "react-router-dom";
 
-export default function RegisterPage() 
+
+export default function RegisterPage({ onRegister, onLogin })
 {
 
     const [form, setForm] = useState(RegisterFormConfig.INITIAL_FORM);
@@ -17,7 +17,6 @@ export default function RegisterPage()
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
     const[stores,setStores]=useState([])
-    const navigate=useNavigate()
 
     const handleChange = (e) => 
     {
@@ -68,7 +67,7 @@ export default function RegisterPage()
 
             setSuccess(true);
 
-            navigate('/',{state:{toastType:"register"}});
+            onRegister();
 
         }catch(error){
 
@@ -349,8 +348,8 @@ export default function RegisterPage()
                 <p className="login-prompt">
 
                     ¿Ya tienes una cuenta?
-                    <a href="/login">Inicia sesión</a>
-                    
+                    <button type="button" className="link-btn" onClick={onLogin}>Inicia sesión</button>
+
                 </p>
 
             </div>
