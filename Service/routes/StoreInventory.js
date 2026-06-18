@@ -1,7 +1,7 @@
 const router=require("express").Router()
 const authMiddleware=require("../middlewares/authMiddleware")
 
-const{/*addProductToStore,*/addStock,removeStock,getStoreInventory,getProductStock,getPagedStoresInventories,updateStock}=require("../controllers/StoreInventory")
+const{/*addProductToStore,*/addStock,removeStock,getStoreInventory,getProductStock,getPagedStoresInventories,updateStock, getMyStoreInventory}=require("../controllers/StoreInventory")
 const roleMiddleware = require("../middlewares/roleMiddleware")
 const { ROLE } = require('../helper/roles')
 
@@ -153,5 +153,35 @@ router.get("/store/:storeId",authMiddleware,roleMiddleware(ROLE.OWNER),getStoreI
  *         description: Registro de inventario no encontrado
  */
 router.get("/:storeId/:productId",authMiddleware,roleMiddleware(ROLE.OWNER),getProductStock)//tendra el middelaware dependiendo el admin y tendra el owner tambien
+
+/**
+ * @swagger
+ * /api/store-inventory/my-store:
+ *   get:
+ *     summary: Obtener el inventario de la tienda asignada al usuario autenticado
+ *     tags: [StoreInventory]
+ *     security:
+ *       - cookieAuth: []
+ *
+ *     description: |
+ *       Obtiene todos los productos y existencias de la tienda
+ *       asociada al usuario autenticado mediante su storeId.
+ *
+ *       Este endpoint está pensado principalmente para usuarios ADMIN.
+ *
+ *     responses:
+ *       200:
+ *         description: Inventario obtenido correctamente
+ *
+ *       400:
+ *         description: El usuario no tiene una tienda asignada
+ *
+ *       401:
+ *         description: Usuario no autenticado
+ *
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get("/my-store",authMiddleware, getMyStoreInventory)
 
 module.exports=router

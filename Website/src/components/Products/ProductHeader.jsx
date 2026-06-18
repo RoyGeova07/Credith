@@ -1,6 +1,6 @@
 import "./ProductHeader.css"
 
-export default function ProductHeader({onCreate}) 
+export default function ProductHeader({onCreate,canCreate=true}) 
 {
 
     return(
@@ -13,16 +13,25 @@ export default function ProductHeader({onCreate})
 
             </div>
             
-            <button
+            {
 
-                className="new-product-btn"
-                onClick={onCreate}
+                canCreate&&
+                (
 
-            >
+                    <button
 
-                + Nuevo Producto
-                
-            </button>
+                        className="new-product-btn"
+                        onClick={onCreate}
+
+                    >
+
+                        + Nuevo Producto
+                        
+                    </button>
+
+                )
+
+            }
 
         </div>
     )

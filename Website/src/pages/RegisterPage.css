@@ -336,3 +336,21 @@
   font-size: inherit;
   text-decoration: underline;
 }
+
+.assigned-store-banner
+{
+  
+  background: white;
+  border-left: 4px solid #2563eb;
+
+  padding: 14px 18px;
+
+  border-radius: 10px;
+
+  color: #374151;
+
+  font-size: .95rem;
+
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+
+}

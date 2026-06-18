@@ -66,7 +66,7 @@ async function updateStock(req,res)
     {
         const{productId,storeId,stock}=req.body
 
-        if(stock =null||stock<0)
+        if(stock ===null||stock===undefined||stock<0)
         {
 
             return res.status(400).json({message:"Stock inválido"})
@@ -191,4 +191,40 @@ async function getPagedStoresInventories(req,res)
 
 }
 
-module.exports={/*addProductToStore*/updateStock,getStoreInventory,getProductStock,getPagedStoresInventories}
+async function  getMyStoreInventory(res,req) 
+{
+ 
+    try
+    {
+
+        const storeId=req.user.storeId
+        if(!storeId){
+
+            return res.status(400).json({message:"El usuario no tiene tienda asignada"})
+
+        }
+        const inventories=await StoresInventories.findAndCountAll({
+
+            include:[
+
+                {
+
+                    model:Products,as:"product",attributes:[ "productId","name","description","sellPrice","buyPrice","imageUrl","minGainPercentage"],
+
+                }
+
+            ],where:{storeId}
+
+        })
+        return res.status(200).json({total:inventories.count,data:inventories.rows})
+
+
+    }catch(error){
+
+        return res.status(500).json({message:error.message})
+
+    }
+
+}
+
+module.exports={/*addProductToStore*/updateStock,getStoreInventory,getProductStock,getPagedStoresInventories, getMyStoreInventory}

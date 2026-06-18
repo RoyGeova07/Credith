@@ -1,6 +1,6 @@
 import { Delete, Get,Post,Put } from "./fetcher"
 
-export async function getProducts(offset=0,limit=10,category="",archived=false) 
+export async function getProducts(offset=0,limit=10,category="",archived=false,storeId="") 
 {
 
     let url=`/api/products?limit=${limit}&offset=${offset}`
@@ -11,8 +11,16 @@ export async function getProducts(offset=0,limit=10,category="",archived=false)
         url+=`&category=${encodeURIComponent(category)}`
 
     }
-    if(archived)
+    if(archived){
+
         url+="&archived=true"
+
+    }
+    if(storeId){
+
+        url+=`&storeId=${storeId}`
+
+    }
     const response=await Get(url)
 
 

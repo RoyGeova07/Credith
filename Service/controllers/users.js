@@ -361,6 +361,8 @@ const loginUser = async (req, res) => {
             second_last_name: user.second_last_name,
             email: user.email,
             role: roleName,
+            storeId:user.storeId,
+            storeAddress:user.store?.address??null,
             checkoutMachine: user.checkoutMachine
                 ? {
 
