@@ -13,7 +13,8 @@ const createUser = async (req, res) => {
 
     try {
 
-        const { first_name, second_name, first_last_name, second_last_name, email, password, storeId } = req.body
+        const { first_name, second_name, first_last_name, second_last_name, email, password, storeId, role: roleParam } = req.body
+        const roleName = roleParam && [ROLE.ADMIN, ROLE.EMPLOYEE].includes(roleParam) ? roleParam : ROLE.EMPLOYEE
         const existingUser = await Users.findOne({ where: { email } })
         if (!first_name || first_name.trim() === "") {
 
@@ -69,20 +70,14 @@ const createUser = async (req, res) => {
 
         const hashedPassword = await hashPassword(password)
 
-        //                                                                                                          contra encriptada :O
         const user = await Users.create({ userId: uuidv4(), first_name, second_name, first_last_name, second_last_name, email, password: hashedPassword, storeId })
-        const employeRole = await Roles.findOne({
+        const assignedRole = await Roles.findOne({ where: { name: roleName } })
+        if (!assignedRole) {
 
-            where: { name: ROLE.EMPLOYEE }
-
-        })
-        if (!employeRole) {
-
-            return res.status(404).json({ message: "El rol EMPLOYEE no existe" })
+            return res.status(404).json({ message: `El rol ${roleName} no existe` })
 
         }
-        await user.addRole(employeRole)
-        const roleName = ROLE.EMPLOYEE
+        await user.addRole(assignedRole)
         const token = generateToken(user, roleName, storeId)
 
         //Cookie JWT - guardar el token
@@ -405,7 +400,7 @@ const getPagedEmployees = async (req, res) => {
 
         const users = await Users.findAndCountAll({
 
-            limit, offset, attributes: { exclude: ["password"] }, include: [{ model: Roles, as: "roles", through: { attributes: [] }, attributes: ["roleId", "name", "description"], where: { name: ROLE.EMPLOYEE } }]
+            limit, offset, attributes: { exclude: ["password"] }, include: [{ model: Roles, as: "roles", through: { attributes: [] }, attributes: ["roleId", "name", "description"] }]
 
         })
         res.json({ total: users.count, data: users.rows })
