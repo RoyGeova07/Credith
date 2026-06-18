@@ -208,7 +208,7 @@ export default function ManagerEmployeesManagementPage() {
   }
 
   return (
-    <main className="employees-admin-page">
+    <div className="employees-admin-page">
       <DataGrid>
         <DataGridHeader
           title="Empleados"
@@ -344,6 +344,6 @@ export default function ManagerEmployeesManagementPage() {
           </form>
         </FormDialog>
       </DataGrid>
-    </main>
+    </div>
   )
 }

@@ -326,3 +326,13 @@
   margin-top: 2px;
   
 }
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #2d74b8;
+  cursor: pointer;
+  font-size: inherit;
+  text-decoration: underline;
+}

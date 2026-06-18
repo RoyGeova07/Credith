@@ -55,7 +55,8 @@
 
 }
 
-.sidebar-item:hover 
+.sidebar-item:hover,
+.sidebar-item-active
 {
 
     background: linear-gradient(90deg,#1f8b3c,#3483d1);
