@@ -255,7 +255,7 @@ router.put("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Produc
  *       404:
  *         description: Producto o inventario no encontrado
  */
-router.delete("/products/:id",/*authMiddleware,roleMiddleware("ADMIN","OWNER"),*/Products.deleteProduct)
+router.delete("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.deleteProduct)
 
 /**
  * @swagger
@@ -278,7 +278,7 @@ router.delete("/products/:id",/*authMiddleware,roleMiddleware("ADMIN","OWNER"),*
  *       404:
  *         description: Producto no encontrado
  */
-router.post("/products/:id/recover",/*authMiddleware,roleMiddleware("ADMIN","OWNER"),*/Products.recoverProduct)
+router.post("/products/:id/recover",authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.recoverProduct)
 
 
 module.exports=router
