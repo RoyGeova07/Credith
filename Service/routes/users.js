@@ -1,7 +1,7 @@
 const router=require("express").Router()
 const authMiddleware=require("../middlewares/authMiddleware")
 
-const{createUser,getPagedUsers, getUserById, desactivateUser, activateUser,updatePassword,loginUser,logoutUser}=require("../controllers/users")
+const{createUser,getPagedUsers, getUserById, desactivateUser, activateUser,updatePassword,loginUser,logoutUser,getPagedEmployees,}=require("../controllers/users")
 
 /**
  * @swagger
@@ -225,6 +225,35 @@ router.put("/users/update-password/",authMiddleware,updatePassword)
  *         description: Sesión cerrada correctamente
  */
 router.post("/users/logout", logoutUser)
+
+/**
+ * @swagger
+ * /api/users/employees:
+ *   get:
+ *     summary: Obtener únicamente los usuarios con rol EMPLOYEE
+ *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *         description: Cantidad máxima de registros
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           example: 0
+ *         description: Desplazamiento para la paginación
+ *     responses:
+ *       200:
+ *         description: Lista de empleados obtenida correctamente
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get("/users/employees",getPagedEmployees)
+
+
 
 /**
  * @swagger

@@ -80,7 +80,19 @@ const createUser=async(req,res)=>
 
         //                                                                                                          contra encriptada :O
         const user=await Users.create({userId:uuidv4(),first_name,second_name,first_last_name,second_last_name,email,password:hashedPassword,storeId})
-        const roleName='sin-rol'
+        const employeRole=await Roles.findOne({
+
+            where:{name:"EMPLOYEE"}
+
+        })
+        if(!employeRole)
+        {
+
+            return res.status(404).json({message:"El rol EMPLOYEE no existe"})
+
+        }
+        await user.addRole(employeRole)
+        const roleName='EMPLOYEE'
         const token=generateToken(user)
 
         //Cookie JWT - guardar el token
@@ -279,7 +291,7 @@ const getUserById=async(req,res)=>
             {
 
                 model:Roles,
-                as:"Roles",
+                as:"roles",
                 through:{attributes:[]},
                 attributes:["roleId","name","description",]
 
@@ -392,7 +404,29 @@ const logoutUser=(req,res)=>
 
 }
 
+const getPagedEmployees=async(req,res)=>
+{
+
+    try
+    {
+
+        const limit=parseInt(req.query.limit)||10
+        const offset=parseInt(req.query.offset)||0
+
+        const users=await Users.findAndCountAll({
+
+            limit,offset,attributes:{exclude:["password"]},include:[{model:Roles,as:"roles",through:{attributes:[]},attributes:["roleId","name","description"],where:{name:"EMPLOYEE"}}]
+
+        })
+        res.json({total:users.count,data:users.rows})
+
+    }catch(error){
+
+        res.status(500).json({message:error.message})
+
+    }
+
+}
 
 
-
-module.exports={createUser,desactivateUser,activateUser,getPagedUsers,getUserById,updatePassword,loginUser,logoutUser}
+module.exports={createUser,desactivateUser,activateUser,getPagedUsers,getUserById,updatePassword,loginUser,logoutUser,getPagedEmployees,}

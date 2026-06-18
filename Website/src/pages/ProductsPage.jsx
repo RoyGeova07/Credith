@@ -275,22 +275,17 @@ export default function ProductsPage()
 
                         return (
 
-                            row.stores?.reduce(
+                            row.inventories?.reduce(
 
-                                (total, store) =>
-
-                                    total +
-                                    (
-                                        store
-                                            .StoreInventories
-                                            ?.inStock || 0
-                                    ),
+                                (total,inventory)=>
+                                    
+                                    total+(inventory?.inStock||0),
 
                                 0
 
                             )
 
-                        ) || 0
+                        )||0
 
                     }}
 

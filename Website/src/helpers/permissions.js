@@ -16,7 +16,7 @@ export const MENU_PERMISSIONS=
     Facturas: ["OWNER", "ADMIN", "EMPLOYEE", "sin-rol"],
 
     Tiendas: ["OWNER", "ADMIN"],
-    Productos: ["OWNER", "ADMIN"],
+    Productos: ["OWNER"],
 
     Empresas: ["OWNER"],
     Empleados: ["OWNER"],

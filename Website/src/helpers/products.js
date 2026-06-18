@@ -48,10 +48,17 @@ export async function updateProduct(product)
 }
 
 
-export async function deleteProduct(id) 
+export async function deleteProduct(id,storeId=null) 
 {
  
-    const response=await Delete(`/api/products/${id}`)
+    let url=`/api/products/${id}`
+    if(storeId)
+    {
+
+        url+=`?storeId=${storeId}`
+
+    }
+    const response=await Delete(url)
     if(response.status>=400)
         throw new Error(response.json.message)
 
