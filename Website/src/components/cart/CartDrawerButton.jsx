@@ -28,7 +28,15 @@ function buildSparkles() {
   })
 }
 
-export default function CartDrawerButton({ buttonClassName = '', compact = false, buttonLabel = 'Mi Carrito', items = [] }) {
+export default function CartDrawerButton({
+  buttonClassName = '',
+  compact = false,
+  buttonLabel = 'Mi Carrito',
+  items = [],
+  onIncreaseItem,
+  onDecreaseItem,
+  onRemoveItem,
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const [sparkles, setSparkles] = useState([])
   const totalItems = items.reduce((total, item) => total + item.quantity, 0)
@@ -101,7 +109,33 @@ export default function CartDrawerButton({ buttonClassName = '', compact = false
                         <div className="cart-item-info">
                           <p>{item.categories?.[0]?.name || 'Producto'}</p>
                           <h2>{item.name}</h2>
-                          <span>Cantidad: {item.quantity}</span>
+                          <div className="cart-item-controls">
+                            <button
+                              type="button"
+                              className="cart-qty-button"
+                              aria-label={`Disminuir cantidad de ${item.name}`}
+                              onClick={() => onDecreaseItem?.(item.productId)}
+                            >
+                              -
+                            </button>
+                            <span className="cart-qty-value">Cantidad: {item.quantity}</span>
+                            <button
+                              type="button"
+                              className="cart-qty-button"
+                              aria-label={`Aumentar cantidad de ${item.name}`}
+                              onClick={() => onIncreaseItem?.(item.productId)}
+                            >
+                              +
+                            </button>
+                            <button
+                              type="button"
+                              className="cart-remove-button"
+                              aria-label={`Eliminar ${item.name} del carrito`}
+                              onClick={() => onRemoveItem?.(item.productId)}
+                            >
+                              Eliminar
+                            </button>
+                          </div>
                         </div>
                         <strong>{toCurrency(Number(item.sellPrice || 0) * item.quantity)}</strong>
                       </article>

@@ -6,13 +6,17 @@ import SideBar from '@/components/sidebar/Sidebar'
 import AdminCompanyManagementPage from './AdminCompanyManagementPage'
 import AdminStoreManagementPage from './AdminStoreManagementPage'
 import CartDemoPage from './CartDemoPage'
+import InicioPage from './InicioPage'
 import ManagerEmployeesManagementPage from './ManagerEmployeesManagementPage'
 import ProductsPage from './ProductsPage'
 import OwnerCategoryManagementPage from './OwnerCategoryManagementPage'
 
-
-function DashboardHome()
+function DashboardHome({ session })
 {
+    if (session?.role === ROLE.OWNER) {
+        return <InicioPage embedded />
+    }
+
     return (
         <div className="dashboard-card">
             <div className="dashboard-empty">
@@ -23,16 +27,16 @@ function DashboardHome()
     )
 }
 
-function renderContent(page)
+function renderContent(page, session)
 {
     switch (page) {
         case '/admin/companies':    return <AdminCompanyManagementPage />
         case '/admin/stores':       return <AdminStoreManagementPage />
         case '/owner/category':     return <OwnerCategoryManagementPage />
         case '/products':           return <ProductsPage />
-        case '/admin/employees':  return <ManagerEmployeesManagementPage />
+        case '/admin/employees':    return <ManagerEmployeesManagementPage />
         case '/cart':               return <CartDemoPage />
-        default:                    return <DashboardHome />
+        default:                    return <DashboardHome session={session} />
     }
 }
 
@@ -99,7 +103,7 @@ export default function Home({ session, onLogout, toastType, onToastShown })
                 </div>
 
                 <div className="dashboard-content">
-                    {renderContent(page)}
+                    {renderContent(page, session)}
                 </div>
 
             </div>
