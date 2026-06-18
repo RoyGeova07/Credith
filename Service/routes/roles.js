@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const authMiddleware=require("../middlewares/authMiddleware")
 const roleMiddleware=require("../middlewares/roleMiddleware")
+const { ROLE } = require('../helper/roles')
 
 
 const {
@@ -41,7 +42,7 @@ const {
  *       200:
  *         description: Lista de roles obtenida correctamente
  */
-router.get('/roles', authMiddleware,roleMiddleware("OWNER"),getPagedRoles)
+router.get('/roles', authMiddleware,roleMiddleware(ROLE.OWNER),getPagedRoles)
 
 /**
  * @swagger
@@ -64,7 +65,7 @@ router.get('/roles', authMiddleware,roleMiddleware("OWNER"),getPagedRoles)
  *       404:
  *         description: Rol no encontrado
  */
-router.get('/roles/:id', authMiddleware,roleMiddleware("OWNER"),getRoleById)
+router.get('/roles/:id', authMiddleware,roleMiddleware(ROLE.OWNER),getRoleById)
 
 /**
  * @swagger
@@ -96,7 +97,7 @@ router.get('/roles/:id', authMiddleware,roleMiddleware("OWNER"),getRoleById)
  *       400:
  *         description: Datos inválidos o rol ya existente
  */
-router.post('/roles', authMiddleware,roleMiddleware("OWNER"),createRole)
+router.post('/roles', authMiddleware,roleMiddleware(ROLE.OWNER),createRole)
 
 /**
  * @swagger
@@ -130,7 +131,7 @@ router.post('/roles', authMiddleware,roleMiddleware("OWNER"),createRole)
  *       404:
  *         description: Usuario o rol no encontrado
  */
-router.post('/roles/associate-user', authMiddleware,roleMiddleware("OWNER"),associateRoleToUser)
+router.post('/roles/associate-user', authMiddleware,roleMiddleware(ROLE.OWNER),associateRoleToUser)
 
 /**
  * @swagger
@@ -169,7 +170,7 @@ router.post('/roles/associate-user', authMiddleware,roleMiddleware("OWNER"),asso
  *       404:
  *         description: Rol no encontrado
  */
-router.put('/roles/:id', authMiddleware,roleMiddleware("OWNER"),updateRole)
+router.put('/roles/:id', authMiddleware,roleMiddleware(ROLE.OWNER),updateRole)
 
 /**
  * @swagger
@@ -192,6 +193,6 @@ router.put('/roles/:id', authMiddleware,roleMiddleware("OWNER"),updateRole)
  *       404:
  *         description: Rol no encontrado
  */
-router.delete('/roles/:id', authMiddleware,roleMiddleware("OWNER"),deleteRole)
+router.delete('/roles/:id', authMiddleware,roleMiddleware(ROLE.OWNER),deleteRole)
 
 module.exports = router

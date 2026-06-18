@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const authMiddleware=require("../middlewares/authMiddleware")
 const roleMiddleware=require("../middlewares/roleMiddleware")
+const { ROLE } = require('../helper/roles')
 
 
 const {
@@ -94,7 +95,7 @@ router.get('/stores/:id', getStoreById)
  *       404:
  *         description: Empresa no encontrada
  */
-router.post('/stores',authMiddleware,roleMiddleware("ADMIN","OWNER"),createStore)
+router.post('/stores',authMiddleware,roleMiddleware(ROLE.ADMIN,ROLE.OWNER),createStore)
 
 /**
  * @swagger
@@ -132,7 +133,7 @@ router.post('/stores',authMiddleware,roleMiddleware("ADMIN","OWNER"),createStore
  *       404:
  *         description: Tienda o empresa no encontrada
  */
-router.put('/stores/:id', authMiddleware,roleMiddleware("ADMIN","OWNER"),updateStore)
+router.put('/stores/:id', authMiddleware,roleMiddleware(ROLE.ADMIN,ROLE.OWNER),updateStore)
 
 /**
  * @swagger
@@ -157,7 +158,7 @@ router.put('/stores/:id', authMiddleware,roleMiddleware("ADMIN","OWNER"),updateS
  *       404:
  *         description: Tienda no encontrada
  */
-router.put('/stores/deactivate/:id',authMiddleware,roleMiddleware("ADMIN","OWNER"), deactivateStore)
+router.put('/stores/deactivate/:id',authMiddleware,roleMiddleware(ROLE.ADMIN,ROLE.OWNER), deactivateStore)
 
 /**
  * @swagger
@@ -182,6 +183,6 @@ router.put('/stores/deactivate/:id',authMiddleware,roleMiddleware("ADMIN","OWNER
  *       404:
  *         description: Tienda no encontrada
  */
-router.put('/stores/activate/:id',authMiddleware,roleMiddleware("ADMIN","OWNER"), activateStore)
+router.put('/stores/activate/:id',authMiddleware,roleMiddleware(ROLE.ADMIN,ROLE.OWNER), activateStore)
 
 module.exports = router

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { ROLE, menuItems } from '@/helpers/permissions'
 import './Home.css'
 import { toast } from 'react-toastify'
 import SideBar from '@/components/sidebar/Sidebar'
@@ -10,13 +11,6 @@ import ManagerEmployeesManagementPage from './ManagerEmployeesManagementPage'
 import ProductsPage from './ProductsPage'
 import OwnerCategoryManagementPage from './OwnerCategoryManagementPage'
 
-const PAGE_PERMISSIONS = {
-    '/admin/companies':   ['OWNER'],
-    '/admin/assign-roles':['OWNER'],
-    '/admin/stores':      ['OWNER', 'ADMIN'],
-    '/owner/category':    ['OWNER'],
-    '/products':          ['OWNER', 'ADMIN'],
-}
 
 function DashboardHome()
 {
@@ -62,9 +56,9 @@ export default function Home({ session, onLogout, toastType, onToastShown })
 
     const handleNavigate = (path) => {
         if (path === '#') return
-        const role = session?.role || 'EMPLOYEE'
-        const allowed = PAGE_PERMISSIONS[path]
-        if (allowed && !allowed.includes(role)) return
+        const role = session?.role || ROLE.EMPLOYEE
+        const item = menuItems.find(i => i.path === path)
+        if (item && !item.roles.includes(role)) return
         setPage(path)
     }
 
@@ -93,7 +87,7 @@ export default function Home({ session, onLogout, toastType, onToastShown })
                             <div>
                                 <div className="user-name">{session.first_name} {session.first_last_name}</div>
                                 <div className="user-role">
-                                    {session.role === 'OWNER' ? 'Propietario' : session.role === 'ADMIN' ? 'Administrador' : 'Empleado'}
+                                    {session.role === ROLE.OWNER ? 'Propietario' : session.role === ROLE.ADMIN ? 'Administrador' : 'Empleado'}
                                 </div>
                             </div>
 

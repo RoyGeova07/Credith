@@ -1,3 +1,5 @@
+const { ROLE } = require('../helper/roles')
+
 const roleMiddleware=(...allowedRoles)=>
 {
 
@@ -10,13 +12,7 @@ const roleMiddleware=(...allowedRoles)=>
             return res.status(401).json({message:"Usuario no autenticado"})
 
         }
-        let userRole=req.user.role
-        if(!userRole||userRole==="sin-rol")
-        {
-
-            userRole="EMPLOYEE"
-
-        }
+        const userRole=req.user.role||ROLE.EMPLOYEE
         if(!allowedRoles.includes(userRole))
         {
 

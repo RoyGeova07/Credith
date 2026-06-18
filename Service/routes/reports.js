@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const authMiddleware=require('../middlewares/authMiddleware')
 const roleMiddleware=require('../middlewares/roleMiddleware')
+const { ROLE } = require('../helper/roles')
 
 const {
   getProductReport,
@@ -133,7 +134,7 @@ const {
  *       500:
  *         description: Error interno del servidor
  */
-router.get('/reports/products', authMiddleware,roleMiddleware("OWNER"),getProductReport)
+router.get('/reports/products', authMiddleware,roleMiddleware(ROLE.OWNER),getProductReport)
 
 /**
  * @swagger
@@ -230,7 +231,7 @@ router.get('/reports/products', authMiddleware,roleMiddleware("OWNER"),getProduc
  *       500:
  *         description: Error interno del servidor
  */
-router.get('/reports/stores', authMiddleware,roleMiddleware("OWNER"),getStoreReport)
+router.get('/reports/stores', authMiddleware,roleMiddleware(ROLE.OWNER),getStoreReport)
 
 /**
  * @swagger
@@ -331,10 +332,10 @@ router.get('/reports/stores', authMiddleware,roleMiddleware("OWNER"),getStoreRep
  *       500:
  *         description: Error interno del servidor
  */
-router.get('/reports/companies', authMiddleware,roleMiddleware("OWNER"),getCompanyReport)
+router.get('/reports/companies', authMiddleware,roleMiddleware(ROLE.OWNER),getCompanyReport)
 
 // Admin o owner
-//router.get("/reports", authMiddleware, roleMiddleware('Admin', 'owner'), getReports)
+//router.get("/reports", authMiddleware, roleMiddleware(ROLE.ADMIN, ROLE.OWNER), getReports)
 
 
 module.exports = router
