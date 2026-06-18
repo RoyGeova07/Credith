@@ -10,6 +10,7 @@ import { getCategories } from '@/helpers/categories'
 import { createProduct, updateProduct } from '@/helpers/products'
 import { toast } from 'react-toastify'
 import { Get } from '@/helpers/fetcher'
+import { getSession } from '@/helpers/session'
 
 export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,setSelectedProduct})
 {
@@ -19,6 +20,8 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
     const[touched,setTouched]=useState({})
     const[saving,setSaving]=useState(false)//evitar doble click
     const[uploadingImage,setUploadingImage]=useState(false)
+    const session=getSession()
+    const isOwner=session?.role=="OWNER"
 
 
     const handleChange=(field)=>(e)=>
@@ -84,8 +87,9 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
                 sellPrice:Number(product.sellPrice),
                 minGainPercentage:product.minGainPercentage,
                 imageUrl:product.imageUrl,
-                storeId:"",
-                initialStock:"",
+                storeId:product.storeId||session?.storeId||"",
+                storeName:product.storeId||(session?.storeAddress?`Sucursal ${session.storeAddress}`:""),
+                initialStock:product.inStock||"",
                 categories:product.categories.map(c=>({value:c.categoryId,label: c.name})),
 
             })
@@ -309,36 +313,47 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
                     />
 
                     {/**store id */}
-                    <div className="categories-field">
+                    {
 
-                        <label>Tienda</label>
+                        
 
-                        <MultiSelect
+                        <div className="categories-field">
 
-                            title="Buscar tienda..."
-                            selected={
+                            <label>Tienda</label>
 
-                            form.storeId
-                            ?[{
+                            <MultiSelect
 
-                                value: form.storeId,
-                                label: form.storeName
+                                title="Buscar sucursal..."
+                                selected={
 
-                            }]:[]}
+                                    form.storeId
+                                    ?[{
 
-                            onSelect={handleStore}
-                            onLoad={loadStores}
-                            pageSize={10}
+                                        value: form.storeId,
+                                        label: form.storeName
 
-                        />
+                                    }]:[]
+                                }
 
-                        {
+                                onSelect={handleStore}
+                                onLoad={loadStores}
+                                pageSize={10}
+                                isDisabled={!isOwner}
+                                
 
-                            touched.storeId&&errors.storeId&&(<span className="error-msg">⚠ {errors.storeId}</span>)
+                            />
 
-                        }
+                            {
 
-                    </div>
+                                touched.storeId&&errors.storeId&&(<span className="error-msg">⚠ {errors.storeId}</span>)
+
+                            }
+
+                        </div>
+
+                        
+
+                    }
 
                     <FormField 
 

@@ -8,6 +8,7 @@ export default function MultiSelect({
     onSelect,
     onLoad,
     pageSize,
+    isDisabled=false,
 }) {
     const [isLoading, setIsLoading] = useState(false);
 
@@ -24,6 +25,7 @@ export default function MultiSelect({
 
     return (
         <AsyncPaginate isMulti
+
             classNamePrefix="multi-select"
             placeholder={title}
             isClearable={true}
@@ -35,6 +37,8 @@ export default function MultiSelect({
             loadOptions={load}
             closeMenuOnSelect={false}
             additional={{ page: 1 }}
+            isDisabled={isDisabled}
+            
         />
     )
 }

@@ -258,74 +258,55 @@ async function getPagedProducts(req, res) {
 
         const limit=parseInt(req.query.limit)||10
         const offset=parseInt(req.query.offset)||0
-        const storeId = req.query.storeId||null
         const category=req.query.category||null
         const archived=req.query.archived==="true"
+        const userRole=req.user?.role
+        const userStoreId=req.user?.storeId
+        const selectedStoreId=req.query.storeId||null
 
         let whereStmt = {}
-        if (storeId !== null) {
-            whereStmt = {
-                stores: {
-                    storeId: storeId
-                }
-            }
-        }
-
-        const categoyInclude={model:Categories,as:"categories",through:{attributes:[]},attributes:["categoryId","name","description"]}
-
-        if(category)
-        {
-
-            categoyInclude.where={name:category}
-
-        }
         if(archived)
         {
 
             whereStmt.deletedAt={[Op.not]:null}
 
         }
+        const categoyInclude={model:Categories,as:"categories",through:{attributes:[]},attributes:["categoryId","name","description"]}
+        if(category)
+        {
+
+            categoyInclude.where={name:category}
+
+        }
+        const inventoryInclude={model:StoresInventories,as:"inventories",attributes:["storeId","inStock"],include:[{model:Stores,as:"store",attributes:["storeId","address"]}]}
+
+        //admin solamente ve inventario en su tienda
+        if(userRole===ROLE.ADMIN)
+        {
+
+            inventoryInclude.where={storeId:userStoreId}
+            inventoryInclude.required=true
+
+            //owner selecciono una tienda especifica
+        }else if(selectedStoreId){
+
+            inventoryInclude.where={storeId:selectedStoreId}
+            inventoryInclude.required=true
+
+        }
 
         const products = await Products.findAndCountAll({
+
             where: whereStmt,
             limit: limit,
             offset: offset,
             distinct:true,
             paranoid:!archived,
-            include:[
-
-                categoyInclude,
-                {
-
-                    model:StoresInventories,
-                    as:"inventories",
-                    attributes:["storeId","inStock"],
-
-                    include:[
-
-                        {
-
-                            model:Stores,
-                            as:"store",
-                            attributes:[
-
-                                "storeId","address"
-
-                            ]
-
-                        }
-
-                    ]
-
-                }
-            
-            
-            
-            ],
+            include:[categoyInclude,inventoryInclude],
 
         });
 
-        res.json({total:products.count,data:products.rows})
+        res.status(200).json({total:products.count,data:products.rows})
 
     } catch (err) {
 

@@ -8,6 +8,8 @@ import {deleteProduct, getProducts, restoreProduct} from "@/helpers/products"
 import { getCategories } from "@/helpers/categories"
 import defaultProductImage from "@/assets/image.png"
 import { toast } from "react-toastify"
+import { getStores } from "@/helpers/store"
+import { getSession } from "@/helpers/session"
 
 export default function ProductsPage()
 {
@@ -20,7 +22,13 @@ export default function ProductsPage()
     const[reload,setReload]=useState(0)
     const[selectedProduct,setSelectedProduct]=useState(null)
     const[showArchived,setShowArchived]=useState(false)
+    const[stores,setStores]=useState([])
+    const[selectedStore,setSelectedStore]=useState("")
+    const session=getSession()
+    const assginedStore=stores.find(store=>store.storeId===session?.storeId)//FILTRAR PARA LA TIENDA CON STOCK Y PRODUCTO PARA EL ADMIN LOGUEADO
+    const isGeneralInventory=session?.role==="OWNER"&&!selectedStore
 
+    //cargar tiendas y categorias
     useEffect(() =>
     {
 
@@ -31,7 +39,9 @@ export default function ProductsPage()
             {
 
                 const result=await getCategories()
+                const storesResult=await getStores()
                 setCategories(result.data||[])
+                setStores(storesResult.data||[])
 
             }
             catch (error)
@@ -59,9 +69,20 @@ export default function ProductsPage()
 
         try
         {
+            //owner en inventario general
+            if(session?.role==="OWNER"&&!selectedStore)
+            {
 
-            await deleteProduct(product.productId)
-            toast.success(`Producto ${product.name} archivado exitosamente`)
+                await deleteProduct(product.productId)
+                toast.success(`Producto ${product.name} archivado globalmente`)
+
+            }else{
+
+                const storeId=session?.role==="ADMIN"?session.storeId:selectedStore
+                await deleteProduct(product.productId,storeId)
+                toast.success(`Prodcucto ${product.name} eliminado de la tienda`)
+
+            }
 
             setReload(prev=>prev+1)//recargar tabla para actualizar
 
@@ -97,15 +118,39 @@ export default function ProductsPage()
 
             <ProductHeader
 
+                canCreate={session?.role==="OWNER"}
                 onCreate={() => 
                 {
 
+                    if(session?.role==="ADMIN"){
+
+                        toast.error("No tienes permiso para crear productos")
+                        return
+
+                    }
                     setSelectedProduct(null)
                     setIsOpen(true)
 
                 }}
 
             />
+            {
+
+                session?.role==="ADMIN"&&assginedStore&&
+                (
+
+                    <div className="assigned-store-banner">
+
+                        <strong>Sucursal asignada:</strong>
+                        {" "}
+                        Tienda {assginedStore.address}
+
+                    </div>
+
+                )
+
+            }
+            
 
             <ProductFilters
 
@@ -125,6 +170,12 @@ export default function ProductsPage()
                 setSelectedCategory={setSelectedCategory}
                 setShowCategories={setShowCategories}
 
+                //filtrar por tienda
+                stores={stores}
+                selectedStore={selectedStore}
+                setSelectedStore={setSelectedStore}
+                isOwner={session?.role==="OWNER"}
+
             />
 
             <DataTable
@@ -134,7 +185,7 @@ export default function ProductsPage()
                 onLoad={async(offset,limit) =>
                 {
 
-                    const result=await getProducts(offset,limit,selectedCategory,showArchived)
+                    const result=await getProducts(offset,limit,selectedCategory,showArchived,selectedStore)
 
                     let data=result.data||[]
 
@@ -294,30 +345,51 @@ export default function ProductsPage()
                 <ActionColumn>
 
                     {/**boton de actualizar */}
-                    <UpdateAction
-
-                        onClick={handleEdit}
-
-                    />
 
                     {
 
-                        showArchived?
-                        <RestoreAction
+                        (session?.role==="ADMIN"||!isGeneralInventory)&&
+                        (
 
-                            onClick={handleRestore}
+                            <UpdateAction
 
-                        />:
-                        <DeleteAction
+                                onClick={handleEdit}
 
-                            onClick={handleDelete}
+                            />
 
-                        />
-                        
+                        )
+
+                    }
+
+                    {
+
+                        (session?.role==="OWNER"||session?.role==="ADMIN")&&
+                        (
+
+                            showArchived?
+                            (
+
+                                <RestoreAction
+
+                                    onClick={handleRestore}
+
+                                />
+
+                            ):(
+
+                                <DeleteAction
+
+                                    onClick={handleDelete}
+
+                                />
+
+                            )
+
+                        )
+
                     }
 
                 
-
                 </ActionColumn>
 
             </DataTable>

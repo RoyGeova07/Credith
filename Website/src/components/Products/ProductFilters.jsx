@@ -1,6 +1,6 @@
 import "./ProductFilters.css"
 
-export default function ProductFilters({search,onSearchChange,productCount = 0,onCategoriesClick,onShowArchivedClick,categories,showCategories,selectedCategory,setSelectedCategory,setShowCategories,showArchived}) 
+export default function ProductFilters({search,onSearchChange,productCount = 0,onCategoriesClick,onShowArchivedClick,categories,showCategories,selectedCategory,setSelectedCategory,setShowCategories,showArchived,stores=[],selectedStore="",setSelectedStore,isOwner=false,}) 
 {
 
     return(
@@ -67,6 +67,7 @@ export default function ProductFilters({search,onSearchChange,productCount = 0,o
                         {selectedCategory || "Categories"}
 
                         <svg
+
                             xmlns="http://www.w3.org/2000/svg"
                             width="13"
                             height="13"
@@ -75,9 +76,12 @@ export default function ProductFilters({search,onSearchChange,productCount = 0,o
                             stroke="currentColor"
                             strokeWidth="2.5"
                             strokeLinecap="round"
+
                             strokeLinejoin="round"
                         >
+
                             <polyline points="6 9 12 15 18 9" />
+
                         </svg>
                     </button>
 
@@ -127,6 +131,47 @@ export default function ProductFilters({search,onSearchChange,productCount = 0,o
 
                 </div>
 
+                {/**comobobox de tiendas para owner */}
+                {
+
+                    isOwner&&(
+
+                        <select
+
+                            className="filter-btn"
+                            value={selectedStore}
+                            onChange={(e)=>setSelectedStore?.(e.target.value)}
+
+                        >
+
+                            <option value="">Inventario General</option>
+                            {
+
+                                stores?.map(store=>(
+
+                                    <option 
+
+                                        key={store.storeId}
+                                        value={store.storeId}
+                                    
+                                    >
+
+                                        Tienda {store.address}
+
+                                    </option>
+
+                                ))
+
+                            }
+
+                        </select>
+
+                    )
+
+                }
+
+                {/**archivadoss */}
+
                 <button
 
                     className="filter-btn"
@@ -144,9 +189,11 @@ export default function ProductFilters({search,onSearchChange,productCount = 0,o
                         strokeLinecap="round"
                         strokeLinejoin="round"
                     >
+
                         <polyline points="21 8 21 21 3 21 3 8" />
                         <rect x="1" y="3" width="22" height="5" />
                         <line x1="10" y1="12" x2="14" y2="12" />
+
                     </svg>
 
                     {

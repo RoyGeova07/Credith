@@ -9,10 +9,19 @@ const { ROLE } = require('../helper/roles')
  * @swagger
  * /api/products:
  *   get:
- *     summary: Obtener todos los productos
+ *     summary: Obtener productos paginados
  *     tags: [Products]
  *     security:
  *       - cookieAuth: []
+ *     description: |
+ *       OWNER:
+ *       - Puede ver todos los productos del sistema.
+ *       - Puede ver el inventario de todas las tiendas.
+ *
+ *       ADMIN:
+ *       - Solo puede ver los productos asociados a su tienda.
+ *       - Solo recibe el inventario de su tienda asignada.
+ *
  *     parameters:
  *       - in: query
  *         name: limit
@@ -21,6 +30,7 @@ const { ROLE } = require('../helper/roles')
  *           type: integer
  *           minimum: 1
  *           example: 10
+ *
  *       - in: query
  *         name: offset
  *         required: false
@@ -28,17 +38,43 @@ const { ROLE } = require('../helper/roles')
  *           type: integer
  *           minimum: 0
  *           example: 0
+ *
  *       - in: query
- *         name: storeId
+ *         name: category
  *         required: false
  *         schema:
  *           type: string
- *         description: Filtrar productos por tienda
+ *         description: Filtrar productos por nombre de categoría
+ *          
+ *       - in: query
+ *         name: storeId
+ *         required: false 
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: |
+ *          solo para OWNER.
+ *          Permite filtrar productos por una tienda específica.
+ * 
+ *       - in: query
+ *         name: archived
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           example: false
+ *         description: Mostrar productos archivados
+ *
  *     responses:
  *       200:
  *         description: Lista de productos obtenida correctamente
+ *
+ *       401:
+ *         description: Usuario no autenticado
+ *
+ *       403:
+ *         description: Acceso denegado
  */
-router.get("/products",authMiddleware,roleMiddleware(ROLE.OWNER),Products.getPagedProducts)
+router.get("/products",authMiddleware,roleMiddleware(ROLE.OWNER,ROLE.ADMIN),Products.getPagedProducts)
 
 /**
  * @swagger
