@@ -1,3 +1,5 @@
+import { ROLE } from './permissions'
+
 export function getSession()
 {
 
@@ -22,8 +24,8 @@ export function getUserRole()
 
     const session=getSession()
     if(!session)
-        return "EMPLOYEE"
+        return ROLE.EMPLOYEE
 
-    return session.role||"EMPLOYEE"
+    return session.role||ROLE.EMPLOYEE
 
 }

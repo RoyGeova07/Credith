@@ -46,7 +46,6 @@ app.get('/', (_, res) => {
 })
 
 if (process.env.NODE_ENV === 'development') {
-    const LoggerMiddleware=require('./middlewares/loggerMiddleware.js')
     const swaggerUi=require('swagger-ui-express')
 
     const swaggerSpecs=require('./config/swagger.js')

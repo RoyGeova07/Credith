@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const authMiddleware=require("../middlewares/authMiddleware")
 const roleMiddleware=require("../middlewares/roleMiddleware")
+const { ROLE } = require('../helper/roles')
 
 
 const{createCategory,getPagedCategories,updateCategory,activateCategory,deactivateCategory,}=require('../controllers/category')
@@ -35,7 +36,7 @@ const{createCategory,getPagedCategories,updateCategory,activateCategory,deactiva
  *       400:
  *         description: Datos inválidos o categoría ya existente
  */
-router.post('/categories',authMiddleware,roleMiddleware("OWNER"),createCategory)
+router.post('/categories',authMiddleware,roleMiddleware(ROLE.OWNER),createCategory)
 
 /**
  * @swagger
@@ -49,7 +50,7 @@ router.post('/categories',authMiddleware,roleMiddleware("OWNER"),createCategory)
  *       200:
  *         description: Lista de categorías obtenida correctamente
  */
-router.get('/categories',authMiddleware,roleMiddleware("OWNER"),getPagedCategories)
+router.get('/categories',authMiddleware,roleMiddleware(ROLE.OWNER),getPagedCategories)
 
 /**
  * @swagger
@@ -90,7 +91,7 @@ router.get('/categories',authMiddleware,roleMiddleware("OWNER"),getPagedCategori
  *       404:
  *         description: Categoría no encontrada
  */
-router.put('/categories/:categoryId',authMiddleware,roleMiddleware("OWNER"),updateCategory)
+router.put('/categories/:categoryId',authMiddleware,roleMiddleware(ROLE.OWNER),updateCategory)
 
 /**
  * @swagger
@@ -113,7 +114,7 @@ router.put('/categories/:categoryId',authMiddleware,roleMiddleware("OWNER"),upda
  *       404:
  *         description: Categoría no encontrada
  */
-router.patch('/categories/:categoryId/activate',authMiddleware,roleMiddleware("OWNER"),activateCategory)
+router.patch('/categories/:categoryId/activate',authMiddleware,roleMiddleware(ROLE.OWNER),activateCategory)
 
 /**
  * @swagger
@@ -136,6 +137,6 @@ router.patch('/categories/:categoryId/activate',authMiddleware,roleMiddleware("O
  *       404:
  *         description: Categoría no encontrada
  */
-router.patch('/categories/:categoryId/deactivate',authMiddleware,roleMiddleware("OWNER"),deactivateCategory)
+router.patch('/categories/:categoryId/deactivate',authMiddleware,roleMiddleware(ROLE.OWNER),deactivateCategory)
 
 module.exports=router

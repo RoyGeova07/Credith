@@ -1,198 +1,180 @@
-const{Users}=require('../models/entities/user')
-const{v4:uuidv4}=require('uuid')
-const{generateToken}=require('../helper/jwt')
-const{comparePassword,hashPassword}=require('../helper/bycrypt')
-const{Stores}=require('../models/entities/store')
-const{Roles}=require('../models/entities/role')
-const{CheckoutMachines}=require('../models/entities/checkoutMachine')
-const COOKIE_OPTIONS={httpOnly: false,secure: process.env.NODE_ENV==='production',sameSite: 'lax',maxAge: parseInt(process.env.COOKIE_LIFETIME_HOURS||2)*60*60*1000}
+const { Users } = require('../models/entities/user')
+const { ROLE } = require('../helper/roles')
+const { v4: uuidv4 } = require('uuid')
+const { generateToken } = require('../helper/jwt')
+const { comparePassword, hashPassword } = require('../helper/bycrypt')
+const { Stores } = require('../models/entities/store')
+const { Roles } = require('../models/entities/role')
+const { CheckoutMachines } = require('../models/entities/checkoutMachine')
+const COOKIE_OPTIONS = { httpOnly: false, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: parseInt(process.env.COOKIE_LIFETIME_HOURS || 2) * 60 * 60 * 1000 }
 
 //crear usuario
-const createUser=async(req,res)=>
-{
+const createUser = async (req, res) => {
 
-    try
-    {
+    try {
 
-        const{first_name,second_name,first_last_name,second_last_name,email,password,storeId}=req.body
-        const existingUser=await Users.findOne({where:{email}})
-        if(!first_name||first_name.trim()==="")
-        {
+        const { first_name, second_name, first_last_name, second_last_name, email, password, storeId } = req.body
+        const existingUser = await Users.findOne({ where: { email } })
+        if (!first_name || first_name.trim() === "") {
 
-            return res.status(400).json({message:"El primer nombre es requerido"})
+            return res.status(400).json({ message: "El primer nombre es requerido" })
 
         }
-        if(!second_name||second_name.trim()==="")
-        {
+        if (!second_name || second_name.trim() === "") {
 
-            return res.status(400).json({message:"El segundo nombre es requerido"})
-
-        }
-        if(!first_last_name||first_last_name.trim()==="")
-        {
-
-            return res.status(400).json({message:"El primer apellido es requerido"})
+            return res.status(400).json({ message: "El segundo nombre es requerido" })
 
         }
-        if(!second_last_name||second_last_name.trim()==="")
-        {
+        if (!first_last_name || first_last_name.trim() === "") {
 
-            return res.status(400).json({message:"El segundo apellido es requerido"})
+            return res.status(400).json({ message: "El primer apellido es requerido" })
 
         }
-        if(!email||email.trim()==="")
-        {
+        if (!second_last_name || second_last_name.trim() === "") {
 
-            return res.status(400).json({message:"El correo electronico es requerido"})
+            return res.status(400).json({ message: "El segundo apellido es requerido" })
+
+        }
+        if (!email || email.trim() === "") {
+
+            return res.status(400).json({ message: "El correo electronico es requerido" })
 
         }
 
-        if(!password||password.length<6){
+        if (!password || password.length < 6) {
 
-            return res.status(400).json({message:"La contraseña debe tener al menos 6 caracteres"})
-
-        }
-
-        if(existingUser)
-        {
-
-            return res.status(400).json({message:"El email ya existe"})
+            return res.status(400).json({ message: "La contraseña debe tener al menos 6 caracteres" })
 
         }
 
-        if(!storeId||storeId.trim()==="")
-        {
+        if (existingUser) {
 
-            return res.status(400).json({message: "La tienda es requerida"});
+            return res.status(400).json({ message: "El email ya existe" })
 
         }
 
-        const store=await Stores.findByPk(storeId)
+        if (!storeId || storeId.trim() === "") {
 
-        if(!store)
-        {
+            return res.status(400).json({ message: "La tienda es requerida" });
 
-            return res.status(404).json({message: "Tienda no encontrada"});
-            
         }
 
-        const hashedPassword=await hashPassword(password)
+        const store = await Stores.findByPk(storeId)
+
+        if (!store) {
+
+            return res.status(404).json({ message: "Tienda no encontrada" });
+
+        }
+
+        const hashedPassword = await hashPassword(password)
 
         //                                                                                                          contra encriptada :O
-        const user=await Users.create({userId:uuidv4(),first_name,second_name,first_last_name,second_last_name,email,password:hashedPassword,storeId})
-        const employeRole=await Roles.findOne({
+        const user = await Users.create({ userId: uuidv4(), first_name, second_name, first_last_name, second_last_name, email, password: hashedPassword, storeId })
+        const employeRole = await Roles.findOne({
 
-            where:{name:"EMPLOYEE"}
+            where: { name: ROLE.EMPLOYEE }
 
         })
-        if(!employeRole)
-        {
+        if (!employeRole) {
 
-            return res.status(404).json({message:"El rol EMPLOYEE no existe"})
+            return res.status(404).json({ message: "El rol EMPLOYEE no existe" })
 
         }
         await user.addRole(employeRole)
-        const roleName='EMPLOYEE'
-        const token=generateToken(user)
+        const roleName = ROLE.EMPLOYEE
+        const token = generateToken(user, roleName, storeId)
 
         //Cookie JWT - guardar el token
-        res.cookie('token',token,{...COOKIE_OPTIONS,httpOnly:true})
+        res.cookie('token', token, { ...COOKIE_OPTIONS, httpOnly: true })
         //cookie de sesion - guardar datos del usuario (sin httpOnly para que el frontend pueda leerlo)
-        res.cookie('session',JSON.stringify
-        ({
+        res.cookie('session', JSON.stringify
+            ({
 
-            userId:user.userId,
-            first_name:user.first_name,
-            second_name:user.second_name,
-            first_last_name:user.first_last_name,
-            second_last_name:user.second_last_name,
-            email:user.email,
-            role:roleName,
-            checkoutMachine:null
+                userId: user.userId,
+                first_name: user.first_name,
+                second_name: user.second_name,
+                first_last_name: user.first_last_name,
+                second_last_name: user.second_last_name,
+                email: user.email,
+                role: roleName,
+                checkoutMachine: null
 
-        }),COOKIE_OPTIONS);
+            }), COOKIE_OPTIONS);
 
 
-        res.status(201).json({message:"Usuario registrado existosamente",user})
+        res.status(201).json({ message: "Usuario registrado existosamente", user })
 
-    }catch(error){
+    } catch (error) {
 
-        res.status(500).json({message:error.message})
+        res.status(500).json({ message: error.message })
 
     }
 
-   
+
 
 }
 
 
 //delete usuario
-const desactivateUser=async(req,res)=>
-{
+const desactivateUser = async (req, res) => {
 
-    try
-    {
+    try {
 
-        const{id}=req.params
+        const { id } = req.params
 
-        const user=await Users.findByPk(id)
+        const user = await Users.findByPk(id)
 
-        if(!user)
-        {
+        if (!user) {
 
-            return res.status(404).json({message:"Usuario no encontrado"})
+            return res.status(404).json({ message: "Usuario no encontrado" })
 
         }
 
-        if(!user.isActive)
-        {
+        if (!user.isActive) {
 
-            return res.status(400).json({message:"El usuario ya esta desactivado"})
+            return res.status(400).json({ message: "El usuario ya esta desactivado" })
 
         }
 
-        await user.update({isActive:false})
+        await user.update({ isActive: false })
 
-        res.json({message:"Usuario desactivado"})
+        res.json({ message: "Usuario desactivado" })
 
-    }catch(error){
+    } catch (error) {
 
-        res.status(500).json({message:error.message})
+        res.status(500).json({ message: error.message })
 
     }
 
 }
 
-const activateUser=async(req,res)=>
-{
+const activateUser = async (req, res) => {
 
-    const{id}=req.params
-    try
-    {
+    const { id } = req.params
+    try {
 
-        const user=await Users.findByPk(id)
-        if(!user)
-        {
+        const user = await Users.findByPk(id)
+        if (!user) {
 
-            return res.status(404).json({message:"Usuario no encontrado"})
+            return res.status(404).json({ message: "Usuario no encontrado" })
 
         }
 
         //el usuario ya esta activo
-        if(user.isActive)
-        {
+        if (user.isActive) {
 
-            return res.status(400).json({message:"El usuario ya esta activo"})
+            return res.status(400).json({ message: "El usuario ya esta activo" })
 
         }
 
-        await user.update({isActive:true})
+        await user.update({ isActive: true })
 
-        res.json({message:"Usuario activado"})
+        res.json({ message: "Usuario activado" })
 
-    }catch(error){
+    } catch (error) {
 
-        res.status(500).json({message:error.message})
+        res.status(500).json({ message: error.message })
 
     }
 
@@ -200,233 +182,241 @@ const activateUser=async(req,res)=>
 }
 
 //actualizar contraseña
-const updatePassword=async(req,res)=>
-{
+const updatePassword = async (req, res) => {
 
-    try
-    {
+    try {
 
-        const id=req.user.id
-        const{currentPassword,newPassword}=req.body
-        const user=await Users.findByPk(id)
-        if(!user)
-        {
+        const id = req.user.id
+        const { currentPassword, newPassword } = req.body
+        const user = await Users.findByPk(id)
+        if (!user) {
 
-            return res.status(404).json({message:"Usuario no encontrado"})
+            return res.status(404).json({ message: "Usuario no encontrado" })
 
         }
-        if(!newPassword||newPassword.length<6)
-        {
+        if (!newPassword || newPassword.length < 6) {
 
-            return res.status(400).json({message:"La nueva contraseña debe tener al menos 6 caracteres"})
-
-        }
-        const validPassword=await comparePassword(currentPassword,user.password)
-        if(!validPassword)
-        {
-
-            return res.status(400).json({message:"La contraseña actual es incorrecta"})
+            return res.status(400).json({ message: "La nueva contraseña debe tener al menos 6 caracteres" })
 
         }
-        const hashedPassword=await hashPassword(newPassword)//hashear la nueva contra
-        await user.update({password:hashedPassword})//actualizar
-        res.json({message:"Contraseña actualizada correctamente"})
+        const validPassword = await comparePassword(currentPassword, user.password)
+        if (!validPassword) {
+
+            return res.status(400).json({ message: "La contraseña actual es incorrecta" })
+
+        }
+        const hashedPassword = await hashPassword(newPassword)//hashear la nueva contra
+        await user.update({ password: hashedPassword })//actualizar
+        res.json({ message: "Contraseña actualizada correctamente" })
 
 
 
-    }catch(error){
+    } catch (error) {
 
-        res.status(500).json({message:error.message})
-
-    }   
-
-}
-
-
-const getPagedUsers=async(req,res)=>
-{
-
-    try
-    {
-
-        const limit=parseInt(req.query.limit)||10
-        const offset=parseInt(req.query.offset)||0
-
-        //                      mas profesional :O
-        const users=await Users.findAndCountAll({limit,offset,attributes:{exclude:["password"]},
-        
-            include:[
-            {
-
-                model:Roles,
-                as:"roles",
-                through:{attributes:[]},
-                attributes:["roleId","name","description",]
-
-            }]
-        
-        })
-
-        res.json({total:users.count,data:users.rows})
-
-    }catch(error){
-
-        res.status(500).json({message:error.message})
+        res.status(500).json({ message: error.message })
 
     }
 
 }
 
 
-const getUserById=async(req,res)=>
-{
+const getPagedUsers = async (req, res) => {
 
-    try
-    {
+    try {
 
-        const{id}=req.params
-        const user=await Users.findByPk(id,{attributes:{exclude:["password"]},
+        const limit = parseInt(req.query.limit) || 10
+        const offset = parseInt(req.query.offset) || 0
 
-            include:[
-            {
+        //                      mas profesional :O
+        const users = await Users.findAndCountAll({
+            limit, offset, attributes: { exclude: ["password"] },
 
-                model:Roles,
-                as:"roles",
-                through:{attributes:[]},
-                attributes:["roleId","name","description",]
+            include: [
+                {
 
-            }]
+                    model: Roles,
+                    as: "roles",
+                    through: { attributes: [] },
+                    attributes: ["roleId", "name", "description",]
+
+                }]
 
         })
 
-        if(!user)
-        {
+        res.json({ total: users.count, data: users.rows })
 
-            return res.status(404).json({message:"Usuario no encontrado"})
+    } catch (error) {
+
+        res.status(500).json({ message: error.message })
+
+    }
+
+}
+
+
+const getUserById = async (req, res) => {
+
+    try {
+
+        const { id } = req.params
+        const user = await Users.findByPk(id, {
+            attributes: { exclude: ["password"] },
+
+            include: [
+                {
+
+                    model: Roles,
+                    as: "roles",
+                    through: { attributes: [] },
+                    attributes: ["roleId", "name", "description",]
+
+                }]
+
+        })
+
+        if (!user) {
+
+            return res.status(404).json({ message: "Usuario no encontrado" })
 
         }
 
         res.json(user)
 
-    }catch(error){
+    } catch (error) {
 
-        res.status(500).json({message:error.message})
+        res.status(500).json({ message: error.message })
 
     }
 
 }
 
 
-const loginUser=async(req,res)=>
-{
+const loginUser = async (req, res) => {
 
-    try
-    {
+    try {
 
-        const{email,password}=req.body
+        const { email, password } = req.body
 
-        if(!email||email.trim()==="")
-        {
+        if (!email || email.trim() === "") {
 
-            return res.status(400).json({message:"El correo electronico es requerido"})
+            return res.status(400).json({ message: "El correo electronico es requerido" })
 
         }
 
-        if(!password)
-        {
+        if (!password) {
 
-            return res.status(400).json({message:"La contraseña es requerida"})
-
-        }
-
-        const user=await Users.findOne({where:{email},include:[{model:Roles,as:'roles',through:{attributes:[]}},{model:CheckoutMachines,as:'checkoutMachine'}]})
-
-        if(!user)
-        {
-
-            return res.status(404).json({message:"Credenciales incorrectas"})
+            return res.status(400).json({ message: "La contraseña es requerida" })
 
         }
 
-        const validPassword=await comparePassword(password,user.password)
+        const user = await Users.findOne(
+            {
+                where: {
+                    email
+                },
+                include: [
+                    {
+                        model: Roles,
+                        as: 'roles',
+                        through: {
+                            attributes: []
+                        }
+                    },
+                    {
+                        model:
+                            CheckoutMachines,
+                        as: 'checkoutMachine'
+                    },
+                    {
+                        model: Stores,
+                        as: 'store',
+                    }
+                ]
+            }
+        )
 
-        if(!validPassword)
-        {
+        if (!user) {
 
-            return res.status(404).json({message:"Credenciales incorrectas"})
+            return res.status(404).json({ message: "Credenciales incorrectas" })
+
+        }
+
+        const validPassword = await comparePassword(password, user.password)
+
+        if (!validPassword) {
+
+            return res.status(404).json({ message: "Credenciales incorrectas" })
 
         }
 
         //se toma el primer rol
-        const roleName=user.roles?.[0]?.name??'sin-rol'
+        const roleName = user.roles?.[0]?.name ?? ROLE.EMPLOYEE
 
-        const token=generateToken(user,roleName)
+        const token = generateToken(user, roleName, user.storeId)
 
         //Cookie 1: JWT — HttpOnly,el browser la envia automaticamente
-        res.cookie('token',token,{...COOKIE_OPTIONS,httpOnly: true})
+        res.cookie('token', token, { ...COOKIE_OPTIONS, httpOnly: true })
 
         //Cookie 2: datos de sesion — legible desde el frontend (sin HttpOnly)
         res.cookie('session', JSON.stringify({
-            userId:user.userId,
-            first_name:user.first_name,
-            second_name:user.second_name,
-            first_last_name:user.first_last_name,
-            second_last_name:user.second_last_name,
-            email:user.email,
-            role:roleName,
-            checkoutMachine:user.checkoutMachine
-            ?{
+            userId: user.userId,
+            first_name: user.first_name,
+            second_name: user.second_name,
+            first_last_name: user.first_last_name,
+            second_last_name: user.second_last_name,
+            email: user.email,
+            role: roleName,
+            checkoutMachine: user.checkoutMachine
+                ? {
 
-                checkoutMachineId:user.checkoutMachine.checkoutMachineId,
-                name:user.checkoutMachine.name,
-                machineNumber:user.checkoutMachine.machineNumber
+                    checkoutMachineId: user.checkoutMachine.checkoutMachineId,
+                    name: user.checkoutMachine.name,
+                    machineNumber: user.checkoutMachine.machineNumber
 
-            }:null}),COOKIE_OPTIONS)
+                } : null
+        }), COOKIE_OPTIONS)
 
-        res.json({message:"Inicio de sesión exitoso"})
+        res.json({ message: "Inicio de sesión exitoso" })
 
-    }catch(error){
+    } catch (error) {
 
         console.error("LOGIN ERROR:")
         console.error(error)
-        res.status(500).json({message:error.message})
+        res.status(500).json({ message: error.message })
 
     }
 
 }
 
-const logoutUser=(req,res)=> 
-{
+const logoutUser = (req, res) => {
 
     res.clearCookie('token')
     res.clearCookie('session')
-    res.json({ message: "Sesión cerrada" }) 
+    res.json({ message: "Sesión cerrada" })
 
 }
 
-const getPagedEmployees=async(req,res)=>
-{
+const getPagedEmployees = async (req, res) => {
 
-    try
-    {
+    try {
 
-        const limit=parseInt(req.query.limit)||10
-        const offset=parseInt(req.query.offset)||0
+        const limit = parseInt(req.query.limit) || 10
+        const offset = parseInt(req.query.offset) || 0
 
-        const users=await Users.findAndCountAll({
+        const users = await Users.findAndCountAll({
 
-            limit,offset,attributes:{exclude:["password"]},include:[{model:Roles,as:"roles",through:{attributes:[]},attributes:["roleId","name","description"],where:{name:"EMPLOYEE"}}]
+            limit, offset, attributes: { exclude: ["password"] }, include: [{ model: Roles, as: "roles", through: { attributes: [] }, attributes: ["roleId", "name", "description"], where: { name: ROLE.EMPLOYEE } }]
 
         })
-        res.json({total:users.count,data:users.rows})
+        res.json({ total: users.count, data: users.rows })
 
-    }catch(error){
+    } catch (error) {
 
-        res.status(500).json({message:error.message})
+        res.status(500).json({ message: error.message })
 
     }
 
 }
 
 
-module.exports={createUser,desactivateUser,activateUser,getPagedUsers,getUserById,updatePassword,loginUser,logoutUser,getPagedEmployees,}
+module.exports = { createUser, desactivateUser, activateUser, getPagedUsers, getUserById, updatePassword, loginUser, logoutUser, getPagedEmployees, }

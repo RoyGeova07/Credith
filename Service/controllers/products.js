@@ -1,4 +1,5 @@
 const { Products } = require('../models/entities/product');
+const { ROLE } = require('../helper/roles')
 const{Stores}=require('../models/entities/store')
 const{Categories}=require('../models/entities/category');
 const{Op}=require("sequelize")
@@ -177,10 +178,10 @@ async function deleteProduct(req, res) {
             return res.status(404).json({message:`Producto [${id}] no existe`})
 
         }
-        const userRole=req.user?.rol||"OWNER"
+        const userRole=req.user?.rol||ROLE.OWNER
 
         //admin debe enviar storeId obligatoriamente
-        if(userRole==="ADMIN"&&!storeId)
+        if(userRole===ROLE.ADMIN&&!storeId)
         {
 
             return res.status(400).json({message:"El storeId es obligatorio par administradores"})
@@ -206,7 +207,7 @@ async function deleteProduct(req, res) {
         }
 
         //solo owner puede archivar globalmente 
-        if(userRole!=="OWNER")
+        if(userRole!==ROLE.OWNER)
         {
 
             return res.status(403).json({message:"Solo un OWNER puede archivar globalmente"})

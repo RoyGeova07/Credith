@@ -2,7 +2,7 @@ const router = require("express").Router()
 const Products =require("../controllers/products")
 const authMiddleware=require('../middlewares/authMiddleware')
 const roleMiddleware=require('../middlewares/roleMiddleware')
-const role = require("../models/entities/role")
+const { ROLE } = require('../helper/roles')
 
 
 /**
@@ -38,7 +38,7 @@ const role = require("../models/entities/role")
  *       200:
  *         description: Lista de productos obtenida correctamente
  */
-router.get("/products",authMiddleware,roleMiddleware("OWNER"),Products.getPagedProducts)
+router.get("/products",authMiddleware,roleMiddleware(ROLE.OWNER),Products.getPagedProducts)
 
 /**
  * @swagger
@@ -61,7 +61,7 @@ router.get("/products",authMiddleware,roleMiddleware("OWNER"),Products.getPagedP
  *       404:
  *         description: Producto no encontrado
  */
-router.get("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.getProductById)
+router.get("/products/:id",authMiddleware,roleMiddleware(ROLE.ADMIN,ROLE.OWNER),Products.getProductById)
 
 /**
  * @swagger
@@ -124,7 +124,7 @@ router.get("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Produc
  *       404:
  *         description: La categoría o la tienda no existen
  */
-router.post("/products",authMiddleware,roleMiddleware("OWNER"),Products.postProduct)
+router.post("/products",authMiddleware,roleMiddleware(ROLE.OWNER),Products.postProduct)
 
 /**
  * @swagger
@@ -215,7 +215,7 @@ router.post("/products",authMiddleware,roleMiddleware("OWNER"),Products.postProd
  *       500:
  *         description: Error interno del servidor
  */
-router.put("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.updateProduct)
+router.put("/products/:id",authMiddleware,roleMiddleware(ROLE.ADMIN,ROLE.OWNER),Products.updateProduct)
 
 /**
  * @swagger
@@ -255,7 +255,7 @@ router.put("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Produc
  *       404:
  *         description: Producto o inventario no encontrado
  */
-router.delete("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.deleteProduct)
+router.delete("/products/:id",authMiddleware,roleMiddleware(ROLE.ADMIN,ROLE.OWNER),Products.deleteProduct)
 
 /**
  * @swagger
@@ -278,7 +278,7 @@ router.delete("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Pro
  *       404:
  *         description: Producto no encontrado
  */
-router.post("/products/:id/recover",authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.recoverProduct)
+router.post("/products/:id/recover",authMiddleware,roleMiddleware(ROLE.ADMIN,ROLE.OWNER),Products.recoverProduct)
 
 
 module.exports=router

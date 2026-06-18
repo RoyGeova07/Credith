@@ -3,6 +3,7 @@ const authMiddleware=require("../middlewares/authMiddleware")
 
 const{/*addProductToStore,*/addStock,removeStock,getStoreInventory,getProductStock,getPagedStoresInventories,updateStock}=require("../controllers/StoreInventory")
 const roleMiddleware = require("../middlewares/roleMiddleware")
+const { ROLE } = require('../helper/roles')
 
 // /**
 //  * @swagger
@@ -80,7 +81,7 @@ const roleMiddleware = require("../middlewares/roleMiddleware")
  *       500:
  *         description: Error interno del servidor
  */
-router.patch("/stock",authMiddleware,roleMiddleware("OWNER","ADMIN"),updateStock)
+router.patch("/stock",authMiddleware,roleMiddleware(ROLE.OWNER,ROLE.ADMIN),updateStock)
 
 /**
  * @swagger
@@ -103,7 +104,7 @@ router.patch("/stock",authMiddleware,roleMiddleware("OWNER","ADMIN"),updateStock
  *       200:
  *         description: Inventario obtenido correctamente
  */
-router.get("/",authMiddleware,roleMiddleware("OWNER"),getPagedStoresInventories)//solo para owner 
+router.get("/",authMiddleware,roleMiddleware(ROLE.OWNER),getPagedStoresInventories)//solo para owner 
 
 /**
  * @swagger
@@ -124,7 +125,7 @@ router.get("/",authMiddleware,roleMiddleware("OWNER"),getPagedStoresInventories)
  *       404:
  *         description: Tienda no encontrada
  */
-router.get("/store/:storeId",authMiddleware,roleMiddleware("OWNER"),getStoreInventory)//tendra el middelaware dependiendo el admin y tendra el owner tambien
+router.get("/store/:storeId",authMiddleware,roleMiddleware(ROLE.OWNER),getStoreInventory)//tendra el middelaware dependiendo el admin y tendra el owner tambien
 
 /**
  * @swagger
@@ -151,6 +152,6 @@ router.get("/store/:storeId",authMiddleware,roleMiddleware("OWNER"),getStoreInve
  *       404:
  *         description: Registro de inventario no encontrado
  */
-router.get("/:storeId/:productId",authMiddleware,roleMiddleware("OWNER"),getProductStock)//tendra el middelaware dependiendo el admin y tendra el owner tambien
+router.get("/:storeId/:productId",authMiddleware,roleMiddleware(ROLE.OWNER),getProductStock)//tendra el middelaware dependiendo el admin y tendra el owner tambien
 
 module.exports=router
