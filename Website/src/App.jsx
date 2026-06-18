@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { getSession } from './helpers/session'
 import { Post } from './helpers/fetcher'
+import { ROLE } from './helpers/permissions'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import Home from './pages/Home'
+import InicioPage from './pages/InicioPage'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -59,14 +61,23 @@ export default function App()
         )
     }
 
+    const isEmployee = (session?.role || ROLE.EMPLOYEE) === ROLE.EMPLOYEE
+
     return (
         <>
-            <Home
-                session={session}
-                onLogout={handleLogout}
-                toastType={toastType}
-                onToastShown={() => setToastType(null)}
-            />
+            {isEmployee ? (
+                <InicioPage
+                    session={session}
+                    onLogout={handleLogout}
+                />
+            ) : (
+                <Home
+                    session={session}
+                    onLogout={handleLogout}
+                    toastType={toastType}
+                    onToastShown={() => setToastType(null)}
+                />
+            )}
             <ToastContainer {...toastConfig} />
         </>
     )
