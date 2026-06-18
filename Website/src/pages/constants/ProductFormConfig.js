@@ -11,14 +11,17 @@ export class ProductFormConfig
         sellPrice:"",
         minGainPercentage:"",
         categories:[],
+        storeId:"",
+        storeName:"",
+        initialStock:"",
  
     }
 
     static validateProduct(form)
     {
 
-        const errors=[]
-        if(!form.name.trim())
+        const errors={}
+        if(!form.name?.trim())
         {
 
             errors.name="El nombre del producto es requerido"
@@ -65,6 +68,20 @@ export class ProductFormConfig
         {
 
             errors.categories="La categoria es necesaria"
+
+        }
+        if(!form.storeId){
+
+            errors.storeId="La tienda es requerida"
+
+        }
+        if(!form.initialStock){
+
+            errors.initialStock="El stock inicial es requerido"
+
+        }else if(Number(form.initialStock)<1){
+
+            errors.initialStock="El stock debe ser mayor a cero"
 
         }
 

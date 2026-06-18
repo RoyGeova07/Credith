@@ -2,6 +2,7 @@ const { Products } = require('../models/entities/product');
 const{Stores}=require('../models/entities/store')
 const{Categories}=require('../models/entities/category');
 const{Op}=require("sequelize")
+const{StoresInventories}=require('../models/entities/storeInventory')
 
 //----------------------------AGREGAR STOCK DESPUES------------------------------------------------
 async function postProduct(req, res) {
@@ -11,10 +12,10 @@ async function postProduct(req, res) {
         sellPrice,
         description,
         minGainPercentage,
-        inStock,
-        stores,
         imageUrl,
         categoryId,
+        storeId,
+        initialStock,
     } = req.body;
 
     if (!name || name === "") {
@@ -31,20 +32,25 @@ async function postProduct(req, res) {
         return res.status(400).json({message: "La categoría es necesaria"});
 
     }
+    //stock es necesario
+    const stock=(!initialStock||initialStock<0)?1:initialStock
 
-    let stock = inStock;
-    if (!inStock || inStock < 0) {
-        stock = 1;
-    }
-
-    try {
+    try 
+    {
 
         const category=await Categories.findByPk(categoryId)
+        const store=await Stores.findByPk(storeId)
 
         if(!category)
         {
 
             return res.status(404).json({message:'La categoria no existe'})
+
+        }
+        if(!store)
+        {
+
+            return res.status(404).json({message:'La tienda no existe'})
 
         }
 
@@ -54,12 +60,16 @@ async function postProduct(req, res) {
             buyPrice: buyPrice || 0,
             sellPrice: sellPrice,
             minGainPercentage: minGainPercentage,
-            inStock: stock,
-            stores: stores,
             imageUrl:imageUrl,
         })
 
         await product.addCategory(category)
+
+        await StoresInventories.create({
+
+            productId:product.productId,storeId,inStock:initialStock||1
+
+        })
 
         res.status(201).json({message:"Producto agregado existosamente"})
 
@@ -73,7 +83,7 @@ async function postProduct(req, res) {
 //AGREGAR STOCK DESPUES
 async function updateProduct(req, res) 
 {
-    const{productId,name,description,buyPrice,sellPrice,minGainPercentage,imageUrl,categoryId}=req.body;
+    const{productId,name,description,buyPrice,sellPrice,minGainPercentage,imageUrl,categoryId,storeId,stock}=req.body;
     const{id}=req.params
 
     if (!id || id !== productId) {
@@ -103,7 +113,9 @@ async function updateProduct(req, res)
 
         }
 
+        //actualizar producto
         await product.update({name,description,buyPrice: buyPrice || 0,sellPrice,minGainPercentage,imageUrl});
+
 
         if(categoryId)
         {
@@ -119,6 +131,28 @@ async function updateProduct(req, res)
             await product.setCategories([category])
 
         }
+
+        //actualizar stock si vienen storeId y stock
+        if(storeId&&stock!=null)
+        {
+
+            if(stock<0){
+
+                return res.status(400).json({message:"Stock invalido"})
+
+            }
+            const inventory=await StoresInventories.findOne({where:{productId,storeId}})
+            if(!inventory){
+
+                return res.status(404).json({message:"Inventario no encontrado para la tienda indicada"})
+
+            }
+            inventory.inStock=stock
+
+            await inventory.save()
+
+        }
+
         res.status(200).json({message:"Producto editado exitosamente"})
 
     } catch (err) {
@@ -132,6 +166,7 @@ async function deleteProduct(req, res) {
     const {
        id
     } = req.params;
+    const{storeId}=req.query
 
     try {
         const product = await Products.findByPk(id);
@@ -142,10 +177,46 @@ async function deleteProduct(req, res) {
             return res.status(404).json({message:`Producto [${id}] no existe`})
 
         }
+        const userRole=req.user?.rol||"OWNER"
+
+        //admin debe enviar storeId obligatoriamente
+        if(userRole==="ADMIN"&&!storeId)
+        {
+
+            return res.status(400).json({message:"El storeId es obligatorio par administradores"})
+
+        }
+        //si viene storeId => eliminar unicamente de esa TIENDA 
+        if(storeId)
+        {
+
+            const inventory=await StoresInventories.findOne({where:{productId:id,storeId}})
+
+            if(!inventory)
+            {
+
+                return res.status(404).json({message:"El producto no existe en la tienda indicada"})
+
+            }
+
+            await inventory.destroy()
+
+            return res.status(200).json({message:"Producto eliminado de la tienda correctamente"})
+
+        }
+
+        //solo owner puede archivar globalmente 
+        if(userRole!=="OWNER")
+        {
+
+            return res.status(403).json({message:"Solo un OWNER puede archivar globalmente"})
+
+        }
 
         await product.destroy();
 
         res.status(201).json({message:"Producto archivado existosamente"});
+
     } catch (err) {
         res.status(500).json({message:err.message})
     }
@@ -174,6 +245,12 @@ async function recoverProduct(req, res) {
     }
 }
 
+//agregar opcion de traer la cantidad de stock por categoria --NO OLVIDAARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+/*
+Lista productos.
+Un producto aparece una sola vez.
+Sirve para administrar catalogo.
+*/
 async function getPagedProducts(req, res) {
     try 
     {
@@ -213,8 +290,37 @@ async function getPagedProducts(req, res) {
             limit: limit,
             offset: offset,
             distinct:true,
-            include:[categoyInclude],
             paranoid:!archived,
+            include:[
+
+                categoyInclude,
+                {
+
+                    model:StoresInventories,
+                    as:"inventories",
+                    attributes:["storeId","inStock"],
+
+                    include:[
+
+                        {
+
+                            model:Stores,
+                            as:"store",
+                            attributes:[
+
+                                "storeId","address"
+
+                            ]
+
+                        }
+
+                    ]
+
+                }
+            
+            
+            
+            ],
 
         });
 

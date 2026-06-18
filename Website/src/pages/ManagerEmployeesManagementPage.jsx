@@ -5,6 +5,7 @@ import { ActionColumn, CustomAction, DataColumn, DataTable } from '@/components/
 import FormDialog from '@/components/dialogs/SubmitDialog'
 import { Get, Post, Put } from '@/helpers/fetcher'
 import './ManagerEmployeesManagementPage.css'
+import { toast } from 'react-toastify'
 
 const emptyForm = {
   first_name: '',
@@ -57,7 +58,6 @@ export default function ManagerEmployeesManagementPage() {
   const [form, setForm] = useState(emptyForm)
   const [stores, setStores] = useState([])
   const [error, setError] = useState('')
-  const [feedback, setFeedback] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
@@ -80,10 +80,7 @@ export default function ManagerEmployeesManagementPage() {
           return
         }
 
-        setFeedback({
-          type: 'error',
-          message: requestError.message,
-        })
+        toast.error(requestError.message)
       })
 
     return () => {
@@ -94,7 +91,8 @@ export default function ManagerEmployeesManagementPage() {
   const loadUsers = useCallback(
     async (offset, limit) => {
       try {
-        const response = await Get(`/api/users?limit=500&offset=0&_=${refreshKey}`)
+
+        const response=await Get(`/api/users/employees?limit=500&offset=0&_=${refreshKey}`)
 
         if (response.status !== 200) {
           throw new Error(response.json.message || 'No se pudieron cargar los empleados')
@@ -114,11 +112,7 @@ export default function ManagerEmployeesManagementPage() {
           total: filteredUsers.length,
         }
       } catch (requestError) {
-        setFeedback({
-          type: 'error',
-          message: requestError.message,
-        })
-
+        toast.error(requestError.message)
         return {
           data: [],
           total: 0,
@@ -163,12 +157,10 @@ export default function ManagerEmployeesManagementPage() {
       setIsDialogOpen(false)
       setForm(emptyForm)
       setRefreshKey((current) => current + 1)
-      setFeedback({
-        type: 'success',
-        message: 'Empleado creado correctamente',
-      })
+      toast.success('Empleado creado correctamente')
     } catch (requestError) {
       setError(requestError.message)
+      toast.error(requestError.message)
     }
   }
 
@@ -190,15 +182,9 @@ export default function ManagerEmployeesManagementPage() {
       }
 
       setRefreshKey((current) => current + 1)
-      setFeedback({
-        type: 'success',
-        message: user.isActive ? 'Empleado desactivado correctamente' : 'Empleado activado correctamente',
-      })
+      toast.success(user.isActive?'Empleado desactivado correctamente':'Empleado activado correctamente')
     } catch (requestError) {
-      setFeedback({
-        type: 'error',
-        message: requestError.message,
-      })
+      toast.error(requestError.message)
     }
   }
 
@@ -224,7 +210,6 @@ export default function ManagerEmployeesManagementPage() {
           />
         </DataGridHeader>
 
-        {feedback && <div className={`employees-admin-alert ${feedback.type}`}>{feedback.message}</div>}
 
         <DataTable onLoad={loadUsers} rowsPerPage={8}>
           <DataColumn propertyName="fullName" title="Nombre completo" />

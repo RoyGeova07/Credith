@@ -8,7 +8,6 @@ import{RegisterFormConfig}from '@/pages/constants/FormConfig'
 import{Get,Post}from '@/helpers/fetcher'
 import { useNavigate } from "react-router-dom";
 
-
 export default function RegisterPage() 
 {
 

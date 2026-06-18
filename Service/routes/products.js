@@ -36,7 +36,7 @@ const role = require("../models/entities/role")
  *       200:
  *         description: Lista de productos obtenida correctamente
  */
-router.get("/products", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.getPagedProducts)
+router.get("/products",authMiddleware,roleMiddleware("OWNER"),Products.getPagedProducts)
 
 /**
  * @swagger
@@ -57,7 +57,7 @@ router.get("/products", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.
  *       404:
  *         description: Producto no encontrado
  */
-router.get("/products/:id", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.getProductById)
+router.get("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.getProductById)
 
 /**
  * @swagger
@@ -76,51 +76,55 @@ router.get("/products/:id", authMiddleware,roleMiddleware("ADMIN","OWNER"),Produ
  *               - sellPrice
  *               - description
  *               - categoryId
+ *               - storeId
  *             properties:
  *               name:
  *                 type: string
- *                 example: Laptop HP
+ *                 example: Coca Cola 3L
  *               description:
  *                 type: string
- *                 example: Laptop HP Core i7
+ *                 example: Refresco Coca Cola 3 litros
  *               buyPrice:
  *                 type: number
- *                 example: 15000
+ *                 example: 35
  *               sellPrice:
  *                 type: number
- *                 example: 18000
+ *                 example: 45
  *               minGainPercentage:
  *                 type: integer
  *                 example: 20
- *               inStock:
- *                 type: integer
- *                 example: 5
  *               imageUrl:
  *                 type: string
- *                 example: https://miservidor.com/images/laptop.jpg
+ *                 example: https://miservidor.com/images/cocacola.jpg
  *               categoryId:
  *                 type: string
- *                 description: ID de la categoría del producto
+ *                 format: uuid
+ *                 description: ID de la categoría
  *                 example: 7d4d0f83-f2d7-4d58-a48b-cf2d2f75d4d1
- *               stores:
- *                 type: array
- *                 items:
- *                   type: string
+ *               storeId:
+ *                 type: string
+ *                 format: uuid
+ *                 description: Tienda donde se registrará inicialmente el producto
+ *                 example: c3d4e5f6-a7b8-490a-bcde-f01234567891
+ *               initialStock:
+ *                 type: integer
+ *                 description: Stock inicial del producto en la tienda
+ *                 example: 100
  *     responses:
  *       201:
  *         description: Producto agregado exitosamente
  *       400:
  *         description: Datos inválidos
  *       404:
- *         description: La categoría no existe
+ *         description: La categoría o la tienda no existen
  */
-router.post("/products", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.postProduct)
+router.post("/products",authMiddleware,roleMiddleware("OWNER"),Products.postProduct)
 
 /**
  * @swagger
  * /api/products/{id}:
  *   put:
- *     summary: Actualizar un producto
+ *     summary: Actualizar un producto y opcionalmente su inventario
  *     tags: [Products]
  *     parameters:
  *       - in: path
@@ -129,6 +133,8 @@ router.post("/products", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products
  *         description: ID del producto
  *         schema:
  *           type: string
+ *           format: uuid
+ *
  *     requestBody:
  *       required: true
  *       content:
@@ -140,38 +146,64 @@ router.post("/products", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products
  *               - name
  *               - sellPrice
  *             properties:
+ *
  *               productId:
  *                 type: string
+ *                 format: uuid
  *                 example: b75438e5-9ae8-4597-b95e-9889028f4737
+ *
  *               name:
  *                 type: string
- *                 example: Laptop Lenovo
+ *                 example: Coca Cola 3L
+ *
  *               description:
  *                 type: string
- *                 example: Laptop Lenovo Core i7 16GB RAM
+ *                 example: Refresco Coca Cola 3 litros
+ *
  *               buyPrice:
  *                 type: number
- *                 example: 12000
+ *                 example: 35
+ *
  *               sellPrice:
  *                 type: number
- *                 example: 15000
+ *                 example: 45
+ *
  *               minGainPercentage:
  *                 type: integer
- *                 example: 15
+ *                 example: 20
+ *
  *               imageUrl:
  *                 type: string
- *                 example: https://miservidor.com/images/laptop.jpg
+ *                 example: https://miservidor.com/images/cocacola.jpg
+ *
  *               categoryId:
  *                 type: string
- *                 description: ID de la categoría del producto
+ *                 format: uuid
+ *                 description: Nueva categoría del producto
  *                 example: 7d4d0f83-f2d7-4d58-a48b-cf2d2f75d4d1
+ *
+ *               storeId:
+ *                 type: string
+ *                 format: uuid
+ *                 description: Tienda cuyo inventario será actualizado (opcional)
+ *                 example: d4e5f6a7-b8c9-4a0b-cdef-012345678912
+ *
+ *               stock:
+ *                 type: integer
+ *                 minimum: 0
+ *                 description: Nuevo stock para la tienda indicada (opcional)
+ *                 example: 150
+ *
  *     responses:
  *       200:
  *         description: Producto actualizado correctamente
+ *
  *       400:
- *         description: Datos inválidos
+ *         description: Datos inválidos o stock inválido
+ *
  *       404:
- *         description: Producto o categoría no encontrados
+ *         description: Producto, categoría o inventario no encontrados
+ *
  *       500:
  *         description: Error interno del servidor
  */
@@ -181,7 +213,7 @@ router.put("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Produc
  * @swagger
  * /api/products/{id}:
  *   delete:
- *     summary: Eliminar un producto
+ *     summary: Eliminar un producto o quitarlo de una tienda
  *     tags: [Products]
  *     parameters:
  *       - in: path
@@ -190,13 +222,30 @@ router.put("/products/:id",authMiddleware,roleMiddleware("ADMIN","OWNER"),Produc
  *         description: ID del producto
  *         schema:
  *           type: string
+ *
+ *       - in: query
+ *         name: storeId
+ *         required: false
+ *         description: |
+ *           Opcional para OWNER.
+ *           Obligatorio para ADMIN.
+ *           Si se envía, el producto únicamente se elimina de esa tienda.
+ *           Si no se envía, el producto completo se archiva.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *
  *     responses:
  *       200:
  *         description: Producto eliminado correctamente
+ *       400:
+ *         description: storeId obligatorio para ADMIN
+ *       403:
+ *         description: Solo OWNER puede archivar productos globalmente
  *       404:
- *         description: Producto no encontrado
+ *         description: Producto o inventario no encontrado
  */
-router.delete("/products/:id", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.deleteProduct)
+router.delete("/products/:id",/*authMiddleware,roleMiddleware("ADMIN","OWNER"),*/Products.deleteProduct)
 
 /**
  * @swagger
@@ -217,9 +266,7 @@ router.delete("/products/:id", authMiddleware,roleMiddleware("ADMIN","OWNER"),Pr
  *       404:
  *         description: Producto no encontrado
  */
-router.post("/products/:id/recover", authMiddleware,roleMiddleware("ADMIN","OWNER"),Products.recoverProduct)
+router.post("/products/:id/recover",/*authMiddleware,roleMiddleware("ADMIN","OWNER"),*/Products.recoverProduct)
 
-// Solo admins
-//router.delete("/products/:id", authMiddleware, roleMiddleware('Admin'), deleteProduct)
 
 module.exports=router

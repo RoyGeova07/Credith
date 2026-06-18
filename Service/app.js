@@ -24,6 +24,7 @@ const clientRoutes = require('./routes/clients')
 const categoryRoutes=require('./routes/category')
 const paymentPlanRoutes=require('./routes/paymentPlan')
 const reportRoutes=require('./routes/reports')
+const storeinventory=require('./routes/StoreInventory')
 
 app.use('/api', userRoutes)
 app.use('/api', companyRoutes)
@@ -38,6 +39,7 @@ app.use('/api', clientRoutes)
 app.use('/api', categoryRoutes)
 app.use('/api', paymentPlanRoutes)
 app.use('/api', reportRoutes)
+app.use('/api/store-inventory', storeinventory)
 
 app.get('/', (_, res) => {
   res.json({ message: 'Hello from the backend!' })

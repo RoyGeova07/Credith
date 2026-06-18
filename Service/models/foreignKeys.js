@@ -16,6 +16,7 @@ const { ClientsPaymentPlans } = require('./entities/clientPaymentPlan')
 const { Clients } = require('./entities/clients')
 const { CaiRanges } = require('./entities/caiRange')
 const { StoresInventories } = require('./entities/storeInventory')
+const product = require('./entities/product')
 
 function createFKs() {
     Stores.hasMany(Users, {
@@ -70,10 +71,40 @@ function createFKs() {
         otherKey: 'productId',
         as: 'products'
     })
+//cada registro de inventario pertenece a un unico producto
+    StoresInventories.belongsTo(Products,{
 
+        foreignKey:"productId",
+        as:"product"
+
+    })
+//========================esto nuevo me servira para ==============================
+//¿Cuanto stock tiene este producto? ¿Cual es el inventario completo? ¿Muestrame producto + tienda + stock?
+//Un producto puede tener muchos registros de inventario
+    Products.hasMany(StoresInventories,{
+
+        foreignKey:"productId",
+        as:"inventories"
+
+    })
+//cada registro de inventario pertenece a una unica tienda
+    StoresInventories.belongsTo(Stores,{
+
+        foreignKey:"storeId",
+        as:"store"
+
+    })
+//Una tienda tiene muchos registros de inventario
+    Stores.hasMany(StoresInventories,{
+
+        foreignKey:"storeId",
+        as:"inventories"
+
+    })
+//==============================================================================
     Companies.hasMany(Stores, {
         foreignKey: 'companyId',
-        as: 'stores'
+        as: 'store'
     })
 
     Stores.belongsTo(Companies, {

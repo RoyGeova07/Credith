@@ -24,7 +24,8 @@ export function RightArrow({ className }) {
   )
 }
 
-export function Tash({ className }) {
+export function Tash({ className }) 
+{
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
