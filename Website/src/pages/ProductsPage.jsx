@@ -99,8 +99,20 @@ export default function ProductsPage()
         try
         {
 
-            await restoreProduct(product.productId)
-            toast.success(`Produto ${product.name} restaurado exitosamente`)
+            //oWNER en inventario general
+            if(session?.role==="OWNER"&&!selectedStore)
+            {
+
+                await restoreProduct(product.productId)
+                toast.success(`Producto ${product.name} restaurado globalmente`)
+
+            }else{
+
+                const storeId=session?.role==="ADMIN"?session.storeId:selectedStore
+                await restoreProduct(product.productId,storeId)
+                toast.success(`Producto ${product.name} restaurado en la tienda`)
+
+            }
             setReload(prev=>prev+1)
 
             

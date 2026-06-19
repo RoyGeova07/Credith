@@ -21,7 +21,12 @@ function initialize(sequelize, _) {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 defaultValue: 1,
-            }
+            },
+            isActive:{
+
+                type:DataTypes.BOOLEAN,allowNull:false,defaultValue:true,field:'is_active'
+
+            },
         },
         {
             sequelize: sequelize,

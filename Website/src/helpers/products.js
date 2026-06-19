@@ -74,10 +74,16 @@ export async function deleteProduct(id,storeId=null)
 
 }
 
-export async function restoreProduct(id) 
+export async function restoreProduct(id,storeId=null) 
 {
 
-    const response=await Post(`/api/products/${id}/recover`)
+    let url=`/api/products/${id}/recover`
+    if(storeId){
+
+        url+=`?storeId=${storeId}`
+
+    }
+    const response=await Post(url)
 
     if(response.status>=400)
         throw new Error(response.json.message)

@@ -2,7 +2,7 @@ const { Products } = require('../models/entities/product');
 const { ROLE } = require('../helper/roles')
 const{Stores}=require('../models/entities/store')
 const{Categories}=require('../models/entities/category');
-const{Op}=require("sequelize")
+const{Op, where}=require("sequelize")
 const{StoresInventories}=require('../models/entities/storeInventory')
 
 //----------------------------AGREGAR STOCK DESPUES------------------------------------------------
@@ -163,88 +163,142 @@ async function updateProduct(req, res)
     }
 }
 
-async function deleteProduct(req, res) {
-    const {
-       id
-    } = req.params;
-    const{storeId}=req.query
+async function deleteProduct(req,res)
+{
+    const { id } = req.params
+    const { storeId } = req.query
 
-    try {
-        const product = await Products.findByPk(id);
+    try
+    {
+        const product=await Products.findByPk(id)
 
         if(!product)
         {
-
-            return res.status(404).json({message:`Producto [${id}] no existe`})
-
+            return res.status(404).json({
+                message:`Producto [${id}] no existe`
+            })
         }
-        const userRole=req.user?.rol||ROLE.OWNER
 
-        //admin debe enviar storeId obligatoriamente
-        if(userRole===ROLE.ADMIN&&!storeId)
+        const userRole=req.user?.role||ROLE.OWNER
+
+        // ADMIN debe enviar storeId
+        if(userRole===ROLE.ADMIN && !storeId)
         {
-
-            return res.status(400).json({message:"El storeId es obligatorio par administradores"})
-
+            return res.status(400).json({
+                message:"El storeId es obligatorio para administradores"
+            })
         }
-        //si viene storeId => eliminar unicamente de esa TIENDA 
+
+        // Archivar solamente en una tienda
         if(storeId)
         {
-
-            const inventory=await StoresInventories.findOne({where:{productId:id,storeId}})
+            const inventory=await StoresInventories.findOne({
+                where:{
+                    productId:id,
+                    storeId
+                }
+            })
 
             if(!inventory)
             {
-
-                return res.status(404).json({message:"El producto no existe en la tienda indicada"})
-
+                return res.status(404).json({
+                    message:"El producto no existe en la tienda indicada"
+                })
             }
 
-            await inventory.destroy()
+            inventory.isActive=false
 
-            return res.status(200).json({message:"Producto eliminado de la tienda correctamente"})
+            await inventory.save()
 
+            return res.status(200).json({
+                message:"Producto archivado en la tienda correctamente"
+            })
         }
 
-        //solo owner puede archivar globalmente 
+        // Solo OWNER puede archivar globalmente
         if(userRole!==ROLE.OWNER)
         {
-
-            return res.status(403).json({message:"Solo un OWNER puede archivar globalmente"})
-
+            return res.status(403).json({
+                message:"Solo un OWNER puede archivar globalmente"
+            })
         }
 
-        await product.destroy();
+        await product.destroy()
 
-        res.status(201).json({message:"Producto archivado existosamente"});
-
-    } catch (err) {
-        res.status(500).json({message:err.message})
+        return res.status(200).json({
+            message:"Producto archivado globalmente"
+        })
+    }
+    catch(err)
+    {
+        return res.status(500).json({
+            message:err.message
+        })
     }
 }
 
-async function recoverProduct(req, res) {
-    const {
-       id
-    } = req.params;
+async function recoverProduct(req,res)
+{
+    const { id } = req.params
+    const { storeId } = req.query
 
-    try {
-        const product = await Products.findByPk(id, { paranoid: false });
+    try
+    {
+        // Restaurar únicamente en una tienda
+        if(storeId)
+        {
+            const inventory=await StoresInventories.findOne({
+                where:{
+                    productId:id,
+                    storeId
+                }
+            })
+
+            if(!inventory)
+            {
+                return res.status(404).json({
+                    message:"Inventario no encontrado"
+                })
+            }
+
+            inventory.isActive=true
+
+            await inventory.save()
+
+            return res.status(200).json({
+                message:"Producto restaurado en la tienda correctamente"
+            })
+        }
+
+        // Restauración global
+        const product=await Products.findByPk(
+            id,
+            {
+                paranoid:false
+            }
+        )
 
         if(!product)
         {
-
-            return res.status(404).json({message:`Producto [${id}] no existe`});
-
+            return res.status(404).json({
+                message:`Producto [${id}] no existe`
+            })
         }
 
-        await product.restore();
+        await product.restore()
 
-        res.status(201).json({message:"Producto restaurado existosamente"});
-    } catch (err) {
-        res.status(500).json({message:err.message})
+        return res.status(200).json({
+            message:"Producto restaurado globalmente"
+        })
+    }
+    catch(err)
+    {
+        return res.status(500).json({
+            message:err.message
+        })
     }
 }
+
 
 //agregar opcion de traer la cantidad de stock por categoria --NO OLVIDAARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
 /*
@@ -252,76 +306,120 @@ Lista productos.
 Un producto aparece una sola vez.
 Sirve para administrar catalogo.
 */
-async function getPagedProducts(req, res) {
-    try 
+async function getPagedProducts(req,res)
+{
+    try
     {
-
         const limit=parseInt(req.query.limit)||10
         const offset=parseInt(req.query.offset)||0
+
         const category=req.query.category||null
         const archived=req.query.archived==="true"
+
         const userRole=req.user?.role
         const userStoreId=req.user?.storeId
+
         const selectedStoreId=req.query.storeId||null
 
-        let whereStmt = {}
-        if(archived)
+        let whereStmt={}
+        let paranoid=true
+
+        //OWNER + Inventario General + Archivados
+        const isGlobalArchivedView=archived&&!selectedStoreId&&userRole===ROLE.OWNER
+
+        if(isGlobalArchivedView)
         {
 
             whereStmt.deletedAt={[Op.not]:null}
+            paranoid=false
 
         }
-        const categoyInclude={model:Categories,as:"categories",through:{attributes:[]},attributes:["categoryId","name","description"]}
+
+        const categoryInclude={
+
+            model:Categories,
+            as:"categories",
+            through:{attributes:[]},
+            attributes:["categoryId","name","description"]
+
+        }
+
         if(category)
         {
 
-            categoyInclude.where={name:category}
+            categoryInclude.where={name:category}
 
         }
-        const inventoryInclude={model:StoresInventories,as:"inventories",attributes:["storeId","inStock"],include:[{model:Stores,as:"store",attributes:["storeId","address"]}]}
 
-        //admin solamente ve inventario en su tienda
+        const inventoryInclude={
+            model:StoresInventories,
+            as:"inventories",
+            attributes:["storeId","inStock"],
+            include:[
+                {
+
+                    model:Stores,
+                    as:"store",
+                    attributes:["storeId","address"]
+
+                }
+            ]
+        }
+
+        /*
+        OWNER + Inventario General + Archivados
+        */
+        if(!isGlobalArchivedView)
+        {
+
+            inventoryInclude.where={isActive:!archived}
+
+        }
+
+        //ADMIN solo ve su tienda
         if(userRole===ROLE.ADMIN)
         {
 
-            inventoryInclude.where={storeId:userStoreId}
+            inventoryInclude.where={...(inventoryInclude.where||{}),storeId:userStoreId}
+
             inventoryInclude.required=true
 
-            //owner selecciono una tienda especifica
+        //OWNER seleccionó una tienda específica
         }else if(selectedStoreId){
 
-            inventoryInclude.where={storeId:selectedStoreId}
+            inventoryInclude.where={...(inventoryInclude.where||{}),storeId:selectedStoreId}
+
             inventoryInclude.required=true
 
         }
 
-        const products = await Products.findAndCountAll({
+        const products=await Products.findAndCountAll({
 
-            where: whereStmt,
-            limit: limit,
-            offset: offset,
+            where:whereStmt,
+            limit,
+            offset,
             distinct:true,
-            paranoid:!archived,
-            include:[categoyInclude,inventoryInclude],
+            paranoid,
+            include:[categoryInclude,inventoryInclude]
 
-        });
+        })
 
-        res.status(200).json({total:products.count,data:products.rows})
+        return res.status(200).json({total:products.count,data:products.rows})
 
-    } catch (err) {
+    }catch(err){
 
-        res.status(500).json({message:err.message})
+        return res.status(500).json({message:err.message})
 
     }
 }
 
-async function getProductById(req, res) {
-    const {
-       id
-    } = req.params;
+async function getProductById(req, res) 
+{
+    const {id}=req.params;
 
-    try {
-        const product = await Products.findByPk(id,{
+    try 
+    {
+        const product=await Products.findByPk(id,{
 
             include:[
 
@@ -350,7 +448,7 @@ async function getProductById(req, res) {
     }
 }
 
-module.exports = {
+module.exports={
     postProduct,
     updateProduct,
     deleteProduct,
