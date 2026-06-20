@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { DataGrid, DataGridHeader, HeaderTextFilter } from '@/components/dataGrid/DataGrid'
-import { ActionColumn, CustomAction, DataColumn, DataTable, UpdateAction } from '@/components/dataGrid/DataTable'
+import { ActionColumn, CustomAction, DataColumn, DataTable } from '@/components/dataGrid/DataTable'
 import FormDialog from '@/components/dialogs/SubmitDialog'
-import { Get, Post, Put } from '@/helpers/fetcher'
+import { Get, Post } from '@/helpers/fetcher'
 import './AdminCaiManagementPage.css'
 import { toast } from 'react-toastify'
-import { Update } from '@/assets/icons'
+import { Update, ExportDocumentIcon } from '@/assets/icons'
 
 const WARNING_DAYS = parseInt(import.meta.env.VITE_CAI_WARNING_DAYS ?? '30', 10)
 
@@ -48,6 +48,7 @@ function normalizeCai(cai) {
     return {
         caiId: cai.caiId,
         governmentId: cai.governmentId,
+        documentType: cai.documentType ?? '01',
         storeId: cai.storeId || store.storeId || '',
         storeNumber: store.storeNumber != null
             ? `${store.company?.name ?? ''} | #${store.storeNumber}`.trim()
@@ -78,9 +79,35 @@ function ExpirationCell({ row }) {
     )
 }
 
+function downloadCsv(filename, rows) {
+    const content = rows.map((r) => r.join(',')).join('\n')
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+}
+
+function buildCaiCsv(row) {
+    const remaining = (row.maxRange !== '—' && row.currentNumber !== '—')
+        ? row.maxRange - row.currentNumber
+        : '—'
+    const date = new Date().toISOString().slice(0, 10)
+    return {
+        filename: `Reporte-CAI-${row.governmentId}-${date}.csv`,
+        rows: [
+            ['Código CAI', 'Número de Tienda', 'Tipo de Documento', 'Rango Inicial', 'Rango Final', 'Última Factura', 'Números Restantes'],
+            [row.governmentId, row.storeNumber, row.documentType, row.minRange, row.maxRange, row.currentNumber, remaining],
+        ],
+    }
+}
+
 export default function AdminCaiManagementPage() {
     const [filter, setFilter] = useState('')
     const [refreshKey, setRefreshKey] = useState(0)
+    const [showHistory, setShowHistory] = useState(false)
     const [stores, setStores] = useState([])
     const [activeCaiStoreIds, setActiveCaiStoreIds] = useState(new Set())
 
@@ -119,7 +146,8 @@ export default function AdminCaiManagementPage() {
     const loadCais = useCallback(
         async (offset, limit) => {
             try {
-                const res = await Get(`/api/cais?limit=500&offset=0&_=${refreshKey}`)
+                const historyParam = showHistory ? '&history=true' : ''
+                const res = await Get(`/api/cais?limit=${limit}&offset=${offset}${historyParam}&_=${refreshKey}`)
                 if (res.status !== 200) throw new Error(res.json.message || 'No se pudieron cargar los CAI')
 
                 const term = filter.trim().toLowerCase()
@@ -134,15 +162,15 @@ export default function AdminCaiManagementPage() {
                     )
 
                 return {
-                    data: filtered.slice(offset, offset + limit),
-                    total: filtered.length,
+                    data: filtered,
+                    total: res.json.total,
                 }
             } catch (err) {
                 toast.error(err.message)
                 return { data: [], total: 0 }
             }
         },
-        [filter, refreshKey]
+        [filter, refreshKey, showHistory]
     )
 
     const handleAddChange = (e) => {
@@ -190,6 +218,7 @@ export default function AdminCaiManagementPage() {
                 governmentId: addForm.governmentId.trim(),
                 storeId: addForm.storeId,
                 expirationDate: addForm.expirationDate,
+                documentType: '01',
                 range: { minRange, maxRange },
             }))
 
@@ -219,6 +248,7 @@ export default function AdminCaiManagementPage() {
                 governmentId: renewForm.governmentId.trim(),
                 storeId: renewingCai.storeId,
                 expirationDate: renewForm.expirationDate,
+                documentType: '01',
                 range: { minRange, maxRange },
                 isRenewal: true,
             }))
@@ -228,6 +258,9 @@ export default function AdminCaiManagementPage() {
             setRenewOpen(false)
             setRefreshKey((k) => k + 1)
             toast.success('CAI renovado correctamente')
+
+            const { filename, rows } = buildCaiCsv(renewingCai)
+            downloadCsv(filename, rows)
         } catch (err) {
             setRenewError(err.message)
             toast.error(err.message)
@@ -249,9 +282,17 @@ export default function AdminCaiManagementPage() {
                         value={filter}
                         onChange={setFilter}
                     />
+                    <label className="cai-history-toggle">
+                        <input
+                            type="checkbox"
+                            checked={showHistory}
+                            onChange={(e) => setShowHistory(e.target.checked)}
+                        />
+                        Mostrar historial
+                    </label>
                 </DataGridHeader>
 
-                <DataTable onLoad={loadCais} onRowClick={openRenew}>
+                <DataTable onLoad={loadCais}>
                     <DataColumn propertyName="storeNumber" title="Tienda" />
                     <DataColumn propertyName="governmentId" title="Código CAI" />
                     <DataColumn
@@ -263,6 +304,16 @@ export default function AdminCaiManagementPage() {
                     <DataColumn propertyName="maxRange" title="Rango final" />
                     <DataColumn propertyName="currentNumber" title="Factura actual" />
                     <ActionColumn>
+                        <CustomAction
+                            backgroundColor="#1e3a5f"
+                            color="#ffffff"
+                            icon={ExportDocumentIcon}
+                            tooltip="Descargar reporte"
+                            onClick={(row) => {
+                                const { filename, rows } = buildCaiCsv(row)
+                                downloadCsv(filename, rows)
+                            }}
+                        />
                         <CustomAction
                             backgroundColor="#1a6b4a"
                             color="#ffffff"

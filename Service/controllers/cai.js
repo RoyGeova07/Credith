@@ -19,7 +19,7 @@ async function getStoreMaxRange(storeId, excludeRangeId = null) {
 
 const createCai = async (req, res) => {
     try {
-        const { governmentId, storeId, expirationDate, range, isRenewal } = req.body
+        const { governmentId, storeId, expirationDate, range, isRenewal, documentType = '01' } = req.body
 
         if (!governmentId || governmentId.trim() === '') {
             return res.status(400).json({ message: 'El numero de CAI es requerido' })
@@ -102,6 +102,7 @@ const createCai = async (req, res) => {
                     governmentId,
                     storeId,
                     expirationDate,
+                    documentType,
                     isActive: true,
                     caiRanges: [
                         {
@@ -125,30 +126,56 @@ const createCai = async (req, res) => {
     }
 }
 
+const CAIS_INCLUDE = [
+    { model: CaiRanges, as: 'caiRanges' },
+    {
+        model: Stores, as: 'store', attributes: ['storeId', 'storeNumber', 'address'],
+        include: [{ model: Companies, as: 'company', attributes: ['name'] }]
+    }
+]
+
+const CAIS_ORDER = [
+    [{ model: Stores, as: 'store' }, 'storeNumber', 'ASC'],
+    ['createdAt', 'DESC']
+]
+
 const getPagedCais = async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 10
         const offset = parseInt(req.query.offset) || 0
+        const showHistory = req.query.history === 'true'
 
-        const allCais = await Cais.findAll({
-            order: [['createdAt', 'DESC']],
-            include: [
-                { model: CaiRanges, as: 'caiRanges' },
-                {
-                    model: Stores, as: 'store', attributes: ['storeId', 'storeNumber', 'address'],
-                    include: [{ model: Companies, as: 'company', attributes: ['name'] }]
-                }
-            ]
+        if (showHistory) {
+            const { count, rows } = await Cais.findAndCountAll({
+                limit, offset,
+                order: CAIS_ORDER,
+                include: CAIS_INCLUDE
+            })
+            return res.json({ total: count, data: rows })
+        }
+
+        // Latest per store via DISTINCT ON (PostgreSQL), then ORM fetch with associations
+        const latestIds = await db.sequelize.query(
+            `SELECT DISTINCT ON (store_id) cai_id
+             FROM cd.cais
+             WHERE deleted_at IS NULL
+             ORDER BY store_id, created_at DESC`,
+            { type: db.Sequelize.QueryTypes.SELECT }
+        )
+
+        if (!latestIds.length) return res.json({ total: 0, data: [] })
+
+        const ids = latestIds.map((r) => r.cai_id)
+
+        const cais = await Cais.findAll({
+            where: { caiId: ids },
+            limit,
+            offset,
+            order: CAIS_ORDER,
+            include: CAIS_INCLUDE
         })
 
-        const seen = new Set()
-        const deduplicated = allCais.filter((cai) => {
-            if (seen.has(cai.storeId)) return false
-            seen.add(cai.storeId)
-            return true
-        })
-
-        res.json({ total: deduplicated.length, data: deduplicated.slice(offset, offset + limit) })
+        res.json({ total: ids.length, data: cais })
     } catch (error) {
         res.status(500).json({ message: error.message })
     }

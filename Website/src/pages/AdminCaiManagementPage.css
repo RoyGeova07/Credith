@@ -88,6 +88,37 @@
   font-weight: 700;
 }
 
+.cai-history-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: #9ca3af;
+  transition: filter 0.2s, box-shadow 0.2s, transform 0.2s, background 0.2s;
+  user-select: none;
+}
+
+.cai-history-toggle:has(input:checked) {
+  background: linear-gradient(120deg, var(--green-dark), var(--green-mid) 62%, var(--blue));
+}
+
+.cai-history-toggle:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 10px 24px rgba(26, 122, 60, 0.14);
+  transform: translateY(-1px);
+}
+
+.cai-history-toggle input[type="checkbox"] {
+  display: none;
+}
+
 @media (max-width: 680px) {
   .cai-admin-page {
     padding: 18px;

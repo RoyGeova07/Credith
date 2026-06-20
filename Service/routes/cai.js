@@ -25,6 +25,13 @@ const {
  *         schema:
  *           type: integer
  *           example: 0
+ *       - in: query
+ *         name: history
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           example: false
+ *         description: Si es true devuelve todos los CAI históricos; por defecto devuelve solo el más reciente por tienda
  *     responses:
  *       200:
  *         description: Lista de CAI obtenida correctamente
@@ -73,6 +80,10 @@ router.get('/cais', getPagedCais)
  *                   maxRange:
  *                     type: integer
  *                     example: 50000
+ *               documentType:
+ *                 type: string
+ *                 description: Tipo de documento SAR (por defecto "01" = Factura)
+ *                 example: "01"
  *               isRenewal:
  *                 type: boolean
  *                 description: true cuando se renueva un CAI existente (omite la validación de CAI activo)

@@ -20,6 +20,11 @@ function initialize(sequelize, _) {
                 type: DataTypes.DATE,
                 allowNull: false
             },
+            documentType: {
+                type: DataTypes.STRING(10),
+                allowNull: false,
+                defaultValue: '01'
+            },
             isActive: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true

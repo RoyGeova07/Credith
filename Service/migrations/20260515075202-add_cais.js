@@ -11,6 +11,7 @@ module.exports = {
             },
             government_id: { type: Sequelize.STRING(75), allowNull: false },
             expiration_date: { type: Sequelize.DATE, allowNull: false },
+            document_type: { type: Sequelize.STRING(10), allowNull: false, defaultValue: '01' },
             is_active: { type: Sequelize.BOOLEAN, defaultValue: true },
             store_id: {
                 type: Sequelize.UUID,
