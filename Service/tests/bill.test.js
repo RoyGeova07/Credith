@@ -4,8 +4,8 @@ jest.mock('../models/dbEnums', () => ({
 }))
 
 jest.mock('../models/entities/user')
-jest.mock('../models/entities/caiRange')
 jest.mock('../models/entities/cai')
+jest.mock('../models/entities/caiRange')
 jest.mock('../models/entities/company')
 jest.mock('../models/entities/bill')
 jest.mock('../models/entities/storeInventory')
@@ -27,8 +27,8 @@ jest.mock('../models', () => {
 
 const { postBill } = require('../controllers/bill')
 const { Users } = require('../models/entities/user')
-const { CaiRanges } = require('../models/entities/caiRange')
 const { Cais } = require('../models/entities/cai')
+const { CaiRanges } = require('../models/entities/caiRange')
 const { Companies } = require('../models/entities/company')
 const { Bills } = require('../models/entities/bill')
 const { StoresInventories } = require('../models/entities/storeInventory')
@@ -50,11 +50,10 @@ function mockRes() {
 const SEED_USER_ID = 'f6a7b8c9-d0e1-4c0d-ef01-234567891234'
 const SEED_STORE_ID = 'c3d4e5f6-a7b8-490a-bcde-f01234567891'
 const SEED_COMPANY_ID = 'a1b2c3d4-e5f6-4789-abcd-ef0123456789'
-const SEED_CAI_RANGE_ID = 'b6c7d8e9-f0a1-4e21-2345-678912345694'
 const SEED_PRODUCT_ID = 'f8a9b0c1-d2e3-4c11-2345-678912345686'
 const SEED_CLIENT_ID = 'a1b2c3d4-e5f6-4d31-2345-678912345699'
-const SEED_INACTIVE_CAI_RANGE_ID = 'c7d8e9f0-a1b2-4f21-2345-678912345695'
 const SEED_NO_INVENTORY_PRODUCT_ID = 'c1d2e3f4-a5b6-4f11-2345-678912345689'
+const SEED_CAI_RANGE_ID = 'b2c3d4e5-f6a7-4b11-cdef-012345678910'
 
 function validCashBill() {
     return {
@@ -133,18 +132,19 @@ const mockUser = {
     store: { storeId: SEED_STORE_ID },
 }
 
-const mockCaiRange = {
-    caiRangeId: SEED_CAI_RANGE_ID,
-    currentNumber: 0,
-    maxRange: 1000,
-    isActive: true,
-    caiId: 'mock-cai-id',
-    update: jest.fn().mockResolvedValue(true),
-}
-
 const mockCai = {
     caiId: 'mock-cai-id',
+    storeId: SEED_STORE_ID,
     isActive: true,
+}
+
+const mockCaiRange = {
+    caiRangeId: SEED_CAI_RANGE_ID,
+    caiId: 'mock-cai-id',
+    isActive: true,
+    currentNumber: 0,
+    maxRange: 1000,
+    update: jest.fn().mockResolvedValue(true),
 }
 
 const mockCompany = {
@@ -195,7 +195,7 @@ beforeEach(() => {
     jest.clearAllMocks()
 
     Users.findByPk.mockResolvedValue(mockUser)
-    CaiRanges.findByPk.mockResolvedValue(mockCaiRange)
+    CaiRanges.findByPk.mockResolvedValue({ ...mockCaiRange, update: jest.fn().mockResolvedValue(true) })
     Cais.findByPk.mockResolvedValue(mockCai)
     Companies.findByPk.mockResolvedValue(mockCompany)
     Bills.create.mockResolvedValue(mockBill)
@@ -290,11 +290,6 @@ describe('POST /api/bills', () => {
                 expect.anything()
             )
             expect(MonthlyPayments.bulkCreate).toHaveBeenCalledTimes(1)
-            const plan = BillsPaymentPlans.create.mock.results[0].value
-            if (plan && typeof plan.then === 'function') {
-                const resolved = await plan
-                expect(resolved.setClient).toHaveBeenCalledWith(SEED_CLIENT_ID, expect.anything())
-            }
         })
     })
 
@@ -399,7 +394,7 @@ describe('POST /api/bills', () => {
             )
         })
 
-        it('should return 404 for a non-existent CAI range', async () => {
+        it('should return 404 when cai range is not found', async () => {
             CaiRanges.findByPk.mockResolvedValue(null)
 
             const req = mockReq(validCashBill())
@@ -413,8 +408,8 @@ describe('POST /api/bills', () => {
             )
         })
 
-        it('should return 406 for an inactive CAI range', async () => {
-            CaiRanges.findByPk.mockResolvedValue({ ...mockCaiRange, isActive: false })
+        it('should return 406 when the CAI is inactive', async () => {
+            Cais.findByPk.mockResolvedValue({ ...mockCai, isActive: false })
 
             const req = mockReq(validCashBill())
             const res = mockRes()

@@ -1,19 +1,18 @@
 const { Stores } = require('../models/entities/store')
 const { Companies } = require('../models/entities/company')
 
-// Crear tienda
 const createStore = async (req, res) => {
   try {
-    const { address, companyId } = req.body
+    const { storeNumber, address, companyId } = req.body
 
-    if (address === undefined || address === null || address === '') {
-      return res.status(400).json({ message: 'La direccion de la tienda es requerida' })
+    if (storeNumber === undefined || storeNumber === null || storeNumber === '') {
+      return res.status(400).json({ message: 'El numero de tienda es requerido' })
     }
 
-    const parsedAddress = Number(address)
+    const parsedStoreNumber = Number(storeNumber)
 
-    if (!Number.isInteger(parsedAddress)) {
-      return res.status(400).json({ message: 'La direccion debe ser un numero' })
+    if (!Number.isInteger(parsedStoreNumber) || parsedStoreNumber <= 0) {
+      return res.status(400).json({ message: 'El numero de tienda debe ser un entero positivo' })
     }
 
     if (!companyId || companyId.trim() === '') {
@@ -27,7 +26,8 @@ const createStore = async (req, res) => {
     }
 
     const store = await Stores.create({
-      address: parsedAddress,
+      storeNumber: parsedStoreNumber,
+      address: address || null,
       companyId
     })
 
@@ -40,7 +40,6 @@ const createStore = async (req, res) => {
   }
 }
 
-// Obtener tiendas
 const getPagedStores = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10
@@ -54,7 +53,7 @@ const getPagedStores = async (req, res) => {
           model: Companies,
           as: 'company',
           attributes: ['companyId', 'name', 'rtn'],
-          required:true,
+          required: true,
         }
       ]
     })
@@ -68,7 +67,6 @@ const getPagedStores = async (req, res) => {
   }
 }
 
-// Obtener tienda por id
 const getStoreById = async (req, res) => {
   try {
     const { id } = req.params
@@ -79,7 +77,7 @@ const getStoreById = async (req, res) => {
           model: Companies,
           as: 'company',
           attributes: ['companyId', 'name', 'rtn'],
-          required:true,
+          required: true,
         }
       ]
     })
@@ -94,11 +92,10 @@ const getStoreById = async (req, res) => {
   }
 }
 
-// Actualizar tienda
 const updateStore = async (req, res) => {
   try {
     const { id } = req.params
-    const { address, companyId } = req.body
+    const { storeNumber, address, companyId } = req.body
 
     const store = await Stores.findByPk(id)
 
@@ -108,18 +105,18 @@ const updateStore = async (req, res) => {
 
     const dataToUpdate = {}
 
+    if (storeNumber !== undefined) {
+      const parsedStoreNumber = Number(storeNumber)
+
+      if (!Number.isInteger(parsedStoreNumber) || parsedStoreNumber <= 0) {
+        return res.status(400).json({ message: 'El numero de tienda debe ser un entero positivo' })
+      }
+
+      dataToUpdate.storeNumber = parsedStoreNumber
+    }
+
     if (address !== undefined) {
-      if (address === null || address === '') {
-        return res.status(400).json({ message: 'La direccion no puede estar vacia' })
-      }
-
-      const parsedAddress = Number(address)
-
-      if (!Number.isInteger(parsedAddress)) {
-        return res.status(400).json({ message: 'La direccion debe ser un numero' })
-      }
-
-      dataToUpdate.address = parsedAddress
+      dataToUpdate.address = address || null
     }
 
     if (companyId !== undefined) {
@@ -147,7 +144,6 @@ const updateStore = async (req, res) => {
   }
 }
 
-// Desactivar tienda
 const deactivateStore = async (req, res) => {
   try {
     const { id } = req.params
@@ -170,7 +166,6 @@ const deactivateStore = async (req, res) => {
   }
 }
 
-// Activar tienda
 const activateStore = async (req, res) => {
   try {
     const { id } = req.params

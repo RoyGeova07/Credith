@@ -112,6 +112,26 @@ function createFKs() {
         as: 'company'
     })
 
+    Stores.hasMany(Cais, {
+        foreignKey: 'storeId',
+        as: 'cais'
+    })
+
+    Cais.belongsTo(Stores, {
+        foreignKey: 'storeId',
+        as: 'store'
+    })
+
+    Cais.hasMany(CaiRanges, {
+        foreignKey: 'caiId',
+        as: 'caiRanges'
+    })
+
+    CaiRanges.belongsTo(Cais, {
+        foreignKey: 'caiId',
+        as: 'cai'
+    })
+
     CaiRanges.hasMany(Bills, {
         foreignKey: 'caiRangeId',
         as: 'bills'
@@ -206,15 +226,6 @@ function createFKs() {
         as: 'users'
     })
 
-    Cais.hasMany(CaiRanges, {
-        foreignKey: 'caiId',
-        as: 'caiRanges'
-    })
-
-    CaiRanges.belongsTo(Cais, {
-        foreignKey: 'caiId',
-        as: 'Cai'
-    })
 }
 
 module.exports = {

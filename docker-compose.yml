@@ -15,37 +15,3 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
-  credith_service:
-    build:
-      context: ./Service
-      dockerfile: dockerfile
-    container_name: credith_service
-    environment:
-      NODE_ENV: development
-      PORT: 3000
-      JWT_SECRET: visca_barca_visca_catalunya
-      DB_HOST: credith_db
-      DB_PORT: 5432
-      DB_NAME: credith
-      DB_USER: postgres
-      DB_PASSWORD: 123456
-      DB_DIALECT: postgres
-      CORS_ORIGIN: http://localhost:4173
-    ports:
-      - 3000:3000
-    depends_on:
-      credith_db:
-        condition: service_healthy
-
-  credith_website:
-    build:
-      context: ./Website
-      dockerfile: dockerfile
-      args:
-        VITE_BASE_ROUTE: http://localhost:3000
-    container_name: credith_website
-    ports:
-      - 4173:4173
-    depends_on:
-      - credith_service

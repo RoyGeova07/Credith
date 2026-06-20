@@ -149,18 +149,18 @@ async function postBill(req, res) {
             });
 
             if (!caiRange)
-                throw { status: 404, message: 'Rango de cai no encontrado' }
+                throw { status: 404, message: 'Rango de CAI no encontrado' }
 
             if (!caiRange.isActive)
-                throw { status: 406, message: 'Rango de cai ha expirado' }
+                throw { status: 406, message: 'El rango de CAI ha expirado' }
 
             const cai = await Cais.findByPk(caiRange.caiId, { transaction });
 
             if (!cai)
-                throw { status: 404, message: 'Cai no encontrado' }
+                throw { status: 404, message: 'CAI no encontrado' }
 
             if (!cai.isActive)
-                throw { status: 406, message: 'El cai ha expirado' }
+                throw { status: 406, message: 'El CAI ha expirado' }
 
             const company = await Companies.findByPk(companyId, { transaction });
 
@@ -172,14 +172,7 @@ async function postBill(req, res) {
             if (nextBillNumber > caiRange.maxRange)
                 throw { status: 406, message: 'El rango de CAI se ha agotado' }
 
-            await caiRange.update(
-                {
-                    currentNumber: nextBillNumber
-                },
-                {
-                    transaction: transaction,
-                }
-            );
+            await caiRange.update({ currentNumber: nextBillNumber }, { transaction });
 
             const cashierName = [user.first_name, user.second_name, user.first_last_name, user.second_last_name]
                 .filter(Boolean).join(' ');

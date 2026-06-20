@@ -11,8 +11,7 @@ module.exports = {
             },
             min_range: { type: Sequelize.INTEGER, allowNull: false },
             max_range: { type: Sequelize.INTEGER, allowNull: false },
-            current_number:{type:Sequelize.INTEGER,allowNull:false,defaultValue:0},
-            expiration_date: { type: Sequelize.DATE, allowNull: false },
+            current_number: { type: Sequelize.INTEGER, allowNull: false, defaultValue: 0 },
             is_active: { type: Sequelize.BOOLEAN, defaultValue: true },
             cai_id: {
                 type: Sequelize.UUID,
@@ -23,11 +22,6 @@ module.exports = {
             deleted_at: { type: Sequelize.DATE }
         });
 
-        await queryInterface.addIndex(
-            { schema: 'cd', tableName: 'cai_ranges' },
-            ['expiration_date'],
-            { name: 'idx_cai_ranges_expiration_date' }
-        );
     },
 
     async down(queryInterface, Sequelize) {

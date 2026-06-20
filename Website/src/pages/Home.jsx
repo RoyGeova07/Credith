@@ -10,6 +10,7 @@ import InicioPage from './InicioPage'
 import ManagerEmployeesManagementPage from './ManagerEmployeesManagementPage'
 import ProductsPage from './ProductsPage'
 import OwnerCategoryManagementPage from './OwnerCategoryManagementPage'
+import AdminCaiManagementPage from './AdminCaiManagementPage'
 
 function DashboardHome({ session })
 {
@@ -32,6 +33,7 @@ function renderContent(page, session)
     switch (page) {
         case '/admin/companies':    return <AdminCompanyManagementPage />
         case '/admin/stores':       return <AdminStoreManagementPage />
+        case '/admin/cai':          return <AdminCaiManagementPage />
         case '/owner/category':     return <OwnerCategoryManagementPage />
         case '/products':           return <ProductsPage />
         case '/admin/employees':    return <ManagerEmployeesManagementPage />

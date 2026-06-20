@@ -9,7 +9,8 @@ module.exports = {
                 primaryKey: true,
                 defaultValue: Sequelize.UUIDV4
             },
-            address: { type: Sequelize.INTEGER, allowNull: false },
+            store_number: { type: Sequelize.INTEGER, allowNull: false },
+            address: { type: Sequelize.STRING, allowNull: true },
             is_active: { type: Sequelize.BOOLEAN, defaultValue: true },
             company_id: {
                 type: Sequelize.UUID,
