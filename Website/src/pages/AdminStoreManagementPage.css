@@ -30,7 +30,17 @@
   text-transform: uppercase;
 }
 
+.store-admin-alert.error {
+  color: #c0392b;
+  background: #fdecea;
+  border: 1px solid #e74c3c;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
 .store-dialog-form input,
+.store-dialog-form textarea,
 .store-dialog-form select {
   width: 100%;
   border: 1.5px solid var(--gray-light);
@@ -48,7 +58,12 @@
   cursor: pointer;
 }
 
+.store-dialog-form textarea {
+  resize: vertical;
+}
+
 .store-dialog-form input:focus,
+.store-dialog-form textarea:focus,
 .store-dialog-form select:focus {
   background: #ffffff;
   border-color: var(--green-mid);

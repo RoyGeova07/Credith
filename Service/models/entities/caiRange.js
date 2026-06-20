@@ -20,15 +20,10 @@ function initialize(sequelize, _) {
                 type: DataTypes.INTEGER,
                 allowNull: false,
             },
-            currentNumber:
-            {
-                type:DataTypes.INTEGER,
-                allowNull:false,
-                defaultValue:0
-            },
-            expirationDate: {
-                type: DataTypes.DATE,
-                allowNull: false
+            currentNumber: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                defaultValue: 0
             },
             isActive: {
                 type: DataTypes.BOOLEAN,
@@ -41,11 +36,6 @@ function initialize(sequelize, _) {
             paranoid: true,
             underscored: true,
             omitNull: true,
-            indexes: [
-                {
-                    fields: ['expiration_date']
-                }
-            ]
         }
     );
 }

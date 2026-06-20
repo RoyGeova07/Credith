@@ -1,12 +1,12 @@
 const router = require('express').Router()
 
 const {
-  createCaiRange,
-  getPagedCaiRanges,
-  getPagedCaiRangesByCai,
-  getCaiRangeById,
-  updateCaiRange,
-  deleteCaiRange
+    createCaiRange,
+    getPagedCaiRanges,
+    getPagedCaiRangesByCai,
+    getCaiRangeById,
+    updateCaiRange,
+    deleteCaiRange
 } = require('../controllers/caiRange')
 
 /**
@@ -15,6 +15,17 @@ const {
  *   get:
  *     summary: Obtener todos los rangos de CAI
  *     tags: [CAI Ranges]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           example: 0
  *     responses:
  *       200:
  *         description: Lista de rangos obtenida correctamente
@@ -31,7 +42,6 @@ router.get('/cai-ranges', getPagedCaiRanges)
  *       - in: path
  *         name: caiId
  *         required: true
- *         description: ID del CAI
  *         schema:
  *           type: string
  *     responses:
@@ -52,7 +62,6 @@ router.get('/cais/:caiId/ranges', getPagedCaiRangesByCai)
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del rango de CAI
  *         schema:
  *           type: string
  *     responses:
@@ -67,7 +76,7 @@ router.get('/cai-ranges/:id', getCaiRangeById)
  * @swagger
  * /api/cai-ranges:
  *   post:
- *     summary: Crear un nuevo rango de CAI
+ *     summary: Crear un nuevo rango bajo un CAI activo (el rango debe ser mayor al último de la tienda)
  *     tags: [CAI Ranges]
  *     requestBody:
  *       required: true
@@ -76,29 +85,24 @@ router.get('/cai-ranges/:id', getCaiRangeById)
  *           schema:
  *             type: object
  *             required:
+ *               - caiId
  *               - minRange
  *               - maxRange
- *               - expirationDate
- *               - caiId
  *             properties:
- *               minRange:
- *                 type: integer
- *                 example: 1
- *               maxRange:
- *                 type: integer
- *                 example: 1000
- *               expirationDate:
- *                 type: string
- *                 format: date
- *                 example: 2026-12-31
  *               caiId:
  *                 type: string
- *                 example: b75438e5-9ae8-4597-b95e-9889028f4737
+ *                 format: uuid
+ *               minRange:
+ *                 type: integer
+ *                 example: 50001
+ *               maxRange:
+ *                 type: integer
+ *                 example: 100000
  *     responses:
  *       201:
  *         description: Rango de CAI creado correctamente
  *       400:
- *         description: Datos inválidos o rango incorrecto
+ *         description: Datos inválidos o rango no es mayor al último
  *       404:
  *         description: CAI no encontrado
  */
@@ -108,13 +112,12 @@ router.post('/cai-ranges', createCaiRange)
  * @swagger
  * /api/cai-ranges/{id}:
  *   put:
- *     summary: Actualizar un rango de CAI
+ *     summary: Extender el maxRange de un rango existente (solo si no tiene facturas emitidas)
  *     tags: [CAI Ranges]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del rango de CAI
  *         schema:
  *           type: string
  *     requestBody:
@@ -124,23 +127,16 @@ router.post('/cai-ranges', createCaiRange)
  *           schema:
  *             type: object
  *             properties:
- *               minRange:
- *                 type: integer
- *                 example: 100
  *               maxRange:
  *                 type: integer
- *                 example: 2000
- *               expirationDate:
- *                 type: string
- *                 format: date
- *                 example: 2027-01-01
+ *                 example: 75000
  *     responses:
  *       200:
  *         description: Rango de CAI actualizado correctamente
  *       400:
- *         description: Datos inválidos
+ *         description: Datos inválidos o tiene facturas asociadas
  *       404:
- *         description: Rango de CAI no encontrado
+ *         description: Rango no encontrado
  */
 router.put('/cai-ranges/:id', updateCaiRange)
 
@@ -148,20 +144,21 @@ router.put('/cai-ranges/:id', updateCaiRange)
  * @swagger
  * /api/cai-ranges/{id}:
  *   delete:
- *     summary: Eliminar un rango de CAI
+ *     summary: Eliminar un rango de CAI (solo si no tiene facturas asociadas)
  *     tags: [CAI Ranges]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del rango de CAI
  *         schema:
  *           type: string
  *     responses:
  *       200:
  *         description: Rango de CAI eliminado correctamente
+ *       400:
+ *         description: Tiene facturas asociadas
  *       404:
- *         description: Rango de CAI no encontrado
+ *         description: Rango no encontrado
  */
 router.delete('/cai-ranges/:id', deleteCaiRange)
 

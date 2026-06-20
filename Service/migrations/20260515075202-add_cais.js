@@ -12,6 +12,10 @@ module.exports = {
             government_id: { type: Sequelize.STRING(75), allowNull: false },
             expiration_date: { type: Sequelize.DATE, allowNull: false },
             is_active: { type: Sequelize.BOOLEAN, defaultValue: true },
+            store_id: {
+                type: Sequelize.UUID,
+                references: { model: { schema: 'cd', tableName: 'stores' }, key: 'store_id' }
+            },
             created_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
             updated_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
             deleted_at: { type: Sequelize.DATE }

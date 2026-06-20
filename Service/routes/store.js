@@ -78,12 +78,15 @@ router.get('/stores/:id', getStoreById)
  *           schema:
  *             type: object
  *             required:
- *               - address
+ *               - storeNumber
  *               - companyId
  *             properties:
- *               address:
+ *               storeNumber:
  *                 type: integer
- *                 example: 101
+ *                 example: 1
+ *               address:
+ *                 type: string
+ *                 example: Tegucigalpa, Honduras
  *               companyId:
  *                 type: string
  *                 example: b75438e5-9ae8-4597-b95e-9889028f4737
@@ -119,9 +122,12 @@ router.post('/stores',authMiddleware,roleMiddleware(ROLE.ADMIN,ROLE.OWNER),creat
  *           schema:
  *             type: object
  *             properties:
- *               address:
+ *               storeNumber:
  *                 type: integer
- *                 example: 202
+ *                 example: 2
+ *               address:
+ *                 type: string
+ *                 example: San Pedro Sula, Honduras
  *               companyId:
  *                 type: string
  *                 example: b75438e5-9ae8-4597-b95e-9889028f4737

@@ -12,9 +12,13 @@ function initialize(sequelize, _) {
                 primaryKey: true,
                 defaultValue: DataTypes.UUIDV4
             },
-            address: {
+            storeNumber: {
                 type: DataTypes.INTEGER,
                 allowNull: false
+            },
+            address: {
+                type: DataTypes.STRING,
+                allowNull: true
             },
             isActive: {
                 type: DataTypes.BOOLEAN,

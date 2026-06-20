@@ -8,6 +8,7 @@ import './AdminStoreManagementPage.css'
 import { toast } from 'react-toastify'
 
 const emptyForm = {
+  storeNumber: '',
   address: '',
   companyId: '',
 }
@@ -26,7 +27,8 @@ function normalizeStore(store) {
 
   return {
     storeId: store.storeId,
-    address: String(store.address ?? ''),
+    storeNumber: String(store.storeNumber ?? ''),
+    address: store.address || '',
     companyId: store.companyId || company.companyId || '',
     companyName: company.name || 'Sin empresa',
     companyRtn: company.rtn || 'Sin RTN',
@@ -49,34 +51,24 @@ export default function AdminStoreManagementPage() {
 
     Get('/api/companies?limit=100&offset=0')
       .then((response) => {
-        if (!isMounted) {
-          return
-        }
-
+        if (!isMounted) return
         if (response.status !== 200) {
           throw new Error(response.json.message || 'No se pudieron cargar las empresas')
         }
-
         setCompanies((response.json.data || []).map(normalizeCompany))
       })
       .catch((requestError) => {
-        if (!isMounted) {
-          return
-        }
-
+        if (!isMounted) return
         toast.error(requestError.message)
       })
 
-    return () => {
-      isMounted = false
-    }
+    return () => { isMounted = false }
   }, [])
 
   const loadStores = useCallback(
     async (offset, limit) => {
       try {
         const response = await Get(`/api/stores?limit=500&offset=0&_=${refreshKey}`)
-        console.log(response.json)
 
         if (response.status !== 200) {
           throw new Error(response.json.message || 'No se pudieron cargar las tiendas')
@@ -87,7 +79,7 @@ export default function AdminStoreManagementPage() {
         const filteredStores = !term
           ? stores
           : stores.filter((store) =>
-              [store.address, store.companyName, store.companyRtn, store.statusLabel]
+              [store.storeNumber, store.address, store.companyName, store.companyRtn, store.statusLabel]
                 .join(' ')
                 .toLowerCase()
                 .includes(term)
@@ -99,11 +91,7 @@ export default function AdminStoreManagementPage() {
         }
       } catch (requestError) {
         toast.error(requestError.message)
-
-        return {
-          data: [],
-          total: 0,
-        }
+        return { data: [], total: 0 }
       }
     },
     [filter, refreshKey]
@@ -127,6 +115,7 @@ export default function AdminStoreManagementPage() {
   const openEditDialog = (store) => {
     setEditingStore(store)
     setForm({
+      storeNumber: store.storeNumber || '',
       address: store.address || '',
       companyId: store.companyId || '',
     })
@@ -135,10 +124,10 @@ export default function AdminStoreManagementPage() {
   }
 
   const buildPayload = () => {
-    const parsedAddress = Number(form.address)
+    const parsedStoreNumber = Number(form.storeNumber)
 
-    if (!Number.isInteger(parsedAddress)) {
-      throw new Error('La dirección debe ser un número entero')
+    if (!Number.isInteger(parsedStoreNumber) || parsedStoreNumber <= 0) {
+      throw new Error('El número de tienda debe ser un entero positivo')
     }
 
     if (!form.companyId) {
@@ -146,7 +135,8 @@ export default function AdminStoreManagementPage() {
     }
 
     return {
-      address: parsedAddress,
+      storeNumber: parsedStoreNumber,
+      address: form.address.trim() || undefined,
       companyId: form.companyId,
     }
   }
@@ -164,7 +154,7 @@ export default function AdminStoreManagementPage() {
 
       setIsDialogOpen(false)
       setRefreshKey((current) => current + 1)
-      toast.success(editingStore?'Tienda actualizada correctamente':'Tienda creada correctamente')
+      toast.success(editingStore ? 'Tienda actualizada correctamente' : 'Tienda creada correctamente')
     } catch (requestError) {
       setError(requestError.message)
       toast.error(requestError.message)
@@ -174,12 +164,10 @@ export default function AdminStoreManagementPage() {
   const handleToggleStatus = async (store) => {
     const action = store.isActive ? 'deactivate' : 'activate'
     const prompt = store.isActive
-      ? `¿Desactivar la tienda ${store.address}?`
-      : `¿Activar la tienda ${store.address}?`
+      ? `¿Desactivar la tienda #${store.storeNumber}?`
+      : `¿Activar la tienda #${store.storeNumber}?`
 
-    if (!window.confirm(prompt)) {
-      return
-    }
+    if (!window.confirm(prompt)) return
 
     try {
       const response = await Put(`/api/stores/${action}/${store.storeId}`)
@@ -189,7 +177,7 @@ export default function AdminStoreManagementPage() {
       }
 
       setRefreshKey((current) => current + 1)
-      toast.success(store.isActive?'Tienda desactivada correctamente':'Tienda activada correctamente')
+      toast.success(store.isActive ? 'Tienda desactivada correctamente' : 'Tienda activada correctamente')
     } catch (requestError) {
       toast.error(requestError.message)
     }
@@ -210,15 +198,15 @@ export default function AdminStoreManagementPage() {
           onAddClick={openNewDialog}
         >
           <HeaderTextFilter
-            filterPlaceholder="Dirección, empresa, RTN o estado"
+            filterPlaceholder="Número, dirección, empresa, RTN o estado"
             className="grid-main-filter"
             value={filter}
             onChange={setFilter}
           />
         </DataGridHeader>
 
-
         <DataTable onLoad={loadStores} rowTitle="Click para editar" onRowClick={openEditDialog}>
+          <DataColumn propertyName="storeNumber" title="Número de tienda" />
           <DataColumn propertyName="address" title="Dirección" />
           <DataColumn propertyName="companyName" title="Empresa" />
           <DataColumn propertyName="companyRtn" title="RTN" />
@@ -244,21 +232,32 @@ export default function AdminStoreManagementPage() {
           onClose={handleClose}
           closeText="Cancelar"
         >
-        
+          {error && <div className="store-admin-alert error">{error}</div>}
 
           <form className="store-dialog-form">
             <label>
-              Dirección
+              Número de tienda
               <input
-                name="address"
+                name="storeNumber"
                 type="number"
                 inputMode="numeric"
                 min="1"
                 step="1"
+                value={form.storeNumber}
+                onChange={handleFormChange}
+                placeholder="1"
+                required
+              />
+            </label>
+
+            <label>
+              Dirección
+              <textarea
+                name="address"
                 value={form.address}
                 onChange={handleFormChange}
-                placeholder="101"
-                required
+                placeholder="Tegucigalpa, Honduras"
+                rows="3"
               />
             </label>
 

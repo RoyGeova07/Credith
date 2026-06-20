@@ -71,9 +71,9 @@ module.exports = {
 
     // Stores
     await queryInterface.bulkInsert({ schema: 'cd', tableName: 'stores' }, [
-      { store_id: storeIds[0], address: 101, is_active: true, company_id: companyIds[0], created_at: now, updated_at: now },
-      { store_id: storeIds[1], address: 202, is_active: true, company_id: companyIds[0], created_at: now, updated_at: now },
-      { store_id: storeIds[2], address: 303, is_active: true, company_id: companyIds[1], created_at: now, updated_at: now },
+      { store_id: storeIds[0], store_number: 1, address: 'Boulevard Morazán, Tegucigalpa', is_active: true, company_id: companyIds[0], created_at: now, updated_at: now },
+      { store_id: storeIds[1], store_number: 2, address: 'Colonia Palmira, Tegucigalpa', is_active: true, company_id: companyIds[0], created_at: now, updated_at: now },
+      { store_id: storeIds[2], store_number: 1, address: 'Centro Comercial Mega Plaza, San Pedro Sula', is_active: true, company_id: companyIds[1], created_at: now, updated_at: now },
     ]);
 
     // Roles
@@ -158,14 +158,14 @@ module.exports = {
 
     // CAIs
     await queryInterface.bulkInsert({ schema: 'cd', tableName: 'cais' }, [
-      { cai_id: caiIds[0], government_id: 'CAI-0001-2025-ABCDEF', expiration_date: futureDate, is_active: true, created_at: now, updated_at: now },
-      { cai_id: caiIds[1], government_id: 'CAI-0002-2025-GHIJKL', expiration_date: pastDate, is_active: false, created_at: now, updated_at: now },
+      { cai_id: caiIds[0], government_id: 'A1B2C3-D4E5F6-G7H8I9-J0K1L2-M3N4O5-01', expiration_date: futureDate, is_active: true, store_id: storeIds[0], created_at: now, updated_at: now },
+      { cai_id: caiIds[1], government_id: 'A1B2C3-D4E5F6-G7H8I9-J0K1L2-M3N4O5-02', expiration_date: pastDate, is_active: false, store_id: storeIds[1], created_at: now, updated_at: now },
     ]);
 
-    // CAI Ranges
+    // CAI Ranges (sequential per store — store[0]: 1-50000, store[1]: 1-10000 on expired CAI)
     await queryInterface.bulkInsert({ schema: 'cd', tableName: 'cai_ranges' }, [
-      { cai_range_id: caiRangeIds[0], min_range: 1, max_range: 5000, current_number: 0, expiration_date: futureDate, is_active: true, cai_id: caiIds[0], created_at: now, updated_at: now },
-      { cai_range_id: caiRangeIds[1], min_range: 5001, max_range: 10000, current_number: 5000, expiration_date: pastDate, is_active: false, cai_id: caiIds[1], created_at: now, updated_at: now },
+      { cai_range_id: caiRangeIds[0], min_range: 1, max_range: 50000, current_number: 0, is_active: true, cai_id: caiIds[0], created_at: now, updated_at: now },
+      { cai_range_id: caiRangeIds[1], min_range: 1, max_range: 10000, current_number: 5000, is_active: false, cai_id: caiIds[1], created_at: now, updated_at: now },
     ]);
 
     // Checkout Machines
