@@ -3,7 +3,7 @@ import { Archive } from '@/assets/icons'
 import { DataGrid, DataGridHeader, HeaderTextFilter } from '@/components/dataGrid/DataGrid'
 import { ActionColumn, CustomAction, DataColumn, DataTable } from '@/components/dataGrid/DataTable'
 import FormDialog from '@/components/dialogs/SubmitDialog'
-import { Get, Post, Put } from '@/helpers/fetcher'
+import { Get, Post } from '@/helpers/fetcher'
 import { ROLE } from '@/helpers/permissions'
 import './ManagerEmployeesManagementPage.css'
 import { toast } from 'react-toastify'
@@ -28,6 +28,7 @@ const emptyForm = {
     password: '',
     storeId: '',
     role: ROLE.EMPLOYEE,
+    checkoutMachineId: '',
 }
 
 function buildFullName(user) {
@@ -75,6 +76,7 @@ export default function ManagerEmployeesManagementPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [form, setForm] = useState(emptyForm)
     const [stores, setStores] = useState([])
+    const [checkoutMachines, setCheckoutMachines] = useState([])
     const [error, setError] = useState('')
     const [refreshKey, setRefreshKey] = useState(0)
 
@@ -83,28 +85,22 @@ export default function ManagerEmployeesManagementPage() {
 
         Get('/api/stores?limit=500&offset=0')
             .then((response) => {
-                if (!isMounted) {
-                    return
-                }
-
-                if (response.status !== 200) {
-                    throw new Error(response.json.message || 'No se pudieron cargar las tiendas')
-                }
-
+                if (!isMounted) return
+                if (response.status !== 200) throw new Error(response.json.message || 'No se pudieron cargar las tiendas')
                 setStores((response.json.data || []).map(normalizeStore))
             })
-            .catch((requestError) => {
-                if (!isMounted) {
-                    return
-                }
+            .catch((requestError) => { if (isMounted) toast.error(requestError.message) })
 
-                toast.error(requestError.message)
+        Get('/api/checkout-machines?limit=500&offset=0')
+            .then((response) => {
+                if (!isMounted) return
+                if (response.status !== 200) return
+                setCheckoutMachines(response.json.data || [])
             })
+            .catch(() => {})
 
-        return () => {
-            isMounted = false
-        }
-    }, [])
+        return () => { isMounted = false }
+    }, [refreshKey])
 
     const loadUsers = useCallback(
         async (offset, limit) => {
@@ -141,9 +137,11 @@ export default function ManagerEmployeesManagementPage() {
     )
 
     const handleFormChange = (event) => {
+        const { name, value } = event.target
         setForm((current) => ({
             ...current,
-            [event.target.name]: event.target.value,
+            [name]: value,
+            ...(name === 'storeId' ? { checkoutMachineId: '' } : {}),
         }))
         setError('')
     }
@@ -155,6 +153,11 @@ export default function ManagerEmployeesManagementPage() {
     }
 
     const handleAccept = async () => {
+        if (!form.checkoutMachineId) {
+            setError('Debes asignar una caja de facturación al empleado')
+            return
+        }
+
         const payload = {
             first_name: form.first_name.trim(),
             second_name: form.second_name.trim(),
@@ -164,6 +167,7 @@ export default function ManagerEmployeesManagementPage() {
             password: form.password,
             storeId: form.storeId,
             role: form.role,
+            checkoutMachineId: form.checkoutMachineId,
         }
 
         try {
@@ -356,6 +360,36 @@ export default function ManagerEmployeesManagementPage() {
                                     <option key={r.value} value={r.value}>{r.label}</option>
                                 ))}
                             </select>
+                        </label>
+
+                        <label>
+                            Caja de facturación
+                            {(() => {
+                                const storeMachines = form.storeId
+                                    ? checkoutMachines.filter(m => m.storeId === form.storeId)
+                                    : []
+                                const placeholder = !form.storeId
+                                    ? 'Selecciona una tienda primero'
+                                    : storeMachines.length === 0
+                                        ? 'No hay cajas en esta tienda'
+                                        : 'Selecciona una caja'
+                                return (
+                                    <select
+                                        name="checkoutMachineId"
+                                        value={form.checkoutMachineId}
+                                        onChange={handleFormChange}
+                                        disabled={storeMachines.length === 0}
+                                        required
+                                    >
+                                        <option value="" disabled>{placeholder}</option>
+                                        {storeMachines.map((m) => (
+                                            <option key={m.checkoutMachineId} value={m.checkoutMachineId}>
+                                                Caja #{m.machineNumber} — {m.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )
+                            })()}
                         </label>
                     </form>
                 </FormDialog>

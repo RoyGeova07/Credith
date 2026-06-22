@@ -88,8 +88,6 @@ async function postBill(req, res) {
         discountAmount,
         exonerated,
         exempt,
-        companyId,
-        caiRangeId,
         userId,
         storeId,
         details,
@@ -97,10 +95,18 @@ async function postBill(req, res) {
         paymentData
     } = req.body;
 
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
     let billSubtotal = 0;
     for (let idx = 0; idx < details.length; ++idx) {
 
         const detail = details[idx];
+
+        if (!detail.productId || !UUID_RE.test(detail.productId))
+            return res.status(400).json({
+                message: `ID del producto ${idx + 1} es inválido. Recarga el catálogo e intenta de nuevo.`
+            });
+
         const subtotal = detail.quantity * detail.sellPrice;
         if (subtotal < 0)
             return res.status(400).json({
@@ -143,7 +149,16 @@ async function postBill(req, res) {
             if (user.store.storeId != storeId)
                 throw { status: 406, message: 'La sucursal donde trabaja el usuario no es la misma especificada en la factura' }
 
-            const caiRange = await CaiRanges.findByPk(caiRangeId, {
+            const activeCai = await Cais.findOne({
+                where: { storeId, isActive: true },
+                transaction
+            });
+
+            if (!activeCai)
+                throw { status: 404, message: 'La sucursal no tiene un CAI activo' }
+
+            const caiRange = await CaiRanges.findOne({
+                where: { caiId: activeCai.caiId, isActive: true },
                 lock: transaction.LOCK.UPDATE,
                 transaction
             });
@@ -151,39 +166,37 @@ async function postBill(req, res) {
             if (!caiRange)
                 throw { status: 404, message: 'Rango de CAI no encontrado' }
 
-            if (!caiRange.isActive)
-                throw { status: 406, message: 'El rango de CAI ha expirado' }
-
-            const cai = await Cais.findByPk(caiRange.caiId, { transaction });
-
-            if (!cai)
-                throw { status: 404, message: 'CAI no encontrado' }
-
-            if (!cai.isActive)
-                throw { status: 406, message: 'El CAI ha expirado' }
-
-            const company = await Companies.findByPk(companyId, { transaction });
+            const company = await Companies.findByPk(user.store.companyId, { transaction });
 
             if (!company)
                 throw { status: 404, message: 'Compañia no encontrada' }
 
-            const nextBillNumber = caiRange.currentNumber + 1;
+            const nextBillNumber = caiRange.minRange + caiRange.currentNumber;
 
             if (nextBillNumber > caiRange.maxRange)
                 throw { status: 406, message: 'El rango de CAI se ha agotado' }
 
-            await caiRange.update({ currentNumber: nextBillNumber }, { transaction });
+            await caiRange.update({ currentNumber: caiRange.currentNumber + 1 }, { transaction });
 
             const cashierName = [user.first_name, user.second_name, user.first_last_name, user.second_last_name]
                 .filter(Boolean).join(' ');
 
-            const isv_15_amount = billSubtotal * 0.15;
-            const billDiscount = discountAmount || 0;
+            const billNumberFinal = [
+                String(user.store.storeNumber).padStart(3, '0'),
+                String(user.checkoutMachine.machineNumber).padStart(3, '0'),
+                activeCai.documentType,
+                String(nextBillNumber).padStart(8, '0')
+            ].join('-');
 
-            const total = billSubtotal - billDiscount + isv_15_amount;
+            const billDiscount = discountAmount || 0;
+            const discountedSubtotal = billSubtotal - billDiscount;
+            const isv_15_amount = discountedSubtotal * 0.15;
+
+            const total = discountedSubtotal + isv_15_amount;
 
             const createdBill = await Bills.create({
                 billNumber: nextBillNumber,
+                billNumberFinal,
                 limitDate,
                 companyName: company.name,
                 companyRtn: company.rtn,
@@ -204,9 +217,10 @@ async function postBill(req, res) {
                 exempt: exempt || 0,
                 subtotal: billSubtotal,
                 total,
-                caiRangeId,
+                caiRangeId: caiRange.caiRangeId,
                 storeId,
                 userId,
+                clientId: paymentType === BillTypes.INSTALLMENT ? customer.clientId : null,
             }, { transaction });
 
             for (const detail of details) {
@@ -219,6 +233,9 @@ async function postBill(req, res) {
                         transaction: transaction
                     }
                 );
+
+                if (!productInventory)
+                    throw { status: 404, message: `El producto ${detail.productName} no existe en el inventario de esta sucursal` }
 
                 if (productInventory.inStock < detail.quantity) {
                     throw { status: 406, message: `La sucursal [${storeId}] no cuenta con tantos ${detail.productName} en existencia!` }

@@ -1,10 +1,11 @@
 const { CheckoutMachines } = require('../models/entities/checkoutMachine')
 const { Users } = require('../models/entities/user')
+const { Stores } = require('../models/entities/store')
+const { Companies } = require('../models/entities/company')
 
-// Crear caja/maquina de checkout
 const createCheckoutMachine = async (req, res) => {
   try {
-    const { machineNumber, name, userId } = req.body
+    const { machineNumber, name, storeId } = req.body
 
     if (machineNumber === undefined || machineNumber === null || machineNumber === '') {
       return res.status(400).json({ message: 'El numero de maquina es requerido' })
@@ -20,28 +21,19 @@ const createCheckoutMachine = async (req, res) => {
       return res.status(400).json({ message: 'El nombre de la maquina es requerido' })
     }
 
-    if (!userId || userId.trim() === '') {
-      return res.status(400).json({ message: 'El id del usuario es requerido' })
+    if (!storeId || storeId.trim() === '') {
+      return res.status(400).json({ message: 'La tienda es requerida' })
     }
 
-    const user = await Users.findByPk(userId)
-
-    if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado' })
-    }
-
-    const existingMachineForUser = await CheckoutMachines.findOne({
-      where: { userId }
-    })
-
-    if (existingMachineForUser) {
-      return res.status(400).json({ message: 'El usuario ya tiene una maquina asignada' })
+    const store = await Stores.findByPk(storeId)
+    if (!store) {
+      return res.status(404).json({ message: 'Tienda no encontrada' })
     }
 
     const checkoutMachine = await CheckoutMachines.create({
       machineNumber: parsedMachineNumber,
       name,
-      userId
+      storeId
     })
 
     res.status(201).json({
@@ -53,7 +45,6 @@ const createCheckoutMachine = async (req, res) => {
   }
 }
 
-// Obtener maquinas de checkout paginadas
 const getPagedCheckoutMachines = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10
@@ -67,6 +58,12 @@ const getPagedCheckoutMachines = async (req, res) => {
           model: Users,
           as: 'users',
           attributes: ['userId', 'first_name', 'second_name', 'first_last_name', 'second_last_name', 'email']
+        },
+        {
+          model: Stores,
+          as: 'store',
+          attributes: ['storeId', 'storeNumber', 'address'],
+          include: [{ model: Companies, as: 'company', attributes: ['name'] }]
         }
       ],
       order: [['machineNumber', 'ASC']]
@@ -81,7 +78,6 @@ const getPagedCheckoutMachines = async (req, res) => {
   }
 }
 
-// Obtener maquina de checkout por id
 const getCheckoutMachineById = async (req, res) => {
   try {
     const { id } = req.params
@@ -92,6 +88,12 @@ const getCheckoutMachineById = async (req, res) => {
           model: Users,
           as: 'users',
           attributes: ['userId', 'first_name', 'second_name', 'first_last_name', 'second_last_name', 'email']
+        },
+        {
+          model: Stores,
+          as: 'store',
+          attributes: ['storeId', 'storeNumber', 'address'],
+          include: [{ model: Companies, as: 'company', attributes: ['name'] }]
         }
       ]
     })
@@ -106,11 +108,10 @@ const getCheckoutMachineById = async (req, res) => {
   }
 }
 
-// Actualizar maquina de checkout
 const updateCheckoutMachine = async (req, res) => {
   try {
     const { id } = req.params
-    const { machineNumber, name, userId } = req.body
+    const { machineNumber, name, storeId } = req.body
 
     const checkoutMachine = await CheckoutMachines.findByPk(id)
 
@@ -142,28 +143,12 @@ const updateCheckoutMachine = async (req, res) => {
       dataToUpdate.name = name
     }
 
-    if (userId !== undefined) {
-      if (!userId || userId.trim() === '') {
-        return res.status(400).json({ message: 'El id del usuario no puede estar vacio' })
+    if (storeId !== undefined) {
+      const store = await Stores.findByPk(storeId)
+      if (!store) {
+        return res.status(404).json({ message: 'Tienda no encontrada' })
       }
-
-      const user = await Users.findByPk(userId)
-
-      if (!user) {
-        return res.status(404).json({ message: 'Usuario no encontrado' })
-      }
-
-      if (userId !== checkoutMachine.userId) {
-        const existingMachineForUser = await CheckoutMachines.findOne({
-          where: { userId }
-        })
-
-        if (existingMachineForUser) {
-          return res.status(400).json({ message: 'El usuario ya tiene una maquina asignada' })
-        }
-      }
-
-      dataToUpdate.userId = userId
+      dataToUpdate.storeId = storeId
     }
 
     await checkoutMachine.update(dataToUpdate)
@@ -177,7 +162,6 @@ const updateCheckoutMachine = async (req, res) => {
   }
 }
 
-// Desactivar maquina de checkout
 const deactivateCheckoutMachine = async (req, res) => {
   try {
     const { id } = req.params
@@ -200,7 +184,6 @@ const deactivateCheckoutMachine = async (req, res) => {
   }
 }
 
-// Activar maquina de checkout
 const activateCheckoutMachine = async (req, res) => {
   try {
     const { id } = req.params
@@ -223,7 +206,7 @@ const activateCheckoutMachine = async (req, res) => {
   }
 }
 
-// Asociar usuario a maquina de checkout
+// Associates a user with a machine by setting user.checkoutMachineId
 const associateUserToCheckoutMachine = async (req, res) => {
   try {
     const { id } = req.params
@@ -245,17 +228,12 @@ const associateUserToCheckoutMachine = async (req, res) => {
       return res.status(404).json({ message: 'Usuario no encontrado' })
     }
 
-    if (userId !== checkoutMachine.userId) {
-      const existingMachineForUser = await CheckoutMachines.findOne({
-        where: { userId }
-      })
-
-      if (existingMachineForUser) {
-        return res.status(400).json({ message: 'El usuario ya tiene una maquina asignada' })
-      }
+    // Check if user already has a different machine
+    if (user.checkoutMachineId && user.checkoutMachineId !== id) {
+      return res.status(400).json({ message: 'El usuario ya tiene una maquina asignada' })
     }
 
-    await checkoutMachine.update({ userId })
+    await user.update({ checkoutMachineId: id })
 
     res.json({
       message: 'Usuario asociado a la maquina de checkout correctamente',
@@ -266,7 +244,6 @@ const associateUserToCheckoutMachine = async (req, res) => {
   }
 }
 
-// Eliminar maquina de checkout
 const deleteCheckoutMachine = async (req, res) => {
   try {
     const { id } = req.params

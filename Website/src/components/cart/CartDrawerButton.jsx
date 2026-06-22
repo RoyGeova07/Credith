@@ -36,6 +36,7 @@ export default function CartDrawerButton({
   onIncreaseItem,
   onDecreaseItem,
   onRemoveItem,
+  onCheckout,
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [sparkles, setSparkles] = useState([])
@@ -143,8 +144,17 @@ export default function CartDrawerButton({
                   </div>
 
                   <footer className="cart-summary">
-                    <span>Subtotal</span>
-                    <strong>{toCurrency(subtotal)}</strong>
+                    <div className="cart-summary-row">
+                      <span>Subtotal</span>
+                      <strong>{toCurrency(subtotal)}</strong>
+                    </div>
+                    <button
+                      type="button"
+                      className="cart-checkout-btn"
+                      onClick={() => { setIsOpen(false); onCheckout?.() }}
+                    >
+                      Procesar venta
+                    </button>
                   </footer>
                 </section>
               ) : (

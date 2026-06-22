@@ -43,10 +43,13 @@ function initialize(sequelize, _) {
                 type: DataType.STRING,
             },
             isActive: {
-                
+
                 type: DataType.BOOLEAN,
                 defaultValue: true,
-                
+
+            },
+            checkoutMachineId: {
+                type: DataType.UUID,
             }
         },
         {

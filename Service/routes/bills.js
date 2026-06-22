@@ -19,8 +19,6 @@ const {
  *             required:
  *               - limitDate
  *               - paymentType
- *               - companyId
- *               - caiRangeId
  *               - userId
  *               - storeId
  *               - details
@@ -47,14 +45,6 @@ const {
  *               exempt:
  *                 type: number
  *                 example: 0
- *               companyId:
- *                 type: string
- *                 format: uuid
- *                 example: b75438e5-9ae8-4597-b95e-9889028f4737
- *               caiRangeId:
- *                 type: string
- *                 format: uuid
- *                 example: a12345e5-9ae8-4597-b95e-9889028f1111
  *               userId:
  *                 type: string
  *                 format: uuid

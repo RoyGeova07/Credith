@@ -38,8 +38,13 @@ const getPagedClients = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10
     const offset = parseInt(req.query.offset) || 0
+    const { dni } = req.query
+
+    const where = {}
+    if (dni) where.dni = dni
 
     const clients = await Clients.findAndCountAll({
+      where,
       limit,
       offset,
       order: [['name', 'ASC']]

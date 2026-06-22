@@ -11,11 +11,12 @@ import ManagerEmployeesManagementPage from './ManagerEmployeesManagementPage'
 import ProductsPage from './ProductsPage'
 import OwnerCategoryManagementPage from './OwnerCategoryManagementPage'
 import AdminCaiManagementPage from './AdminCaiManagementPage'
+import AdminCheckoutMachineManagementPage from './AdminCheckoutMachineManagementPage'
 
 function DashboardHome({ session })
 {
     if (session?.role === ROLE.OWNER) {
-        return <InicioPage embedded />
+        return <InicioPage embedded session={session} />
     }
 
     return (
@@ -34,6 +35,7 @@ function renderContent(page, session)
         case '/admin/companies':    return <AdminCompanyManagementPage />
         case '/admin/stores':       return <AdminStoreManagementPage />
         case '/admin/cai':          return <AdminCaiManagementPage />
+        case '/admin/machines':    return <AdminCheckoutMachineManagementPage />
         case '/owner/category':     return <OwnerCategoryManagementPage />
         case '/products':           return <ProductsPage />
         case '/admin/employees':    return <ManagerEmployeesManagementPage />
