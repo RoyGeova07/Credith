@@ -7,6 +7,7 @@ import AdminCompanyManagementPage from './AdminCompanyManagementPage'
 import AdminStoreManagementPage from './AdminStoreManagementPage'
 import CartDemoPage from './CartDemoPage'
 import InicioPage from './InicioPage'
+import ManagerReportsPage from './ManagerReportsPage'
 import ManagerEmployeesManagementPage from './ManagerEmployeesManagementPage'
 import ProductsPage from './ProductsPage'
 import OwnerCategoryManagementPage from './OwnerCategoryManagementPage'
@@ -21,7 +22,7 @@ function DashboardHome({ session })
     return (
         <div className="dashboard-card">
             <div className="dashboard-empty">
-                <h2>Panel en construccion</h2>
+                <h2>Panel en construcción</h2>
                 <p>Aquí se mostrarán las estadísticas, métricas y reportes principales del sistema.</p>
             </div>
         </div>
@@ -37,6 +38,7 @@ function renderContent(page, session)
         case '/owner/category':     return <OwnerCategoryManagementPage />
         case '/products':           return <ProductsPage />
         case '/admin/employees':    return <ManagerEmployeesManagementPage />
+        case '/reports':            return <ManagerReportsPage />
         case '/cart':               return <CartDemoPage />
         default:                    return <DashboardHome session={session} />
     }
@@ -76,7 +78,7 @@ export default function Home({ session, onLogout, toastType, onToastShown })
                 <div className="home-header">
 
                     <div>
-                        <span className="home-tag">Administracion</span>
+                        <span className="home-tag">Administración</span>
                         <h1>Panel Principal</h1>
                         <p>Bienvenido al sistema administrativo ServiCredith</p>
                     </div>
