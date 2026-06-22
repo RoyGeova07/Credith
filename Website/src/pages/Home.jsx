@@ -7,6 +7,7 @@ import AdminCompanyManagementPage from './AdminCompanyManagementPage'
 import AdminStoreManagementPage from './AdminStoreManagementPage'
 import CartDemoPage from './CartDemoPage'
 import InicioPage from './InicioPage'
+import ManagerReportsPage from './ManagerReportsPage'
 import ManagerEmployeesManagementPage from './ManagerEmployeesManagementPage'
 import ProductsPage from './ProductsPage'
 import OwnerCategoryManagementPage from './OwnerCategoryManagementPage'
@@ -24,7 +25,7 @@ function DashboardHome({ session })
         <div className="dashboard-card">
             <div className="dashboard-empty">
                 <h2>Panel en construccion</h2>
-                <p>Aquí se mostrarán las estadísticas, métricas y reportes principales del sistema.</p>
+                <p>Aqui se mostraran las estadisticas, metricas y reportes principales del sistema.</p>
             </div>
         </div>
     )
@@ -33,16 +34,17 @@ function DashboardHome({ session })
 function renderContent(page, session)
 {
     switch (page) {
-        case '/admin/companies':    return <AdminCompanyManagementPage />
-        case '/admin/stores':       return <AdminStoreManagementPage />
-        case '/admin/cai':          return <AdminCaiManagementPage />
-        case '/admin/machines':    return <AdminCheckoutMachineManagementPage />
-        case '/owner/category':     return <OwnerCategoryManagementPage />
-        case '/products':           return <ProductsPage />
-        case '/admin/employees':    return <ManagerEmployeesManagementPage />
-        case '/credit-plans':       return <PaymentPlansPage />
-        case '/cart':               return <CartDemoPage />
-        default:                    return <DashboardHome session={session} />
+        case '/admin/companies': return <AdminCompanyManagementPage />
+        case '/admin/stores': return <AdminStoreManagementPage />
+        case '/admin/cai': return <AdminCaiManagementPage />
+        case '/admin/machines': return <AdminCheckoutMachineManagementPage />
+        case '/owner/category': return <OwnerCategoryManagementPage />
+        case '/products': return <ProductsPage />
+        case '/admin/employees': return <ManagerEmployeesManagementPage />
+        case '/credit-plans': return <PaymentPlansPage />
+        case '/reports': return <ManagerReportsPage />
+        case '/cart': return <CartDemoPage />
+        default: return <DashboardHome session={session} />
     }
 }
 
@@ -56,9 +58,9 @@ export default function Home({ session, onLogout, toastType, onToastShown })
         if (hasShownToast.current || !toastType) return
         hasShownToast.current = true
         if (toastType === 'login')
-            toast.success(`¡Bienvenido de nuevo, ${session?.first_name || 'Usuario'}!`)
+            toast.success(`Bienvenido de nuevo, ${session?.first_name || 'Usuario'}!`)
         if (toastType === 'register')
-            toast.success(`¡Cuenta creada correctamente, ${session?.first_name || 'Usuario'}!`)
+            toast.success(`Cuenta creada correctamente, ${session?.first_name || 'Usuario'}!`)
         onToastShown()
     }, [toastType, session, onToastShown])
 
@@ -100,7 +102,7 @@ export default function Home({ session, onLogout, toastType, onToastShown })
                             </div>
 
                             <button className="logout-btn" onClick={onLogout}>
-                                Cerrar sesión
+                                Cerrar sesion
                             </button>
 
                         </div>
