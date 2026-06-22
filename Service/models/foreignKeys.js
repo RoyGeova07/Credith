@@ -161,6 +161,16 @@ function createFKs() {
         as: 'paymentPlans'
     })
 
+    Bills.belongsTo(Clients, {
+        foreignKey: 'clientId',
+        as: 'client'
+    })
+
+    Clients.hasMany(Bills, {
+        foreignKey: 'clientId',
+        as: 'bills'
+    })
+
     Bills.belongsTo(CaiRanges, {
         foreignKey: 'caiRangeId',
         as: 'caiRange'
@@ -216,14 +226,24 @@ function createFKs() {
         as: 'billDetails'
     })
 
-    Users.hasOne(CheckoutMachines, {
-        foreignKey: 'userId',
+    Users.belongsTo(CheckoutMachines, {
+        foreignKey: 'checkoutMachineId',
         as: 'checkoutMachine'
     })
 
-    CheckoutMachines.belongsTo(Users, {
-        foreignKey: 'userId',
+    CheckoutMachines.hasMany(Users, {
+        foreignKey: 'checkoutMachineId',
         as: 'users'
+    })
+
+    CheckoutMachines.belongsTo(Stores, {
+        foreignKey: 'storeId',
+        as: 'store'
+    })
+
+    Stores.hasMany(CheckoutMachines, {
+        foreignKey: 'storeId',
+        as: 'checkoutMachines'
     })
 
 }

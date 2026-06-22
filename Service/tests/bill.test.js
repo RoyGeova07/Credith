@@ -63,8 +63,6 @@ function validCashBill() {
         discountAmount: 0,
         exonerated: 0,
         exempt: 0,
-        companyId: SEED_COMPANY_ID,
-        caiRangeId: SEED_CAI_RANGE_ID,
         userId: SEED_USER_ID,
         storeId: SEED_STORE_ID,
         details: [{
@@ -93,8 +91,6 @@ function validInstallmentBill() {
         discountAmount: 0,
         exonerated: 0,
         exempt: 0,
-        companyId: SEED_COMPANY_ID,
-        caiRangeId: SEED_CAI_RANGE_ID,
         userId: SEED_USER_ID,
         storeId: SEED_STORE_ID,
         details: [{
@@ -129,13 +125,14 @@ const mockUser = {
     first_last_name: 'Test',
     second_last_name: 'User',
     checkoutMachine: { machineNumber: 1, name: 'Caja 1' },
-    store: { storeId: SEED_STORE_ID },
+    store: { storeId: SEED_STORE_ID, storeNumber: 1, companyId: SEED_COMPANY_ID },
 }
 
 const mockCai = {
     caiId: 'mock-cai-id',
     storeId: SEED_STORE_ID,
     isActive: true,
+    documentType: '01',
 }
 
 const mockCaiRange = {
@@ -182,7 +179,7 @@ const mockInstallmentPlan = {
     billPaymentPlanId: 'mock-plan-id-2',
     status: 'PENDING',
     payedAmount: '2000.000000',
-    totalToPay: '10648.850000',
+    totalToPay: '12648.850000',
     monthsToPay: 3,
     paymentDay: 15,
     startingDate: '2026-07-01',
@@ -195,8 +192,8 @@ beforeEach(() => {
     jest.clearAllMocks()
 
     Users.findByPk.mockResolvedValue(mockUser)
-    CaiRanges.findByPk.mockResolvedValue({ ...mockCaiRange, update: jest.fn().mockResolvedValue(true) })
-    Cais.findByPk.mockResolvedValue(mockCai)
+    Cais.findOne.mockResolvedValue(mockCai)
+    CaiRanges.findOne.mockResolvedValue({ ...mockCaiRange, update: jest.fn().mockResolvedValue(true) })
     Companies.findByPk.mockResolvedValue(mockCompany)
     Bills.create.mockResolvedValue(mockBill)
     StoresInventories.findOne.mockResolvedValue(mockInventory)
@@ -286,10 +283,20 @@ describe('POST /api/bills', () => {
                 expect.objectContaining({ paymentType: 'INSTALLMENT' })
             )
             expect(BillsPaymentPlans.create).toHaveBeenCalledWith(
-                expect.objectContaining({ status: 'PENDING', payedAmount: 2000, monthsToPay: 3 }),
+                expect.objectContaining({ status: 'PENDING', payedAmount: 2000, monthsToPay: 3, totalToPay: 12648.85 }),
                 expect.anything()
             )
+
             expect(MonthlyPayments.bulkCreate).toHaveBeenCalledTimes(1)
+            const monthlyPaymentsArg = MonthlyPayments.bulkCreate.mock.calls[0][0]
+            expect(monthlyPaymentsArg).toHaveLength(3)
+            const totalFromMonthly = monthlyPaymentsArg.reduce(
+                (sum, mp) => sum + mp.paymentAmount, 0
+            )
+            expect(totalFromMonthly).toBeCloseTo(10648.85, 1)
+            monthlyPaymentsArg.forEach(mp => {
+                expect(mp.paymentAmount).toBeCloseTo(10648.85 / 3, 1)
+            })
         })
     })
 
@@ -395,7 +402,7 @@ describe('POST /api/bills', () => {
         })
 
         it('should return 404 when cai range is not found', async () => {
-            CaiRanges.findByPk.mockResolvedValue(null)
+            CaiRanges.findOne.mockResolvedValue(null)
 
             const req = mockReq(validCashBill())
             const res = mockRes()
@@ -408,15 +415,15 @@ describe('POST /api/bills', () => {
             )
         })
 
-        it('should return 406 when the CAI is inactive', async () => {
-            Cais.findByPk.mockResolvedValue({ ...mockCai, isActive: false })
+        it('should return 404 when the store has no active CAI', async () => {
+            Cais.findOne.mockResolvedValue(null)
 
             const req = mockReq(validCashBill())
             const res = mockRes()
 
             await postBill(req, res)
 
-            expect(res.status).toHaveBeenCalledWith(406)
+            expect(res.status).toHaveBeenCalledWith(404)
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({ message: expect.any(String) })
             )
@@ -482,7 +489,7 @@ describe('POST /api/bills', () => {
 
             await postBill(req, res)
 
-            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.status).toHaveBeenCalledWith(404)
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({ message: expect.any(String) })
             )

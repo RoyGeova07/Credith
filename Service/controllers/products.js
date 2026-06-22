@@ -376,8 +376,8 @@ async function getPagedProducts(req,res)
 
         }
 
-        //ADMIN solo ve su tienda
-        if(userRole===ROLE.ADMIN)
+        //ADMIN y EMPLOYEE solo ven su tienda
+        if(userRole===ROLE.ADMIN||userRole===ROLE.EMPLOYEE)
         {
 
             inventoryInclude.where={...(inventoryInclude.where||{}),storeId:userStoreId}

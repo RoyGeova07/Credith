@@ -11,6 +11,7 @@ module.exports = {
             },
             total_to_pay: { type: Sequelize.DECIMAL(18, 6), allowNull: false },
             payed_amount: { type: Sequelize.DECIMAL(18, 6), defaultValue: 0 },
+            initial_payment: { type: Sequelize.DECIMAL(18, 6), defaultValue: 0 },
             starting_date: { type: Sequelize.DATE },
             months_to_pay: { type: Sequelize.INTEGER },
             payment_day: { type: Sequelize.SMALLINT },

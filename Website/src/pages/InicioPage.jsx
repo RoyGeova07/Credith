@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import SideBar from '@/components/sidebar/Sidebar'
 import CartDrawerButton from '@/components/cart/CartDrawerButton'
+import CheckoutModal from '@/components/checkout/CheckoutModal'
 import MultiSelect from '@/components/multiSelect/MultiSelect'
 import { CartIcon } from '@/assets/icons'
 import { Get } from '@/helpers/fetcher'
+import PaymentPlansPage from './PaymentPlansPage'
 import { ROLE, menuItems } from '@/helpers/permissions'
 import { toast } from 'react-toastify'
 import './Home.css'
@@ -132,6 +134,8 @@ export default function InicioPage({ session, onLogout, embedded = false }) {
   const [isLimitMenuOpen, setIsLimitMenuOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [cartItems, setCartItems] = useState([])
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [productsLoaded, setProductsLoaded] = useState(false)
   const limitMenuRef = useRef(null)
 
   useEffect(() => {
@@ -177,11 +181,12 @@ export default function InicioPage({ session, onLogout, embedded = false }) {
         }
 
         const normalizedProducts = (response.json.data || []).map(normalizeProduct)
-        setProducts(normalizedProducts.length > 0 ? normalizedProducts : fallbackProducts.map(normalizeProduct))
+        if (normalizedProducts.length > 0) {
+          setProducts(normalizedProducts)
+          setProductsLoaded(true)
+        }
       })
-      .catch(() => {
-        setProducts(fallbackProducts.map(normalizeProduct))
-      })
+      .catch(() => {})
 
     return () => {
       isMounted = false
@@ -380,6 +385,7 @@ export default function InicioPage({ session, onLogout, embedded = false }) {
             onIncreaseItem={handleIncreaseCartItem}
             onDecreaseItem={handleDecreaseCartItem}
             onRemoveItem={handleRemoveCartItem}
+            onCheckout={() => setCheckoutOpen(true)}
           />
         </div>
 
@@ -449,9 +455,10 @@ export default function InicioPage({ session, onLogout, embedded = false }) {
                     type="button"
                     className="home-employees-add-cart-button"
                     onClick={() => handleAddToCart(product)}
+                    disabled={!productsLoaded}
                   >
                     <CartIcon />
-                    <span>Agregar al carrito</span>
+                    <span>{productsLoaded ? 'Agregar al carrito' : 'Cargando...'}</span>
                   </button>
                 </div>
               </article>
@@ -500,8 +507,23 @@ export default function InicioPage({ session, onLogout, embedded = false }) {
     </div>
   )
 
+  const checkoutModal = (
+    <CheckoutModal
+      isOpen={checkoutOpen}
+      onClose={() => setCheckoutOpen(false)}
+      cartItems={cartItems}
+      session={session}
+      onBillCreated={() => setCartItems([])}
+    />
+  )
+
   if (embedded) {
-    return renderEmployeeStorefront()
+    return (
+      <>
+        {renderEmployeeStorefront()}
+        {checkoutModal}
+      </>
+    )
   }
 
   return (
@@ -535,9 +557,10 @@ export default function InicioPage({ session, onLogout, embedded = false }) {
         </div>
 
         <div className="dashboard-content">
-          {page === '/' ? renderEmployeeStorefront() : <DashboardPlaceholder />}
+          {page === '/' ? renderEmployeeStorefront() : page === '/credit-plans' ? <PaymentPlansPage /> : <DashboardPlaceholder />}
         </div>
       </div>
+      {checkoutModal}
     </div>
   )
 }

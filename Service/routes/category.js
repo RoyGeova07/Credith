@@ -50,7 +50,7 @@ router.post('/categories',authMiddleware,roleMiddleware(ROLE.OWNER),createCatego
  *       200:
  *         description: Lista de categorías obtenida correctamente
  */
-router.get('/categories',authMiddleware,roleMiddleware(ROLE.OWNER,ROLE.ADMIN),getPagedCategories)
+router.get('/categories',authMiddleware,roleMiddleware(ROLE.OWNER,ROLE.ADMIN,ROLE.EMPLOYEE),getPagedCategories)
 
 /**
  * @swagger
