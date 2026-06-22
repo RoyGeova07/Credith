@@ -128,7 +128,7 @@ export function DataTable({ onLoad, children, rowTitle, onRowClick, rowsPerPage 
     ) : (
       data.map((row, rowIndex) => (
         <tr
-          key={row.storeId || row.companyId || row.roleId || row.productId || row.categoryId || row.clientId || row.userId || rowIndex}
+          key={row.userId || row.checkoutMachineId || row.caiId || row.caiRangeId || row.billId || row.productId || row.categoryId || row.clientId || row.roleId || row.companyId || row.storeId || rowIndex}
           title={rowTitle}
           onClick={() => onRowClick?.(row)}
         >

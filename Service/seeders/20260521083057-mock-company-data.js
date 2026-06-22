@@ -83,12 +83,19 @@ module.exports = {
       { role_id: roleIds[2], name: 'EMPLOYEE', description: 'Encargado de inventario y productos' },
     ]);
 
+    // Checkout Machines (must be inserted before users due to FK)
+    await queryInterface.bulkInsert({ schema: 'cd', tableName: 'checkout_machines' }, [
+      { checkout_machine_id: checkoutMachineIds[0], machine_number: 1, name: 'Caja Principal', is_active: true, store_id: storeIds[0], created_at: now, updated_at: now },
+      { checkout_machine_id: checkoutMachineIds[1], machine_number: 2, name: 'Caja Secundaria', is_active: true, store_id: storeIds[1], created_at: now, updated_at: now },
+      { checkout_machine_id: checkoutMachineIds[2], machine_number: 3, name: 'Caja Móvil', is_active: true, store_id: storeIds[2], created_at: now, updated_at: now },
+    ]);
+
     // Users
     await queryInterface.bulkInsert({ schema: 'cd', tableName: 'users' }, [
       { user_id: userIds[0], first_name: 'Carlos', second_name: 'Eduardo', first_last_name: 'Martínez', second_last_name: 'López', email: 'carlos.martinez@credith.hn', password: await bcrypt.hash("123456", 10), is_active: true, store_id: storeIds[0], created_at: now, updated_at: now },
-      { user_id: userIds[1], first_name: 'María', second_name: 'Fernanda', first_last_name: 'García', second_last_name: 'Ramírez', email: 'maria.garcia@credith.hn', password: await bcrypt.hash("123456", 10), is_active: true, store_id: storeIds[0], created_at: now, updated_at: now },
-      { user_id: userIds[2], first_name: 'José', second_name: 'Antonio', first_last_name: 'Hernández', second_last_name: 'Cruz', email: 'jose.hernandez@credith.hn', password: await bcrypt.hash("123456", 10), is_active: true, store_id: storeIds[1], created_at: now, updated_at: now },
-      { user_id: userIds[3], first_name: 'Ana', second_name: 'Lucía', first_last_name: 'Pérez', second_last_name: 'Flores', email: 'ana.perez@credith.hn', password: await bcrypt.hash("123456", 10), is_active: true, store_id: storeIds[2], created_at: now, updated_at: now },
+      { user_id: userIds[1], first_name: 'María', second_name: 'Fernanda', first_last_name: 'García', second_last_name: 'Ramírez', email: 'maria.garcia@credith.hn', password: await bcrypt.hash("123456", 10), is_active: true, store_id: storeIds[0], checkout_machine_id: checkoutMachineIds[0], created_at: now, updated_at: now },
+      { user_id: userIds[2], first_name: 'José', second_name: 'Antonio', first_last_name: 'Hernández', second_last_name: 'Cruz', email: 'jose.hernandez@credith.hn', password: await bcrypt.hash("123456", 10), is_active: true, store_id: storeIds[1], checkout_machine_id: checkoutMachineIds[1], created_at: now, updated_at: now },
+      { user_id: userIds[3], first_name: 'Ana', second_name: 'Lucía', first_last_name: 'Pérez', second_last_name: 'Flores', email: 'ana.perez@credith.hn', password: await bcrypt.hash("123456", 10), is_active: true, store_id: storeIds[2], checkout_machine_id: checkoutMachineIds[2], created_at: now, updated_at: now },
       { user_id: userIds[4], first_name: 'Pedro', second_name: 'Pascal', first_last_name: 'Sánchez', second_last_name: 'Vargas', email: 'pedro.sanchez@credith.hn', password: await bcrypt.hash("123456", 10), is_active: false, store_id: storeIds[1], created_at: now, updated_at: now },
     ]);
 
@@ -166,13 +173,6 @@ module.exports = {
     await queryInterface.bulkInsert({ schema: 'cd', tableName: 'cai_ranges' }, [
       { cai_range_id: caiRangeIds[0], min_range: 1, max_range: 50000, current_number: 0, is_active: true, cai_id: caiIds[0], created_at: now, updated_at: now },
       { cai_range_id: caiRangeIds[1], min_range: 1, max_range: 10000, current_number: 5000, is_active: false, cai_id: caiIds[1], created_at: now, updated_at: now },
-    ]);
-
-    // Checkout Machines
-    await queryInterface.bulkInsert({ schema: 'cd', tableName: 'checkout_machines' }, [
-      { checkout_machine_id: checkoutMachineIds[0], machine_number: 1, name: 'Caja Principal', is_active: true, user_id: userIds[0], created_at: now, updated_at: now },
-      { checkout_machine_id: checkoutMachineIds[1], machine_number: 2, name: 'Caja Secundaria', is_active: true, user_id: userIds[1], created_at: now, updated_at: now },
-      { checkout_machine_id: checkoutMachineIds[2], machine_number: 3, name: 'Caja Móvil', is_active: false, user_id: null, created_at: now, updated_at: now },
     ]);
 
     // Clients

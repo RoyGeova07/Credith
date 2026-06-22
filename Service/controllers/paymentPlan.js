@@ -3,6 +3,8 @@ const db = require('../models')
 const { BillsPaymentPlans } = require('../models/entities/billPaymentPlan');
 const { MonthlyPayments } = require('../models/entities/monthlyPayment');
 const { Clients } = require('../models/entities/clients');
+const { Bills } = require('../models/entities/bill');
+const { ROLE } = require('../helper/roles');
 const { PaymentStatus } = require('../models/dbEnums');
 const { normalizeDate } = require('../helper/dateHelper');
 
@@ -10,21 +12,28 @@ function padMonth(month) {
     return String(month).padStart(2, '0');
 }
 
-function buildCurrentMonthLimit(currentDate = new Date()) {
+function buildCurrentMonthLimit(currentDate = new Date(), monthsAhead = 3) {
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth() + 1;
-    const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
-    const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+
+    const totalOffset = currentMonth + monthsAhead;
+    let targetMonth = totalOffset + 1;
+    let targetYear = currentYear;
+    while (targetMonth > 12) {
+        targetMonth -= 12;
+        targetYear += 1;
+    }
 
     return {
         period: {
-            type: 'upToCurrentMonth',
+            type: 'upToMonthsAhead',
             year: currentYear,
             month: currentMonth,
-            endDate: `${nextYear}-${padMonth(nextMonth)}-01`
+            endDate: `${targetYear}-${padMonth(targetMonth)}-01`,
+            monthsAhead
         },
         replacements: {
-            endDate: `${nextYear}-${padMonth(nextMonth)}-01`
+            endDate: `${targetYear}-${padMonth(targetMonth)}-01`
         }
     };
 }
@@ -42,6 +51,8 @@ function mapPendingPaymentRows(rows) {
         interestToPay: toMoney(row.interestToPay),
         payedAmount: toMoney(row.payedAmount),
         amountToPay: toMoney(row.amountToPay),
+        totalToPay: toMoney(row.totalToPay),
+        planPayedAmount: toMoney(row.planPayedAmount),
         planStatus: row.planStatus,
         client: {
             clientId: row.clientId,
@@ -55,6 +66,11 @@ function mapPendingPaymentRows(rows) {
 async function getPendingPayments(req, res) {
     try {
         const currentMonthLimit = buildCurrentMonthLimit();
+        const { role, storeId } = req.user;
+
+        const storeJoin = role !== ROLE.OWNER
+            ? 'INNER JOIN cd.bills b ON b.bill_id = bpp.bill_id AND b.store_id = :storeId'
+            : '';
 
         const pendingPayments = await db.sequelize.query(
             `
@@ -71,6 +87,9 @@ async function getPendingPayments(req, res) {
                 ) AS "amountToPay",
                 bpp.bill_payment_plan_id AS "billPaymentPlanId",
                 bpp.status AS "planStatus",
+                bpp.total_to_pay AS "totalToPay",
+                bpp.initial_payment AS "initialPayment",
+                bpp.payed_amount AS "planPayedAmount",
                 c.client_id AS "clientId",
                 c.name AS "clientName",
                 c.dni AS "clientDni",
@@ -78,6 +97,7 @@ async function getPendingPayments(req, res) {
             FROM cd.monthly_payments mp
             INNER JOIN cd.bill_payment_plans bpp
                 ON bpp.bill_payment_plan_id = mp.bill_payment_plan_id
+            ${storeJoin}
             INNER JOIN cd.clients_payment_plans cpp
                 ON cpp.bill_payment_plan_id = bpp.bill_payment_plan_id
             INNER JOIN cd.clients c
@@ -99,7 +119,8 @@ async function getPendingPayments(req, res) {
                 replacements: {
                     ...currentMonthLimit.replacements,
                     pendingStatus: PaymentStatus.PENDING,
-                    overdueStatus: PaymentStatus.OVERDUE
+                    overdueStatus: PaymentStatus.OVERDUE,
+                    ...(role !== ROLE.OWNER ? { storeId } : {})
                 },
                 type: db.Sequelize.QueryTypes.SELECT
             }
@@ -161,13 +182,16 @@ async function postRecalculatePlan(req, res) {
             const baseYear = now.getUTCFullYear();
             const baseMonth = now.getUTCMonth();
 
-            const monthlyPaymentAmount = remainingBalance / newMonths;
+            const base = Math.round((remainingBalance / newMonths) * 100) / 100;
 
             const payments = [];
             for (let i = 0; i < newMonths; i++) {
                 const paymentDate = normalizeDate(baseYear, baseMonth + i, plan.paymentDay);
+                const amount = i === newMonths - 1
+                    ? Math.round((remainingBalance - base * (newMonths - 1)) * 100) / 100
+                    : base;
                 payments.push({
-                    paymentAmount: monthlyPaymentAmount,
+                    paymentAmount: amount,
                     interestToPay: 0,
                     paymentDeadline: paymentDate,
                     billPaymentPlanId: planId
@@ -246,10 +270,13 @@ async function postPayPlan(req, res) {
                 if (remainingAmount <= 0) break;
             }
 
+            const healedPayedAmount = (Number(plan.initialPayment) || 0)
+                + mps.reduce((sum, mp) => sum + Number(mp.payedAmount), 0);
+
             await BillsPaymentPlans.update(
                 {
-                    payedAmount: finalPayedAmount,
-                    status: Number(plan.totalToPay) <= finalPayedAmount ? PaymentStatus.PAYED : plan.status
+                    payedAmount: healedPayedAmount,
+                    status: mps.every(mp => mp.isPayed) || Number(plan.totalToPay) <= healedPayedAmount ? PaymentStatus.PAYED : plan.status
                 },
                 {
                     where: {
@@ -259,7 +286,7 @@ async function postPayPlan(req, res) {
                 }
             )
 
-            return finalPayedAmount;
+            return healedPayedAmount;
         });
 
         return res.status(200).json({ message: `El pago se ha realizado con exito!`, payedAmount: finalPayedAmount });
@@ -278,20 +305,33 @@ async function getPaymentPlan(req, res) {
         return res.status(400).json({ message: 'Por favor especifique el DNI' })
     }
 
-    const paymentPlan = await BillsPaymentPlans.findOne({
-        where: {
-            status: { [Op.or]: [PaymentStatus.OVERDUE, PaymentStatus.PENDING] }
-        },
-        include: [{
-            model: Clients,
-            as: 'client',
+    const scopedInclude = [{
+        model: Clients,
+        as: 'client',
+        required: true,
+        where: { dni }
+    }, {
+        model: MonthlyPayments,
+        as: 'monthlyPayments',
+        required: false
+    }];
+
+    if (req.user && req.user.role !== ROLE.OWNER) {
+        scopedInclude.push({
+            model: Bills,
+            as: 'bill',
             required: true,
-            where: { dni }
-        }]
+            where: { storeId: req.user.storeId }
+        });
+    }
+
+    const paymentPlan = await BillsPaymentPlans.findOne({
+        include: scopedInclude,
+        order: [['createdAt', 'DESC']]
     });
 
     if (!paymentPlan)
-        return res.status(404).json({ message: `No se ha encontrado deuda activa para el cliente [DNI: ${dni}]` });
+        return res.status(404).json({ message: `No se ha encontrado un plan de pago para el cliente con DNI: ${dni}` });
 
     return res.status(200).json({ paymentPlan });
 }

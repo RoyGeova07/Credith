@@ -23,6 +23,9 @@ function initialize(sequelize, _) {
             isActive: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true
+            },
+            storeId: {
+                type: DataTypes.UUID,
             }
         },
         {

@@ -29,7 +29,7 @@ describe('GET /api/payment-plan/pending-payments controller', () => {
         jest.useRealTimers()
     })
 
-    it('returns pending payments up to the current month', async () => {
+    it('returns pending payments up to 3 months ahead', async () => {
         db.sequelize.query.mockResolvedValueOnce([
             {
                 monthlyPaymentId: '11111111-1111-4111-8111-111111111111',
@@ -39,6 +39,8 @@ describe('GET /api/payment-plan/pending-payments controller', () => {
                 interestToPay: '100.000000',
                 payedAmount: '500.000000',
                 amountToPay: '2600.000000',
+                totalToPay: '3600.000000',
+                planPayedAmount: '500.000000',
                 planStatus: 'PENDING',
                 clientId: '33333333-3333-4333-8333-333333333333',
                 clientName: 'Juan Perez',
@@ -49,14 +51,14 @@ describe('GET /api/payment-plan/pending-payments controller', () => {
 
         const res = mockResponse()
 
-        await getPendingPayments({}, res)
+        await getPendingPayments({ user: { role: 'OWNER', storeId: null } }, res)
 
         expect(db.sequelize.query).toHaveBeenCalledTimes(1)
         expect(db.sequelize.query.mock.calls[0][0]).toContain('mp.payment_deadline < :endDate')
         expect(db.sequelize.query.mock.calls[0][0]).toContain('bpp.status IN (:pendingStatus, :overdueStatus)')
         expect(db.sequelize.query.mock.calls[0][1]).toEqual({
             replacements: {
-                endDate: '2026-06-01',
+                endDate: '2026-09-01',
                 pendingStatus: 'PENDING',
                 overdueStatus: 'OVERDUE'
             },
@@ -65,10 +67,11 @@ describe('GET /api/payment-plan/pending-payments controller', () => {
         expect(res.status).toHaveBeenCalledWith(200)
         expect(res.json).toHaveBeenCalledWith({
             period: {
-                type: 'upToCurrentMonth',
+                type: 'upToMonthsAhead',
                 year: 2026,
                 month: 5,
-                endDate: '2026-06-01'
+                endDate: '2026-09-01',
+                monthsAhead: 3
             },
             pendingPayments: [
                 {
@@ -79,6 +82,8 @@ describe('GET /api/payment-plan/pending-payments controller', () => {
                     interestToPay: 100,
                     payedAmount: 500,
                     amountToPay: 2600,
+                    totalToPay: 3600,
+                    planPayedAmount: 500,
                     planStatus: 'PENDING',
                     client: {
                         clientId: '33333333-3333-4333-8333-333333333333',

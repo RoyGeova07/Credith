@@ -74,7 +74,7 @@ const { ROLE } = require('../helper/roles')
  *       403:
  *         description: Acceso denegado
  */
-router.get("/products",authMiddleware,roleMiddleware(ROLE.OWNER,ROLE.ADMIN),Products.getPagedProducts)
+router.get("/products",authMiddleware,roleMiddleware(ROLE.OWNER,ROLE.ADMIN,ROLE.EMPLOYEE),Products.getPagedProducts)
 
 /**
  * @swagger

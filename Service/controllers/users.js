@@ -13,7 +13,7 @@ const createUser = async (req, res) => {
 
     try {
 
-        const { first_name, second_name, first_last_name, second_last_name, email, password, storeId, role: roleParam } = req.body
+        const { first_name, second_name, first_last_name, second_last_name, email, password, storeId, checkoutMachineId, role: roleParam } = req.body
         const roleName = roleParam && [ROLE.ADMIN, ROLE.EMPLOYEE].includes(roleParam) ? roleParam : ROLE.EMPLOYEE
         const existingUser = await Users.findOne({ where: { email } })
         if (!first_name || first_name.trim() === "") {
@@ -68,9 +68,23 @@ const createUser = async (req, res) => {
 
         }
 
+        if (!checkoutMachineId || checkoutMachineId.trim() === '') {
+
+            return res.status(400).json({ message: "La caja de facturación es requerida" });
+
+        }
+
+        const machine = await CheckoutMachines.findByPk(checkoutMachineId)
+
+        if (!machine) {
+
+            return res.status(404).json({ message: "Caja de facturación no encontrada" });
+
+        }
+
         const hashedPassword = await hashPassword(password)
 
-        const user = await Users.create({ userId: uuidv4(), first_name, second_name, first_last_name, second_last_name, email, password: hashedPassword, storeId })
+        const user = await Users.create({ userId: uuidv4(), first_name, second_name, first_last_name, second_last_name, email, password: hashedPassword, storeId, checkoutMachineId })
         const assignedRole = await Roles.findOne({ where: { name: roleName } })
         if (!assignedRole) {
 
@@ -93,12 +107,17 @@ const createUser = async (req, res) => {
                 second_last_name: user.second_last_name,
                 email: user.email,
                 role: roleName,
-                checkoutMachine: null
+                storeId,
+                checkoutMachine: {
+                    checkoutMachineId: machine.checkoutMachineId,
+                    name: machine.name,
+                    machineNumber: machine.machineNumber
+                }
 
             }), COOKIE_OPTIONS);
 
 
-        res.status(201).json({ message: "Usuario registrado existosamente", user })
+        res.status(201).json({ message: "Usuario registrado existosamente", user: { userId: user.userId, ...user.dataValues } })
 
     } catch (error) {
 

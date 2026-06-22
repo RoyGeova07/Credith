@@ -79,6 +79,12 @@ function initialize(sequelize, _) {
             total: {
                 type: DataTypes.DECIMAL(18, 6)
             },
+            clientId: {
+                type: DataTypes.UUID
+            },
+            billNumberFinal: {
+                type: DataTypes.STRING(30)
+            },
         },
         {
             sequelize: sequelize,

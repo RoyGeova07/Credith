@@ -12,18 +12,20 @@ import ManagerEmployeesManagementPage from './ManagerEmployeesManagementPage'
 import ProductsPage from './ProductsPage'
 import OwnerCategoryManagementPage from './OwnerCategoryManagementPage'
 import AdminCaiManagementPage from './AdminCaiManagementPage'
+import AdminCheckoutMachineManagementPage from './AdminCheckoutMachineManagementPage'
+import PaymentPlansPage from './PaymentPlansPage'
 
 function DashboardHome({ session })
 {
     if (session?.role === ROLE.OWNER) {
-        return <InicioPage embedded />
+        return <InicioPage embedded session={session} />
     }
 
     return (
         <div className="dashboard-card">
             <div className="dashboard-empty">
-                <h2>Panel en construcción</h2>
-                <p>Aquí se mostrarán las estadísticas, métricas y reportes principales del sistema.</p>
+                <h2>Panel en construccion</h2>
+                <p>Aqui se mostraran las estadisticas, metricas y reportes principales del sistema.</p>
             </div>
         </div>
     )
@@ -32,15 +34,17 @@ function DashboardHome({ session })
 function renderContent(page, session)
 {
     switch (page) {
-        case '/admin/companies':    return <AdminCompanyManagementPage />
-        case '/admin/stores':       return <AdminStoreManagementPage />
-        case '/admin/cai':          return <AdminCaiManagementPage />
-        case '/owner/category':     return <OwnerCategoryManagementPage />
-        case '/products':           return <ProductsPage />
-        case '/admin/employees':    return <ManagerEmployeesManagementPage />
-        case '/reports':            return <ManagerReportsPage />
-        case '/cart':               return <CartDemoPage />
-        default:                    return <DashboardHome session={session} />
+        case '/admin/companies': return <AdminCompanyManagementPage />
+        case '/admin/stores': return <AdminStoreManagementPage />
+        case '/admin/cai': return <AdminCaiManagementPage />
+        case '/admin/machines': return <AdminCheckoutMachineManagementPage />
+        case '/owner/category': return <OwnerCategoryManagementPage />
+        case '/products': return <ProductsPage />
+        case '/admin/employees': return <ManagerEmployeesManagementPage />
+        case '/credit-plans': return <PaymentPlansPage />
+        case '/reports': return <ManagerReportsPage />
+        case '/cart': return <CartDemoPage />
+        default: return <DashboardHome session={session} />
     }
 }
 
@@ -54,9 +58,9 @@ export default function Home({ session, onLogout, toastType, onToastShown })
         if (hasShownToast.current || !toastType) return
         hasShownToast.current = true
         if (toastType === 'login')
-            toast.success(`¡Bienvenido de nuevo, ${session?.first_name || 'Usuario'}!`)
+            toast.success(`Bienvenido de nuevo, ${session?.first_name || 'Usuario'}!`)
         if (toastType === 'register')
-            toast.success(`¡Cuenta creada correctamente, ${session?.first_name || 'Usuario'}!`)
+            toast.success(`Cuenta creada correctamente, ${session?.first_name || 'Usuario'}!`)
         onToastShown()
     }, [toastType, session, onToastShown])
 
@@ -78,7 +82,7 @@ export default function Home({ session, onLogout, toastType, onToastShown })
                 <div className="home-header">
 
                     <div>
-                        <span className="home-tag">Administración</span>
+                        <span className="home-tag">Administracion</span>
                         <h1>Panel Principal</h1>
                         <p>Bienvenido al sistema administrativo ServiCredith</p>
                     </div>
@@ -98,7 +102,7 @@ export default function Home({ session, onLogout, toastType, onToastShown })
                             </div>
 
                             <button className="logout-btn" onClick={onLogout}>
-                                Cerrar sesión
+                                Cerrar sesion
                             </button>
 
                         </div>

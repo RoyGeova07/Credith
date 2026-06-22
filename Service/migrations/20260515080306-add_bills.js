@@ -43,6 +43,12 @@ module.exports = {
                 type: Sequelize.UUID,
                 references: { model: { schema: 'cd', tableName: 'users' }, key: 'user_id' }
             },
+            client_id: {
+                type: Sequelize.UUID,
+                allowNull: true,
+                references: { model: { schema: 'cd', tableName: 'clients' }, key: 'client_id' }
+            },
+            bill_number_final: { type: Sequelize.STRING(30) },
             updated_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
             deleted_at: { type: Sequelize.DATE }
         });

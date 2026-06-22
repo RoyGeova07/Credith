@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const db = require('../models')
 const { Bills } = require('../models/entities/bill');
 const { Users } = require('../models/entities/user');
@@ -9,6 +10,7 @@ const { BillsPaymentPlans } = require('../models/entities/billPaymentPlan');
 const { MonthlyPayments } = require('../models/entities/monthlyPayment');
 const { StoresInventories } = require('../models/entities/storeInventory');
 const { BillTypes, PaymentStatus } = require('../models/dbEnums');
+const { Clients } = require('../models/entities/clients');
 
 function normalizeDate(year, month, day) {
     const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
@@ -26,13 +28,17 @@ async function calculateMonthlyPayments(plan, startingMonth, transaction) {
     const baseYear = baseDate.getUTCFullYear();
     const baseMonth = baseDate.getUTCMonth();
 
-    const monthlyAmount = Number(plan.totalToPay) / plan.monthsToPay;
+    const totalMonthly = Number(plan.totalToPay) - Number(plan.payedAmount);
+    const base = Math.round((totalMonthly / plan.monthsToPay) * 100) / 100;
 
     const payments = [];
     for (let i = 0; i < plan.monthsToPay; i++) {
         const paymentDate = normalizeDate(baseYear, baseMonth + startingMonth + i, plan.paymentDay);
+        const amount = i === plan.monthsToPay - 1
+            ? Math.round((totalMonthly - base * (plan.monthsToPay - 1)) * 100) / 100
+            : base;
         payments.push({
-            paymentAmount: monthlyAmount,
+            paymentAmount: amount,
             interestToPay: 0,
             paymentDeadline: paymentDate,
             billPaymentPlanId: plan.billPaymentPlanId
@@ -43,24 +49,46 @@ async function calculateMonthlyPayments(plan, startingMonth, transaction) {
 }
 
 async function createInstallmentPaymentPlan(paymentPlan, customer, billTotal, billId, transaction) {
-    const totalToPay = Math.max(0, billTotal - paymentPlan.payment)
+    const activePlan = await BillsPaymentPlans.findOne({
+        include: [{
+            model: Clients,
+            as: 'client',
+            required: true,
+            where: { clientId: customer.clientId }
+        }],
+        where: {
+            status: { [Op.in]: [PaymentStatus.PENDING, PaymentStatus.OVERDUE] }
+        },
+        transaction
+    });
+
+    if (activePlan) {
+        throw { status: 400, message: 'El cliente ya tiene un plan de pago activo' };
+    }
+
+    const totalToPay = Math.max(0, billTotal)
+    const fullyPaid = paymentPlan.payment >= totalToPay || paymentPlan.monthsToPay <= 0;
+
     const plan = await BillsPaymentPlans.create(
         {
-            initialPayment: paymentPlan.payment,
+            initialPayment: fullyPaid ? totalToPay : paymentPlan.payment,
             totalToPay: totalToPay,
             startingDate: paymentPlan.startingDate,
-            monthsToPay: paymentPlan.monthsToPay,
+            monthsToPay: fullyPaid ? 0 : paymentPlan.monthsToPay,
             paymentDay: paymentPlan.paymentDay,
-            payedAmount: paymentPlan.payment,
+            payedAmount: fullyPaid ? totalToPay : paymentPlan.payment,
             interestRate: paymentPlan.interestRate || 0,
-            status: totalToPay == 0 ? PaymentStatus.PAYED : PaymentStatus.PENDING,
+            status: fullyPaid ? PaymentStatus.PAYED : PaymentStatus.PENDING,
             billId: billId
         },
         { transaction }
     );
 
-    const monthlyPayments = await calculateMonthlyPayments(plan, 0, transaction);
-    plan.monthlyPayments = monthlyPayments;
+    if (!fullyPaid) {
+        const monthlyPayments = await calculateMonthlyPayments(plan, 0, transaction);
+        plan.monthlyPayments = monthlyPayments;
+    }
+
     await plan.setClient(customer.clientId, { transaction });
     return plan;
 }
@@ -88,8 +116,6 @@ async function postBill(req, res) {
         discountAmount,
         exonerated,
         exempt,
-        companyId,
-        caiRangeId,
         userId,
         storeId,
         details,
@@ -97,10 +123,18 @@ async function postBill(req, res) {
         paymentData
     } = req.body;
 
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
     let billSubtotal = 0;
     for (let idx = 0; idx < details.length; ++idx) {
 
         const detail = details[idx];
+
+        if (!detail.productId || !UUID_RE.test(detail.productId))
+            return res.status(400).json({
+                message: `ID del producto ${idx + 1} es inválido. Recarga el catálogo e intenta de nuevo.`
+            });
+
         const subtotal = detail.quantity * detail.sellPrice;
         if (subtotal < 0)
             return res.status(400).json({
@@ -143,7 +177,16 @@ async function postBill(req, res) {
             if (user.store.storeId != storeId)
                 throw { status: 406, message: 'La sucursal donde trabaja el usuario no es la misma especificada en la factura' }
 
-            const caiRange = await CaiRanges.findByPk(caiRangeId, {
+            const activeCai = await Cais.findOne({
+                where: { storeId, isActive: true },
+                transaction
+            });
+
+            if (!activeCai)
+                throw { status: 404, message: 'La sucursal no tiene un CAI activo' }
+
+            const caiRange = await CaiRanges.findOne({
+                where: { caiId: activeCai.caiId, isActive: true },
                 lock: transaction.LOCK.UPDATE,
                 transaction
             });
@@ -151,39 +194,37 @@ async function postBill(req, res) {
             if (!caiRange)
                 throw { status: 404, message: 'Rango de CAI no encontrado' }
 
-            if (!caiRange.isActive)
-                throw { status: 406, message: 'El rango de CAI ha expirado' }
-
-            const cai = await Cais.findByPk(caiRange.caiId, { transaction });
-
-            if (!cai)
-                throw { status: 404, message: 'CAI no encontrado' }
-
-            if (!cai.isActive)
-                throw { status: 406, message: 'El CAI ha expirado' }
-
-            const company = await Companies.findByPk(companyId, { transaction });
+            const company = await Companies.findByPk(user.store.companyId, { transaction });
 
             if (!company)
                 throw { status: 404, message: 'Compañia no encontrada' }
 
-            const nextBillNumber = caiRange.currentNumber + 1;
+            const nextBillNumber = caiRange.minRange + caiRange.currentNumber;
 
             if (nextBillNumber > caiRange.maxRange)
                 throw { status: 406, message: 'El rango de CAI se ha agotado' }
 
-            await caiRange.update({ currentNumber: nextBillNumber }, { transaction });
+            await caiRange.update({ currentNumber: caiRange.currentNumber + 1 }, { transaction });
 
             const cashierName = [user.first_name, user.second_name, user.first_last_name, user.second_last_name]
                 .filter(Boolean).join(' ');
 
-            const isv_15_amount = billSubtotal * 0.15;
-            const billDiscount = discountAmount || 0;
+            const billNumberFinal = [
+                String(user.store.storeNumber).padStart(3, '0'),
+                String(user.checkoutMachine.machineNumber).padStart(3, '0'),
+                activeCai.documentType,
+                String(nextBillNumber).padStart(8, '0')
+            ].join('-');
 
-            const total = billSubtotal - billDiscount + isv_15_amount;
+            const billDiscount = discountAmount || 0;
+            const discountedSubtotal = billSubtotal - billDiscount;
+            const isv_15_amount = discountedSubtotal * 0.15;
+
+            const total = discountedSubtotal + isv_15_amount;
 
             const createdBill = await Bills.create({
                 billNumber: nextBillNumber,
+                billNumberFinal,
                 limitDate,
                 companyName: company.name,
                 companyRtn: company.rtn,
@@ -204,9 +245,10 @@ async function postBill(req, res) {
                 exempt: exempt || 0,
                 subtotal: billSubtotal,
                 total,
-                caiRangeId,
+                caiRangeId: caiRange.caiRangeId,
                 storeId,
                 userId,
+                clientId: paymentType === BillTypes.INSTALLMENT ? customer.clientId : null,
             }, { transaction });
 
             for (const detail of details) {
@@ -219,6 +261,9 @@ async function postBill(req, res) {
                         transaction: transaction
                     }
                 );
+
+                if (!productInventory)
+                    throw { status: 404, message: `El producto ${detail.productName} no existe en el inventario de esta sucursal` }
 
                 if (productInventory.inStock < detail.quantity) {
                     throw { status: 406, message: `La sucursal [${storeId}] no cuenta con tantos ${detail.productName} en existencia!` }
