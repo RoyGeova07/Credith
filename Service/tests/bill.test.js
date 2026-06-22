@@ -179,7 +179,7 @@ const mockInstallmentPlan = {
     billPaymentPlanId: 'mock-plan-id-2',
     status: 'PENDING',
     payedAmount: '2000.000000',
-    totalToPay: '10648.850000',
+    totalToPay: '12648.850000',
     monthsToPay: 3,
     paymentDay: 15,
     startingDate: '2026-07-01',
@@ -283,10 +283,20 @@ describe('POST /api/bills', () => {
                 expect.objectContaining({ paymentType: 'INSTALLMENT' })
             )
             expect(BillsPaymentPlans.create).toHaveBeenCalledWith(
-                expect.objectContaining({ status: 'PENDING', payedAmount: 2000, monthsToPay: 3 }),
+                expect.objectContaining({ status: 'PENDING', payedAmount: 2000, monthsToPay: 3, totalToPay: 12648.85 }),
                 expect.anything()
             )
+
             expect(MonthlyPayments.bulkCreate).toHaveBeenCalledTimes(1)
+            const monthlyPaymentsArg = MonthlyPayments.bulkCreate.mock.calls[0][0]
+            expect(monthlyPaymentsArg).toHaveLength(3)
+            const totalFromMonthly = monthlyPaymentsArg.reduce(
+                (sum, mp) => sum + mp.paymentAmount, 0
+            )
+            expect(totalFromMonthly).toBeCloseTo(10648.85, 1)
+            monthlyPaymentsArg.forEach(mp => {
+                expect(mp.paymentAmount).toBeCloseTo(10648.85 / 3, 1)
+            })
         })
     })
 

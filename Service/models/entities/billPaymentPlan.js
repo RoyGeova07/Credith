@@ -17,6 +17,10 @@ function initialize(sequelize, _) {
                 type: DataTypes.DECIMAL(18,6),
                 allowNull: false
             },
+            initialPayment: {
+                type: DataTypes.DECIMAL(18,6),
+                defaultValue: 0,
+            },
             payedAmount: {
                 type: DataTypes.DECIMAL(18,6),
                 defaultValue: 0,

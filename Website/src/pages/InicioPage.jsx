@@ -5,6 +5,7 @@ import CheckoutModal from '@/components/checkout/CheckoutModal'
 import MultiSelect from '@/components/multiSelect/MultiSelect'
 import { CartIcon } from '@/assets/icons'
 import { Get } from '@/helpers/fetcher'
+import PaymentPlansPage from './PaymentPlansPage'
 import { ROLE, menuItems } from '@/helpers/permissions'
 import { toast } from 'react-toastify'
 import './Home.css'
@@ -556,7 +557,7 @@ export default function InicioPage({ session, onLogout, embedded = false }) {
         </div>
 
         <div className="dashboard-content">
-          {page === '/' ? renderEmployeeStorefront() : <DashboardPlaceholder />}
+          {page === '/' ? renderEmployeeStorefront() : page === '/credit-plans' ? <PaymentPlansPage /> : <DashboardPlaceholder />}
         </div>
       </div>
       {checkoutModal}

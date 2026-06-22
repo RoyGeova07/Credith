@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const db = require('../models')
 const { Bills } = require('../models/entities/bill');
 const { Users } = require('../models/entities/user');
@@ -9,6 +10,7 @@ const { BillsPaymentPlans } = require('../models/entities/billPaymentPlan');
 const { MonthlyPayments } = require('../models/entities/monthlyPayment');
 const { StoresInventories } = require('../models/entities/storeInventory');
 const { BillTypes, PaymentStatus } = require('../models/dbEnums');
+const { Clients } = require('../models/entities/clients');
 
 function normalizeDate(year, month, day) {
     const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
@@ -26,13 +28,17 @@ async function calculateMonthlyPayments(plan, startingMonth, transaction) {
     const baseYear = baseDate.getUTCFullYear();
     const baseMonth = baseDate.getUTCMonth();
 
-    const monthlyAmount = Number(plan.totalToPay) / plan.monthsToPay;
+    const totalMonthly = Number(plan.totalToPay) - Number(plan.payedAmount);
+    const base = Math.round((totalMonthly / plan.monthsToPay) * 100) / 100;
 
     const payments = [];
     for (let i = 0; i < plan.monthsToPay; i++) {
         const paymentDate = normalizeDate(baseYear, baseMonth + startingMonth + i, plan.paymentDay);
+        const amount = i === plan.monthsToPay - 1
+            ? Math.round((totalMonthly - base * (plan.monthsToPay - 1)) * 100) / 100
+            : base;
         payments.push({
-            paymentAmount: monthlyAmount,
+            paymentAmount: amount,
             interestToPay: 0,
             paymentDeadline: paymentDate,
             billPaymentPlanId: plan.billPaymentPlanId
@@ -43,24 +49,46 @@ async function calculateMonthlyPayments(plan, startingMonth, transaction) {
 }
 
 async function createInstallmentPaymentPlan(paymentPlan, customer, billTotal, billId, transaction) {
-    const totalToPay = Math.max(0, billTotal - paymentPlan.payment)
+    const activePlan = await BillsPaymentPlans.findOne({
+        include: [{
+            model: Clients,
+            as: 'client',
+            required: true,
+            where: { clientId: customer.clientId }
+        }],
+        where: {
+            status: { [Op.in]: [PaymentStatus.PENDING, PaymentStatus.OVERDUE] }
+        },
+        transaction
+    });
+
+    if (activePlan) {
+        throw { status: 400, message: 'El cliente ya tiene un plan de pago activo' };
+    }
+
+    const totalToPay = Math.max(0, billTotal)
+    const fullyPaid = paymentPlan.payment >= totalToPay || paymentPlan.monthsToPay <= 0;
+
     const plan = await BillsPaymentPlans.create(
         {
-            initialPayment: paymentPlan.payment,
+            initialPayment: fullyPaid ? totalToPay : paymentPlan.payment,
             totalToPay: totalToPay,
             startingDate: paymentPlan.startingDate,
-            monthsToPay: paymentPlan.monthsToPay,
+            monthsToPay: fullyPaid ? 0 : paymentPlan.monthsToPay,
             paymentDay: paymentPlan.paymentDay,
-            payedAmount: paymentPlan.payment,
+            payedAmount: fullyPaid ? totalToPay : paymentPlan.payment,
             interestRate: paymentPlan.interestRate || 0,
-            status: totalToPay == 0 ? PaymentStatus.PAYED : PaymentStatus.PENDING,
+            status: fullyPaid ? PaymentStatus.PAYED : PaymentStatus.PENDING,
             billId: billId
         },
         { transaction }
     );
 
-    const monthlyPayments = await calculateMonthlyPayments(plan, 0, transaction);
-    plan.monthlyPayments = monthlyPayments;
+    if (!fullyPaid) {
+        const monthlyPayments = await calculateMonthlyPayments(plan, 0, transaction);
+        plan.monthlyPayments = monthlyPayments;
+    }
+
     await plan.setClient(customer.clientId, { transaction });
     return plan;
 }

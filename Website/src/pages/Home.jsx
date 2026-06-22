@@ -12,6 +12,7 @@ import ProductsPage from './ProductsPage'
 import OwnerCategoryManagementPage from './OwnerCategoryManagementPage'
 import AdminCaiManagementPage from './AdminCaiManagementPage'
 import AdminCheckoutMachineManagementPage from './AdminCheckoutMachineManagementPage'
+import PaymentPlansPage from './PaymentPlansPage'
 
 function DashboardHome({ session })
 {
@@ -39,6 +40,7 @@ function renderContent(page, session)
         case '/owner/category':     return <OwnerCategoryManagementPage />
         case '/products':           return <ProductsPage />
         case '/admin/employees':    return <ManagerEmployeesManagementPage />
+        case '/credit-plans':       return <PaymentPlansPage />
         case '/cart':               return <CartDemoPage />
         default:                    return <DashboardHome session={session} />
     }

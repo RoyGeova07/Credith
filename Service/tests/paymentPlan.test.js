@@ -42,6 +42,7 @@ function buildMockPlan(overrides = {}) {
         monthsToPay: 3,
         totalToPay: '10648.850000',
         payedAmount: '2000.000000',
+        initialPayment: 2000,
         status: 'PENDING',
         paymentDay: 15,
         update: jest.fn().mockResolvedValue(true),
@@ -50,12 +51,19 @@ function buildMockPlan(overrides = {}) {
 }
 
 function buildMockMonthlyPayments() {
-    const updateFn = jest.fn().mockResolvedValue(true)
-    return [
-        { paymentAmount: 3549.62, interestToPay: 0, payedAmount: 0, isPayed: false, update: updateFn },
-        { paymentAmount: 3549.62, interestToPay: 0, payedAmount: 0, isPayed: false, update: updateFn },
-        { paymentAmount: 3549.61, interestToPay: 0, payedAmount: 0, isPayed: false, update: updateFn },
+    const mocks = [
+        { paymentAmount: 3549.62, interestToPay: 0, payedAmount: 0, isPayed: false, update: jest.fn().mockResolvedValue(true) },
+        { paymentAmount: 3549.62, interestToPay: 0, payedAmount: 0, isPayed: false, update: jest.fn().mockResolvedValue(true) },
+        { paymentAmount: 3549.61, interestToPay: 0, payedAmount: 0, isPayed: false, update: jest.fn().mockResolvedValue(true) },
     ]
+    mocks.forEach(mp => {
+        const origUpdate = mp.update
+        mp.update = jest.fn(async (data) => {
+            Object.assign(mp, data)
+            return origUpdate(data)
+        })
+    })
+    return mocks
 }
 
 describe('POST /api/payment-plan/:planId/recalculate', () => {

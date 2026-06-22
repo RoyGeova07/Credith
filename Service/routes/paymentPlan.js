@@ -1,5 +1,9 @@
 const router = require('express').Router()
 
+const authMiddleware = require('../middlewares/authMiddleware');
+const roleMiddleware = require('../middlewares/roleMiddleware');
+const { ROLE } = require('../helper/roles');
+
 const {
     postRecalculatePlan,
     postPayPlan,
@@ -41,7 +45,7 @@ const {
  *       404:
  *         description: Plan de pago no encontrado
  */
-router.post('/payment-plan/:planId/recalculate', postRecalculatePlan)
+router.post('/payment-plan/:planId/recalculate', authMiddleware, postRecalculatePlan)
 
 /**
  * @swagger
@@ -82,7 +86,7 @@ router.post('/payment-plan/:planId/recalculate', postRecalculatePlan)
  *       404:
  *         description: Plan de pago no encontrado
  */
-router.post('/payment-plan/:planId/pay', postPayPlan)
+router.post('/payment-plan/:planId/pay', authMiddleware, postPayPlan)
 
 /**
  * @swagger
@@ -154,7 +158,7 @@ router.post('/payment-plan/:planId/pay', postPayPlan)
  *       500:
  *         description: Error interno del servidor
  */
-router.get('/payment-plan/pending-payments', getPendingPayments)
+router.get('/payment-plan/pending-payments', authMiddleware, roleMiddleware(ROLE.ADMIN, ROLE.OWNER), getPendingPayments)
 
 /**
  * @swagger
@@ -177,6 +181,6 @@ router.get('/payment-plan/pending-payments', getPendingPayments)
  *       404:
  *         description: No se encontró deuda activa para el cliente
  */
-router.get('/payment-plan/:dni', getPaymentPlan)
+router.get('/payment-plan/:dni', authMiddleware, getPaymentPlan)
 
 module.exports = router

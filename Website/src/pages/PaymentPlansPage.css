@@ -1,0 +1,415 @@
+.payment-plans-page {
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: #f3f4f6;
+  flex: 1;
+}
+
+.payment-plans-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.payment-plans-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.dni-search-section {
+  margin-bottom: 24px;
+}
+
+.dni-search-section label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #4b6577;
+  margin-bottom: 5px;
+}
+
+.dni-input-wrapper {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.dni-input-wrapper button {
+  min-width: 72px;
+  min-height: 42px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1f8b3c, #3483d1);
+  color: #ffffff;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  transition: opacity 0.18s;
+  white-space: nowrap;
+}
+
+.dni-input-wrapper button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.payment-plans-error {
+  color: #dc2626;
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+/* ── Dialog details ───────────────────────────────── */
+
+.details-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.details-plan-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.details-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.details-info-item .label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.details-info-item .value {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.details-monthly-section h4 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* ── Pay Dialog ──────────────────────────────────── */
+
+.pay-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.pay-plan-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.pay-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pay-info-item .label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.pay-info-item .value {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.pay-month-select,
+.pay-amount-input {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pay-month-select label,
+.pay-amount-input label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.pay-month-select select,
+.pay-amount-input input {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+  color: #111827;
+  transition: border-color 0.2s;
+}
+
+.pay-month-select select:focus,
+.pay-amount-input input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.pay-overflow-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pay-overflow-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #16a34a;
+  cursor: pointer;
+}
+
+.pay-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.pay-cancel-btn,
+.pay-submit-btn {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pay-cancel-btn {
+  background: #6b7280;
+  color: #ffffff;
+}
+
+.pay-cancel-btn:hover {
+  background: #4b5563;
+}
+
+.pay-cancel-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.pay-submit-btn {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.pay-submit-btn:hover {
+  background: #15803d;
+}
+
+.pay-submit-btn:disabled {
+  background: #86efac;
+  cursor: not-allowed;
+}
+
+.pay-loading {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  padding: 24px 0;
+}
+
+/* ── Employee view ────────────────────────────────── */
+
+.employee-plan-section {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.employee-plan-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 320px;
+  cursor: pointer;
+}
+
+.employee-plan-card h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.employee-plan-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.employee-plan-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.employee-plan-row .label {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.employee-plan-row .value {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.employee-status {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 6px;
+}
+
+.employee-status.status-overdue {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.employee-status.status-payed {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.employee-status.status-pending {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.employee-pay-section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.employee-pay-section h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.employee-pay-btn {
+  padding: 12px 28px;
+  background: #16a34a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+
+.employee-pay-btn:hover {
+  background: #15803d;
+}
+
+.employee-pay-btn:disabled {
+  background: #86efac;
+  cursor: not-allowed;
+}
+
+/* ── Fulfillment Dialog ───────────────────────────── */
+
+.fulfillment-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.fulfillment-plan-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.fulfillment-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fulfillment-info-item .label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.fulfillment-info-item .value {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.fulfillment-monthly-section h4 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.fulfillment-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.fulfillment-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 2px solid #e5e7eb;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fulfillment-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #111827;
+}
