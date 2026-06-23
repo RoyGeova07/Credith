@@ -113,7 +113,7 @@ async function getPendingPayments(req, res) {
                     + COALESCE(mp.interest_to_pay, 0)
                     - COALESCE(mp.payed_amount, 0)
                 ) > 0
-            ORDER BY mp.payment_deadline ASC, c.name ASC
+            ORDER BY c.name ASC, mp.payment_deadline ASC
             `,
             {
                 replacements: {

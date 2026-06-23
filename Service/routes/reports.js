@@ -5,6 +5,7 @@ const { ROLE } = require('../helper/roles')
 
 const {
   getProductReport,
+  getStoreRangeReport,
   getStoreReport,
   getCompanyReport
 } = require('../controllers/reports')
@@ -231,7 +232,8 @@ router.get('/reports/products', authMiddleware,roleMiddleware(ROLE.OWNER),getPro
  *       500:
  *         description: Error interno del servidor
  */
-router.get('/reports/stores', authMiddleware,roleMiddleware(ROLE.OWNER),getStoreReport)
+router.get('/reports/stores/range', authMiddleware, roleMiddleware(ROLE.OWNER, ROLE.ADMIN), getStoreRangeReport)
+router.get('/reports/stores', authMiddleware,roleMiddleware(ROLE.OWNER,ROLE.ADMIN),getStoreReport)
 
 /**
  * @swagger

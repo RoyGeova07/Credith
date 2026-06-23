@@ -1,6 +1,9 @@
+const { Op } = require('sequelize')
 const{StoresInventories}=require('../models/entities/storeInventory')
 const{Products}=require('../models/entities/product')
 const{Stores}=require('../models/entities/store')
+const{Users}=require('../models/entities/user')
+const { ROLE } = require('../helper/roles')
 
 
 
@@ -191,7 +194,7 @@ async function getPagedStoresInventories(req,res)
 
 }
 
-async function  getMyStoreInventory(res,req) 
+async function  getMyStoreInventory(req,res)
 {
  
     try
@@ -227,4 +230,45 @@ async function  getMyStoreInventory(res,req)
 
 }
 
-module.exports={/*addProductToStore*/updateStock,getStoreInventory,getProductStock,getPagedStoresInventories, getMyStoreInventory}
+async function getLowStockInventory(req, res) {
+    try {
+        const threshold = Math.max(0, parseInt(req.query.threshold) || 5)
+
+        if (req.user.role === ROLE.ADMIN) {
+            const storeId = req.user.storeId
+            if (!storeId) return res.status(400).json({ message: 'El usuario no tiene tienda asignada' })
+
+            const items = await StoresInventories.findAll({
+                where: { storeId, inStock: { [Op.lte]: threshold } },
+                include: [{ model: Products, as: 'product', attributes: ['productId', 'name'] }]
+            })
+            return res.status(200).json({ data: items })
+        }
+
+        // OWNER: all stores of their company
+        const user = await Users.findByPk(req.user.id, {
+            include: [{ model: Stores, as: 'store', attributes: ['companyId'] }]
+        })
+        const companyId = user?.store?.companyId
+
+        if (!companyId) return res.status(200).json({ data: [] })
+
+        const items = await StoresInventories.findAll({
+            where: { inStock: { [Op.lte]: threshold } },
+            include: [
+                { model: Products, as: 'product', attributes: ['productId', 'name'] },
+                {
+                    model: Stores, as: 'store',
+                    attributes: ['storeId', 'address'],
+                    where: { companyId },
+                    required: true
+                }
+            ]
+        })
+        return res.status(200).json({ data: items })
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}
+
+module.exports={/*addProductToStore*/updateStock,getStoreInventory,getProductStock,getPagedStoresInventories, getMyStoreInventory, getLowStockInventory}
