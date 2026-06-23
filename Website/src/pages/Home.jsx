@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { ROLE, menuItems } from '@/helpers/permissions'
 import './Home.css'
+import './InicioPage.css'
 import { toast } from 'react-toastify'
 import SideBar from '@/components/sidebar/Sidebar'
 import AdminCompanyManagementPage from './AdminCompanyManagementPage'
 import AdminStoreManagementPage from './AdminStoreManagementPage'
-import CartDemoPage from './CartDemoPage'
-import InicioPage from './InicioPage'
+import SalesPage from './SalesPage'
 import ManagerReportsPage from './ManagerReportsPage'
 import ManagerEmployeesManagementPage from './ManagerEmployeesManagementPage'
 import ProductsPage from './ProductsPage'
@@ -15,11 +15,12 @@ import AdminCaiManagementPage from './AdminCaiManagementPage'
 import AdminCheckoutMachineManagementPage from './AdminCheckoutMachineManagementPage'
 import PaymentPlansPage from './PaymentPlansPage'
 import BillsPage from './BillsPage'
+import DashboardHomePage from './DashboardHomePage'
 
-function DashboardHome({ session })
+function DashboardHome({ session, onNavigate })
 {
-    if (session?.role === ROLE.OWNER) {
-        return <InicioPage embedded session={session} />
+    if (session?.role === ROLE.OWNER || session?.role === ROLE.ADMIN) {
+        return <DashboardHomePage session={session} onNavigate={onNavigate} />
     }
 
     return (
@@ -32,7 +33,7 @@ function DashboardHome({ session })
     )
 }
 
-function renderContent(page, session)
+function renderContent(page, session, onNavigate)
 {
     switch (page) {
         case '/admin/companies': return <AdminCompanyManagementPage />
@@ -45,8 +46,8 @@ function renderContent(page, session)
         case '/credit-plans': return <PaymentPlansPage />
         case '/bills': return <BillsPage />
         case '/reports': return <ManagerReportsPage />
-        case '/cart': return <CartDemoPage />
-        default: return <DashboardHome session={session} />
+        case '/cart': return <SalesPage session={session} />
+        default: return <DashboardHome session={session} onNavigate={onNavigate} />
     }
 }
 
@@ -82,7 +83,7 @@ export default function Home({ session, onLogout, toastType, onToastShown })
             <div className="home-page">
 
                 <div className="dashboard-content">
-                    {renderContent(page, session)}
+                    {renderContent(page, session, handleNavigate)}
                 </div>
 
             </div>

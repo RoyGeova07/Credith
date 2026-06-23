@@ -1,4 +1,4 @@
-import { HomeIcon, BuildingIcon, StoreIcon, UsersIcon, BoxIcon, TagIcon, CreditCardIcon, DocumentIcon, ChartIcon, SalesIcon, CogIcon } from "@/assets/icons"
+import { HomeIcon, StoreIcon, UsersIcon, BoxIcon, TagIcon, CreditCardIcon, DocumentIcon, ChartIcon, SalesIcon, CogIcon } from "@/assets/icons"
 
 export const ROLE =
 {
@@ -15,6 +15,7 @@ export const menuItems = [
     { key: "cai",         text: "CAI",               icon: DocumentIcon,   path: "/admin/cai",       roles: [ROLE.OWNER]             },
     { key: "employees",   text: "Empleados",         icon: UsersIcon,      path: "/admin/employees", roles: [ROLE.OWNER]             },
     { key: "machines",    text: "Cajas",             icon: CogIcon,        path: "/admin/machines",  roles: [ROLE.OWNER]             },
+    { key: "sales",       text: "Ventas",            icon: SalesIcon,      path: "/cart",            roles: [ROLE.OWNER, ROLE.ADMIN] },
     { key: "products",    text: "Productos",         icon: BoxIcon,        path: "/products",        roles: [ROLE.OWNER, ROLE.ADMIN] },
     { key: "categories",  text: "Categorias",        icon: TagIcon,        path: "/owner/category",  roles: [ROLE.OWNER]             },
     { key: "creditPlans", text: "Planes de credito", icon: CreditCardIcon, path: "/credit-plans",    roles: ALL                      },
