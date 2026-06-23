@@ -1,0 +1,187 @@
+/* ── Page wrapper (matches other management pages) ── */
+.bills-page {
+  flex: 1;
+  background: #eef6f4;
+  color: var(--text-dark);
+  padding: 28px;
+}
+
+/* ── Page header (mirrors data-grid-header without the add button) ── */
+.bills-page-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.bills-range-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* ── Filter bar ── */
+.bills-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--gray-light, #e5e7eb);
+}
+
+.bills-filter-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bills-chip {
+  border: 1.5px solid var(--gray-light, #d1d5db);
+  border-radius: 20px;
+  background: #ffffff;
+  color: #374151;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.bills-chip:hover {
+  border-color: var(--green-mid, #27ae60);
+  color: var(--green-mid, #27ae60);
+}
+
+.bills-chip--active {
+  background: var(--green-mid, #27ae60);
+  border-color: var(--green-mid, #27ae60);
+  color: #ffffff;
+}
+
+.bills-date-input {
+  border: 1.5px solid var(--gray-light, #d1d5db);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.92rem;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.bills-date-input:focus {
+  border-color: var(--green-mid, #27ae60);
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.13);
+}
+
+.bills-apply-btn {
+  min-height: 38px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0 16px;
+  background: linear-gradient(120deg, var(--green-dark, #1a7a3c), var(--green-mid, #27ae60) 62%, var(--blue, #2563eb));
+  color: #ffffff;
+  transition: filter 0.2s, transform 0.15s;
+}
+
+.bills-apply-btn:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+/* ── Details dialog ── */
+.bills-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 520px;
+}
+
+.bills-dialog-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+}
+
+.bills-meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bills-meta-row span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+}
+
+.bills-meta-row strong {
+  font-size: 0.92rem;
+  color: #111827;
+}
+
+.bills-meta-total {
+  grid-column: 1 / -1;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.bills-meta-total strong {
+  font-size: 1.05rem;
+  color: #059669;
+}
+
+.bills-dialog-section-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #374151;
+  margin: 0;
+}
+
+.bills-dialog-empty {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.bills-dialog-table-wrap {
+  overflow-x: auto;
+}
+
+.bills-dialog-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.bills-dialog-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.bills-dialog-table td {
+  padding: 9px 10px;
+  color: #111827;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.bills-dialog-table tbody tr:hover {
+  background: #f9fafb;
+}

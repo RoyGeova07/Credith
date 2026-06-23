@@ -6,6 +6,7 @@ import MultiSelect from '@/components/multiSelect/MultiSelect'
 import { CartIcon } from '@/assets/icons'
 import { Get } from '@/helpers/fetcher'
 import PaymentPlansPage from './PaymentPlansPage'
+import BillsPage from './BillsPage'
 import { ROLE, menuItems } from '@/helpers/permissions'
 import { toast } from 'react-toastify'
 import './Home.css'
@@ -528,36 +529,18 @@ export default function InicioPage({ session, onLogout, embedded = false }) {
 
   return (
     <div className="home-container">
-      <SideBar currentPage={page} onNavigate={handleNavigate} />
+      <SideBar currentPage={page} onNavigate={handleNavigate} session={session} onLogout={onLogout} />
 
       <div className="home-page">
-        <div className="home-header">
-          <div>
-            <span className="home-tag">Administracion</span>
-            <h1>Panel Principal</h1>
-            <p>Bienvenido al sistema administrativo ServiCredith</p>
-          </div>
-
-          {session && (
-            <div className="user-panel">
-              <div className="user-avatar">
-                {session.first_name ? session.first_name.charAt(0).toUpperCase() : 'U'}
-              </div>
-
-              <div>
-                <div className="user-name">{session.first_name} {session.first_last_name}</div>
-                <div className="user-role">Empleado</div>
-              </div>
-
-              <button className="logout-btn" onClick={onLogout}>
-                Cerrar sesion
-              </button>
-            </div>
-          )}
-        </div>
-
         <div className="dashboard-content">
-          {page === '/' ? renderEmployeeStorefront() : page === '/credit-plans' ? <PaymentPlansPage /> : <DashboardPlaceholder />}
+          {page === '/'
+            ? renderEmployeeStorefront()
+            : page === '/credit-plans'
+              ? <PaymentPlansPage />
+              : page === '/bills'
+                ? <BillsPage />
+                : <DashboardPlaceholder />
+          }
         </div>
       </div>
       {checkoutModal}

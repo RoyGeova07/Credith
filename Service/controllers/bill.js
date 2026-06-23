@@ -11,6 +11,8 @@ const { MonthlyPayments } = require('../models/entities/monthlyPayment');
 const { StoresInventories } = require('../models/entities/storeInventory');
 const { BillTypes, PaymentStatus } = require('../models/dbEnums');
 const { Clients } = require('../models/entities/clients');
+const { Products } = require('../models/entities/product');
+const { ROLE } = require('../helper/roles');
 
 function normalizeDate(year, month, day) {
     const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
@@ -237,8 +239,8 @@ async function postBill(req, res) {
                 customerPhone: customer.customerPhone,
                 customerAddress: customer.customerAddress,
                 paymentType,
-                isv_15_amount: isv_15_amount,
-                isv_18_amount: 0,
+                isv15Amount: isv_15_amount,
+                isv18Amount: 0,
                 discountPercentage: discountPercentage || 0,
                 discountAmount: billDiscount,
                 exonerated: exonerated || 0,
@@ -300,6 +302,98 @@ async function postBill(req, res) {
     }
 }
 
+async function getBills(req, res) {
+    const limit = Math.min(parseInt(req.query.limit) || 10, 100);
+    const offset = parseInt(req.query.offset) || 0;
+    const { from, to } = req.query;
+    const { role, storeId, id: userId } = req.user;
+
+    const where = {};
+
+    if (role === ROLE.ADMIN) {
+        where.storeId = storeId;
+    } else if (role === ROLE.EMPLOYEE) {
+        where.userId = userId;
+    }
+
+    if (from) {
+        where.createdAt = { ...(where.createdAt || {}), [Op.gte]: new Date(`${from}T00:00:00.000Z`) };
+    }
+    if (to) {
+        where.createdAt = { ...(where.createdAt || {}), [Op.lte]: new Date(`${to}T23:59:59.999Z`) };
+    }
+
+    try {
+        const { count, rows } = await Bills.findAndCountAll({
+            where,
+            include: [{
+                model: BillDetails,
+                as: 'billDetails',
+                include: [{ model: Products, as: 'product', attributes: ['buyPrice', 'name'] }],
+            }],
+            limit,
+            offset,
+            order: [['createdAt', 'DESC']],
+        });
+
+        const data = rows.map(bill => {
+            const details = bill.billDetails || [];
+            const grossGain = details.reduce((sum, d) => {
+                const buy = Number(d.product?.buyPrice || 0);
+                return sum + (Number(d.sellPrice) - buy) * Number(d.quantity);
+            }, 0);
+            const netGain = details.reduce((sum, d) => {
+                const buy = Number(d.product?.buyPrice || 0);
+                return sum + (Number(d.total) - buy * Number(d.quantity));
+            }, 0);
+
+            return {
+                billId: bill.billId,
+                billNumberFinal: bill.billNumberFinal,
+                cashierName: bill.cashierName,
+                customerName: bill.customerName,
+                paymentType: bill.paymentType,
+                total: Number(bill.total).toFixed(2),
+                grossGain: grossGain.toFixed(2),
+                netGain: netGain.toFixed(2),
+                createdAt: bill.createdAt,
+            };
+        });
+
+        res.json({ data, total: count });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+async function getBillById(req, res) {
+    const { id } = req.params;
+    const { role, storeId, id: userId } = req.user;
+
+    try {
+        const bill = await Bills.findByPk(id, {
+            include: [{
+                model: BillDetails,
+                as: 'billDetails',
+                include: [{ model: Products, as: 'product', attributes: ['name', 'buyPrice'] }],
+            }],
+        });
+
+        if (!bill) return res.status(404).json({ message: 'Factura no encontrada' });
+
+        if (role === ROLE.ADMIN && bill.storeId !== storeId)
+            return res.status(403).json({ message: 'No tienes acceso a esta factura' });
+        if (role === ROLE.EMPLOYEE && bill.userId !== userId)
+            return res.status(403).json({ message: 'No tienes acceso a esta factura' });
+
+        res.json(bill);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 module.exports = {
     postBill,
+    getBills,
+    getBillById,
 }

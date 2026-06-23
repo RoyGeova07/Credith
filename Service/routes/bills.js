@@ -1,7 +1,10 @@
 const router = require('express').Router()
+const authMiddleware = require('../middlewares/authMiddleware')
 
 const {
   postBill,
+  getBills,
+  getBillById,
 } = require('../controllers/bill')
 
 /**
@@ -137,5 +140,7 @@ const {
  *         description: Error interno del servidor
  */
 router.post('/bills', postBill)
+router.get('/bills', authMiddleware, getBills)
+router.get('/bills/:id', authMiddleware, getBillById)
 
 module.exports = router

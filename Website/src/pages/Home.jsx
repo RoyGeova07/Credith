@@ -14,6 +14,7 @@ import OwnerCategoryManagementPage from './OwnerCategoryManagementPage'
 import AdminCaiManagementPage from './AdminCaiManagementPage'
 import AdminCheckoutMachineManagementPage from './AdminCheckoutMachineManagementPage'
 import PaymentPlansPage from './PaymentPlansPage'
+import BillsPage from './BillsPage'
 
 function DashboardHome({ session })
 {
@@ -42,6 +43,7 @@ function renderContent(page, session)
         case '/products': return <ProductsPage />
         case '/admin/employees': return <ManagerEmployeesManagementPage />
         case '/credit-plans': return <PaymentPlansPage />
+        case '/bills': return <BillsPage />
         case '/reports': return <ManagerReportsPage />
         case '/cart': return <CartDemoPage />
         default: return <DashboardHome session={session} />
@@ -75,40 +77,9 @@ export default function Home({ session, onLogout, toastType, onToastShown })
     return (
         <div className="home-container">
 
-            <SideBar currentPage={page} onNavigate={handleNavigate} />
+            <SideBar currentPage={page} onNavigate={handleNavigate} session={session} onLogout={onLogout} />
 
             <div className="home-page">
-
-                <div className="home-header">
-
-                    <div>
-                        <span className="home-tag">Administracion</span>
-                        <h1>Panel Principal</h1>
-                        <p>Bienvenido al sistema administrativo ServiCredith</p>
-                    </div>
-
-                    {session && (
-                        <div className="user-panel">
-
-                            <div className="user-avatar">
-                                {session.first_name ? session.first_name.charAt(0).toUpperCase() : 'U'}
-                            </div>
-
-                            <div>
-                                <div className="user-name">{session.first_name} {session.first_last_name}</div>
-                                <div className="user-role">
-                                    {session.role === ROLE.OWNER ? 'Propietario' : session.role === ROLE.ADMIN ? 'Administrador' : 'Empleado'}
-                                </div>
-                            </div>
-
-                            <button className="logout-btn" onClick={onLogout}>
-                                Cerrar sesion
-                            </button>
-
-                        </div>
-                    )}
-
-                </div>
 
                 <div className="dashboard-content">
                     {renderContent(page, session)}
