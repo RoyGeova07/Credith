@@ -92,30 +92,6 @@ const createUser = async (req, res) => {
 
         }
         await user.addRole(assignedRole)
-        const token = generateToken(user, roleName, storeId)
-
-        //Cookie JWT - guardar el token
-        res.cookie('token', token, { ...COOKIE_OPTIONS, httpOnly: true })
-        //cookie de sesion - guardar datos del usuario (sin httpOnly para que el frontend pueda leerlo)
-        res.cookie('session', JSON.stringify
-            ({
-
-                userId: user.userId,
-                first_name: user.first_name,
-                second_name: user.second_name,
-                first_last_name: user.first_last_name,
-                second_last_name: user.second_last_name,
-                email: user.email,
-                role: roleName,
-                storeId,
-                checkoutMachine: {
-                    checkoutMachineId: machine.checkoutMachineId,
-                    name: machine.name,
-                    machineNumber: machine.machineNumber
-                }
-
-            }), COOKIE_OPTIONS);
-
 
         res.status(201).json({ message: "Usuario registrado existosamente", user: { userId: user.userId, ...user.dataValues } })
 

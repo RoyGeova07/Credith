@@ -256,7 +256,7 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
 
         }catch(error){
 
-            alert(error.message)
+            toast.error(error.message)
 
         }finally{
 

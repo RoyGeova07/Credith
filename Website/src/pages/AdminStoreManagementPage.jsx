@@ -45,6 +45,8 @@ export default function AdminStoreManagementPage() {
   const [companies, setCompanies] = useState([])
   const [error, setError] = useState('')
   const [refreshKey, setRefreshKey] = useState(0)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingStore, setPendingStore] = useState(null)
 
   useEffect(() => {
     let isMounted = true
@@ -161,13 +163,17 @@ export default function AdminStoreManagementPage() {
     }
   }
 
-  const handleToggleStatus = async (store) => {
-    const action = store.isActive ? 'deactivate' : 'activate'
-    const prompt = store.isActive
-      ? `¿Desactivar la tienda #${store.storeNumber}?`
-      : `¿Activar la tienda #${store.storeNumber}?`
+  const handleToggleStatus = (store) => {
+    setPendingStore(store)
+    setConfirmOpen(true)
+  }
 
-    if (!window.confirm(prompt)) return
+  const doToggleStatus = async () => {
+    if (!pendingStore) return
+    setConfirmOpen(false)
+    const store = pendingStore
+    setPendingStore(null)
+    const action = store.isActive ? 'deactivate' : 'activate'
 
     try {
       const response = await Put(`/api/stores/${action}/${store.storeId}`)
@@ -273,6 +279,22 @@ export default function AdminStoreManagementPage() {
               </select>
             </label>
           </form>
+        </FormDialog>
+
+        <FormDialog
+          title="Confirmar acción"
+          isOpen={confirmOpen}
+          setIsOpen={setConfirmOpen}
+          onAccept={doToggleStatus}
+          acceptText="Confirmar"
+          onClose={() => { setConfirmOpen(false); setPendingStore(null) }}
+          closeText="Cancelar"
+        >
+          <p>
+            {pendingStore?.isActive
+              ? `¿Desactivar la tienda #${pendingStore.storeNumber}?`
+              : `¿Activar la tienda #${pendingStore?.storeNumber}?`}
+          </p>
         </FormDialog>
       </DataGrid>
     </div>

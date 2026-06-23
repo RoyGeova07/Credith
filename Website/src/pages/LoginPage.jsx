@@ -104,11 +104,6 @@ export default function LoginPage({ onLogin, onRegister }) {
               </button>
             </form>
 
-            <p className="register-prompt">
-              ¿No tienes una cuenta?{' '}
-              <button type="button" className="link-btn" onClick={onRegister}>Regístrate</button>
-            </p>
-
           </section>
         </main>
       </div>

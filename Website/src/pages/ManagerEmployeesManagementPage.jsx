@@ -3,7 +3,7 @@ import { Archive } from '@/assets/icons'
 import { DataGrid, DataGridHeader, HeaderTextFilter } from '@/components/dataGrid/DataGrid'
 import { ActionColumn, CustomAction, DataColumn, DataTable } from '@/components/dataGrid/DataTable'
 import FormDialog from '@/components/dialogs/SubmitDialog'
-import { Get, Post } from '@/helpers/fetcher'
+import { Get, Post, Put } from '@/helpers/fetcher'
 import { ROLE } from '@/helpers/permissions'
 import './ManagerEmployeesManagementPage.css'
 import { toast } from 'react-toastify'
@@ -79,6 +79,8 @@ export default function ManagerEmployeesManagementPage() {
     const [checkoutMachines, setCheckoutMachines] = useState([])
     const [error, setError] = useState('')
     const [refreshKey, setRefreshKey] = useState(0)
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const [pendingEmployee, setPendingEmployee] = useState(null)
 
     useEffect(() => {
         let isMounted = true
@@ -187,15 +189,17 @@ export default function ManagerEmployeesManagementPage() {
         }
     }
 
-    const handleToggleStatus = async (user) => {
-        const action = user.isActive ? 'desactivate' : 'activate'
-        const prompt = user.isActive
-            ? `Deseas desactivar a ${user.fullName}?`
-            : `Deseas activar a ${user.fullName}?`
+    const handleToggleStatus = (user) => {
+        setPendingEmployee(user)
+        setConfirmOpen(true)
+    }
 
-        if (!window.confirm(prompt)) {
-            return
-        }
+    const doToggleStatus = async () => {
+        if (!pendingEmployee) return
+        setConfirmOpen(false)
+        const user = pendingEmployee
+        setPendingEmployee(null)
+        const action = user.isActive ? 'desactivate' : 'activate'
 
         try {
             const response = await Put(`/api/users/${action}/${user.userId}`)
@@ -392,6 +396,22 @@ export default function ManagerEmployeesManagementPage() {
                             })()}
                         </label>
                     </form>
+                </FormDialog>
+
+                <FormDialog
+                    title="Confirmar acción"
+                    isOpen={confirmOpen}
+                    setIsOpen={setConfirmOpen}
+                    onAccept={doToggleStatus}
+                    acceptText="Confirmar"
+                    onClose={() => { setConfirmOpen(false); setPendingEmployee(null) }}
+                    closeText="Cancelar"
+                >
+                    <p>
+                        {pendingEmployee?.isActive
+                            ? `¿Deseas desactivar a ${pendingEmployee.fullName}?`
+                            : `¿Deseas activar a ${pendingEmployee?.fullName}?`}
+                    </p>
                 </FormDialog>
             </DataGrid>
         </div>

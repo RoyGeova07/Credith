@@ -35,6 +35,8 @@ export default function OwnerCategoryManagementPage()
     const [isDialogOpen,setIsDialogOpen]=useState(false)
     const [refreshKey,setRefreshKey]=useState(0)
     const [error,setError]=useState("")
+    const [confirmOpen,setConfirmOpen]=useState(false)
+    const [pendingCategory,setPendingCategory]=useState(null)
 
     const loadCategories=useCallback(
 
@@ -163,12 +165,21 @@ export default function OwnerCategoryManagementPage()
 
     }
 
-    const handleToggleStatus=async(category)=>
+    const handleToggleStatus=(category)=>
     {
 
-        const prompt=category.isActive?`¿Desactivar la categoría ${category.name}?`:`¿Activar la categoría ${category.name}?`
-        if(!window.confirm(prompt))
-            return
+        setPendingCategory(category)
+        setConfirmOpen(true)
+
+    }
+
+    const doToggleStatus=async()=>
+    {
+
+        if(!pendingCategory) return
+        setConfirmOpen(false)
+        const category=pendingCategory
+        setPendingCategory(null)
 
         try{
 
@@ -328,7 +339,26 @@ export default function OwnerCategoryManagementPage()
 
                 </FormDialog>
 
-                
+                <FormDialog
+
+                    title="Confirmar acción"
+                    isOpen={confirmOpen}
+                    setIsOpen={setConfirmOpen}
+                    onAccept={doToggleStatus}
+                    acceptText="Confirmar"
+                    onClose={()=>{ setConfirmOpen(false); setPendingCategory(null) }}
+                    closeText="Cancelar"
+
+                >
+
+                    <p>
+                        {pendingCategory?.isActive
+                            ?`¿Desactivar la categoría ${pendingCategory.name}?`
+                            :`¿Activar la categoría ${pendingCategory?.name}?`}
+                    </p>
+
+                </FormDialog>
+
             </DataGrid>
 
         </div>

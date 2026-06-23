@@ -1,6 +1,7 @@
 import "./Imageuploadfield.css"
 import { useRef,useState } from "react"
 import { uploadImage } from "@/helpers/cloudinary"
+import { toast } from "react-toastify"
 
 export default function ImageUploadField({value,onUpload,onUploadingChange})
 {
@@ -19,14 +20,14 @@ export default function ImageUploadField({value,onUpload,onUploadingChange})
         if(!allowedTypes.includes(file.type))
         {
 
-            alert("Formato de imagen no permitido")
+            toast.error("Formato de imagen no permitido")
             return
 
         }
         if(file.size>5*1024*1024)
         {
 
-            alert("La imagen no puede superar 5 MB")
+            toast.error("La imagen no puede superar 5 MB")
             return
 
         }
@@ -42,7 +43,7 @@ export default function ImageUploadField({value,onUpload,onUploadingChange})
         }catch(error){
 
             console.error(error)
-            alert(error.message)
+            toast.error(error.message)
 
         }finally{
 
