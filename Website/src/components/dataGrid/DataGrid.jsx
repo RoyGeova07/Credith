@@ -16,6 +16,22 @@ export function HeaderTextFilter({ className, filterPlaceholder, value, onChange
   )
 }
 
+export function SimpleDataGridHeader({ title, description, children }) { 
+
+  return (
+    <>
+      <div className="data-grid-header">
+        <div>
+          {description && <p className="data-grid-kicker">{description}</p>}
+          <h1 className="data-grid-header-title">{title}</h1>
+        </div>
+      </div>
+      <form className="data-grid-filters">{children}</form>
+    </>
+  )
+}
+
+
 export function DataGridHeader({ title, description, onAddClick, addButtonTxt, children }) {
   const addTxt = addButtonTxt || 'Agregar'
 
