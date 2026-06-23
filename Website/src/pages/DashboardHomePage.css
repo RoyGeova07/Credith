@@ -1,6 +1,6 @@
 /* ─── Root ───────────────────────────────────────────────────────── */
 .dash-root {
-    padding: 0 28px 28px;
+    padding: 28px;
     display: flex;
     flex-direction: column;
     gap: 20px;

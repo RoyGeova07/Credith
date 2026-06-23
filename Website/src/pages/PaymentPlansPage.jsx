@@ -4,7 +4,7 @@ import { getSession } from "@/helpers/session"
 import { ROLE } from "@/helpers/permissions"
 import { getPendingPayments, getPaymentPlan, payPlan } from "@/helpers/paymentPlans"
 import { DataTable, DataColumn, ActionColumn, CustomAction } from "@/components/dataGrid/DataTable"
-import { DataGrid, DataGridHeader } from "@/components/dataGrid/DataGrid"
+import { DataGrid, SimpleDataGridHeader } from "@/components/dataGrid/DataGrid"
 import Dialog from "@/components/dialogs/Dialog"
 import { DocumentIcon, CreditCardIcon } from "@/assets/icons"
 import DniInput from "@/components/DniInput"
@@ -270,7 +270,7 @@ function PendingPaymentsView({ onViewDetails, onPay }) {
   return (
     <div className="payment-plans-admin-page">
     <DataGrid>
-      <DataGridHeader
+      <SimpleDataGridHeader
         title="Planes de Crédito"
         description="Pagos pendientes hasta el mes actual"
       />

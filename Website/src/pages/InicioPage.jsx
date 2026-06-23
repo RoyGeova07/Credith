@@ -5,7 +5,6 @@ import BillsPage from './BillsPage'
 import SalesPage from './SalesPage'
 import { ROLE, menuItems } from '@/helpers/permissions'
 import './Home.css'
-import './InicioPage.css'
 
 export default function InicioPage({ session, onLogout }) {
   const [page, setPage] = useState('/')

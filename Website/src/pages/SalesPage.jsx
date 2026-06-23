@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import CartDrawerButton from '@/components/cart/CartDrawerButton'
 import CheckoutModal from '@/components/checkout/CheckoutModal'
 import MultiSelect from '@/components/multiSelect/MultiSelect'
+import { DataGrid } from '@/components/dataGrid/DataGrid'
 import { CartIcon } from '@/assets/icons'
 import { Get } from '@/helpers/fetcher'
 import { toast } from 'react-toastify'
-import './InicioPage.css'
+import './SalesPage.css'
 
 const fallbackCategories = [
   { categoryId: 'preview-1', name: 'electrodomesticos', description: 'Linea blanca y pequenos aparatos' },
@@ -219,37 +220,20 @@ export default function SalesPage({ session }) {
 
   return (
     <>
-      <div className="dashboard-card home-employees-card">
-        <section className="home-employees-storefront">
-          <div className="home-employees-toolbar">
-            <label className="home-employees-search">
-              <span className="home-employees-search-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
-                  <path d="m16 16 4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                </svg>
-              </span>
-              <input
-                type="search"
-                value={search}
-                onChange={handleSearchChange}
-                placeholder="Buscar en nuestra tienda"
-              />
-            </label>
-
-            <div className="home-employees-category-filter">
-              <MultiSelect
-                title="Categorias"
-                selected={selectedCategories}
-                onSelect={handleCategorySelect}
-                onLoad={loadCategoryOptions}
-                pageSize={10}
-              />
+      <div className="sales-page">
+        <DataGrid>
+          <div className="data-grid-header">
+            <div>
+              <p className="data-grid-kicker">Catalogo activo</p>
+              <h1 className="data-grid-header-title">
+                <button type="button" className="sales-title-reset" onClick={handleResetCatalog}>
+                  {activeCategoryTitle}
+                </button>
+              </h1>
             </div>
-
             <CartDrawerButton
-              compact
-              buttonClassName="home-employees-cart-button"
+              buttonLabel="Mi Carrito"
+              buttonClassName="sales-cart-header-button"
               items={cartItems}
               onIncreaseItem={handleIncreaseCartItem}
               onDecreaseItem={handleDecreaseCartItem}
@@ -258,120 +242,121 @@ export default function SalesPage({ session }) {
             />
           </div>
 
-          <div className="home-employees-content">
-            <div className="home-employees-section-heading">
-              <div>
-                <p className="home-employees-kicker">Catalogo activo</p>
-                <button type="button" className="home-employees-title-button" onClick={handleResetCatalog}>
-                  {activeCategoryTitle}
-                </button>
-              </div>
-
-              <div className="home-employees-results-tools">
-                <div className="home-employees-limit-select" ref={limitMenuRef}>
-                  <button
-                    type="button"
-                    className="home-employees-limit-button"
-                    onClick={() => setIsLimitMenuOpen((isOpen) => !isOpen)}
-                    aria-haspopup="listbox"
-                    aria-expanded={isLimitMenuOpen}
-                  >
-                    <span>Ver</span>
-                    <strong>{visibleLimit}</strong>
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="m6 9 6 6 6-6" />
-                    </svg>
-                  </button>
-
-                  {isLimitMenuOpen && (
-                    <div className="home-employees-limit-menu" role="listbox" aria-label="Cantidad de productos visibles">
-                      {pageSizeOptions.map((option) => (
-                        <button
-                          type="button"
-                          key={option}
-                          className={`home-employees-limit-option ${visibleLimit === option ? 'active' : ''}`}
-                          onClick={() => handleLimitSelect(option)}
-                          role="option"
-                          aria-selected={visibleLimit === option}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <span>{visibleProducts.length} resultados</span>
-              </div>
+          <form className="data-grid-filters" onSubmit={(e) => e.preventDefault()}>
+            <input
+              type="search"
+              className="grid-main-filter"
+              value={search}
+              onChange={handleSearchChange}
+              placeholder="Buscar en el catalogo"
+            />
+            <div className="sales-category-filter">
+              <MultiSelect
+                title="Categorias"
+                selected={selectedCategories}
+                onSelect={handleCategorySelect}
+                onLoad={loadCategoryOptions}
+                pageSize={10}
+              />
             </div>
-
-            <div className="home-employees-grid">
-              {displayedProducts.map((product) => (
-                <article className="home-employees-product-card" key={product.productId}>
-                  <div className="home-employees-product-media">
-                    <img src={product.imageUrl} alt={product.name} />
-                  </div>
-
-                  <div className="home-employees-product-body">
-                    <p className="home-employees-product-tag">
-                      {formatCategoryName(product.categories?.[0]?.name || selectedCategoryNames[0] || 'destacado')}
-                    </p>
-                    <h3>{product.name}</h3>
-                    <strong className="home-employees-product-price">{toCurrency(product.sellPrice)}</strong>
-
+            <div className="sales-limit-select" ref={limitMenuRef}>
+              <button
+                type="button"
+                className="sales-limit-button"
+                onClick={() => setIsLimitMenuOpen((isOpen) => !isOpen)}
+                aria-haspopup="listbox"
+                aria-expanded={isLimitMenuOpen}
+              >
+                <span>Ver</span>
+                <strong>{visibleLimit}</strong>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+              {isLimitMenuOpen && (
+                <div className="sales-limit-menu" role="listbox" aria-label="Cantidad de productos visibles">
+                  {pageSizeOptions.map((option) => (
                     <button
                       type="button"
-                      className="home-employees-add-cart-button"
-                      onClick={() => handleAddToCart(product)}
-                      disabled={!productsLoaded}
+                      key={option}
+                      className={`sales-limit-option ${visibleLimit === option ? 'active' : ''}`}
+                      onClick={() => handleLimitSelect(option)}
+                      role="option"
+                      aria-selected={visibleLimit === option}
                     >
-                      <CartIcon />
-                      <span>{productsLoaded ? 'Agregar al carrito' : 'Cargando...'}</span>
+                      {option}
                     </button>
-                  </div>
-                </article>
-              ))}
+                  ))}
+                </div>
+              )}
             </div>
+            <span className="sales-results-count">{visibleProducts.length} resultados</span>
+          </form>
 
-            <nav className="home-employees-pagination" aria-label="Paginacion de productos">
-              <button
-                type="button"
-                className="home-employees-page-arrow"
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                aria-label="Pagina anterior"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="m15 6-6 6 6 6" />
-                </svg>
-              </button>
-
-              {pageNumbers.map((pageNumber) => (
-                <button
-                  type="button"
-                  key={pageNumber}
-                  className={`home-employees-page-number ${currentPage === pageNumber ? 'active' : ''}`}
-                  onClick={() => goToPage(pageNumber)}
-                  aria-current={currentPage === pageNumber ? 'page' : undefined}
-                >
-                  {pageNumber}
-                </button>
-              ))}
-
-              <button
-                type="button"
-                className="home-employees-page-arrow"
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                aria-label="Pagina siguiente"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="m9 6 6 6-6 6" />
-                </svg>
-              </button>
-            </nav>
+          <div className="sales-grid">
+            {displayedProducts.map((product) => (
+              <article className="sales-product-card" key={product.productId}>
+                <div className="sales-product-media">
+                  <img src={product.imageUrl} alt={product.name} />
+                </div>
+                <div className="sales-product-body">
+                  <p className="sales-product-tag">
+                    {formatCategoryName(product.categories?.[0]?.name || selectedCategoryNames[0] || 'destacado')}
+                  </p>
+                  <h3>{product.name}</h3>
+                  <strong className="sales-product-price">{toCurrency(product.sellPrice)}</strong>
+                  <button
+                    type="button"
+                    className="sales-add-cart-button"
+                    onClick={() => handleAddToCart(product)}
+                    disabled={!productsLoaded}
+                  >
+                    <CartIcon />
+                    <span>{productsLoaded ? 'Agregar al carrito' : 'Cargando...'}</span>
+                  </button>
+                </div>
+              </article>
+            ))}
           </div>
-        </section>
+
+          <nav className="sales-pagination" aria-label="Paginacion de productos">
+            <button
+              type="button"
+              className="sales-page-arrow"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              aria-label="Pagina anterior"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m15 6-6 6 6 6" />
+              </svg>
+            </button>
+
+            {pageNumbers.map((pageNumber) => (
+              <button
+                type="button"
+                key={pageNumber}
+                className={`sales-page-number ${currentPage === pageNumber ? 'active' : ''}`}
+                onClick={() => goToPage(pageNumber)}
+                aria-current={currentPage === pageNumber ? 'page' : undefined}
+              >
+                {pageNumber}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              className="sales-page-arrow"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              aria-label="Pagina siguiente"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m9 6 6 6-6 6" />
+              </svg>
+            </button>
+          </nav>
+        </DataGrid>
       </div>
 
       <CheckoutModal

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { ROLE, menuItems } from '@/helpers/permissions'
 import './Home.css'
-import './InicioPage.css'
 import { toast } from 'react-toastify'
 import SideBar from '@/components/sidebar/Sidebar'
 import AdminCompanyManagementPage from './AdminCompanyManagementPage'
