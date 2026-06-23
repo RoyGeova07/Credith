@@ -6,7 +6,6 @@ import SideBar from '@/components/sidebar/Sidebar'
 import AdminCompanyManagementPage from './AdminCompanyManagementPage'
 import AdminStoreManagementPage from './AdminStoreManagementPage'
 import CartDemoPage from './CartDemoPage'
-import InicioPage from './InicioPage'
 import ManagerReportsPage from './ManagerReportsPage'
 import ManagerEmployeesManagementPage from './ManagerEmployeesManagementPage'
 import ProductsPage from './ProductsPage'
@@ -14,11 +13,12 @@ import OwnerCategoryManagementPage from './OwnerCategoryManagementPage'
 import AdminCaiManagementPage from './AdminCaiManagementPage'
 import AdminCheckoutMachineManagementPage from './AdminCheckoutMachineManagementPage'
 import PaymentPlansPage from './PaymentPlansPage'
+import DashboardHomePage from './DashboardHomePage'
 
-function DashboardHome({ session })
+function DashboardHome({ session, onNavigate })
 {
-    if (session?.role === ROLE.OWNER) {
-        return <InicioPage embedded session={session} />
+    if (session?.role === ROLE.OWNER || session?.role === ROLE.ADMIN) {
+        return <DashboardHomePage session={session} onNavigate={onNavigate} />
     }
 
     return (
@@ -31,7 +31,7 @@ function DashboardHome({ session })
     )
 }
 
-function renderContent(page, session)
+function renderContent(page, session, onNavigate)
 {
     switch (page) {
         case '/admin/companies': return <AdminCompanyManagementPage />
@@ -44,7 +44,7 @@ function renderContent(page, session)
         case '/credit-plans': return <PaymentPlansPage />
         case '/reports': return <ManagerReportsPage />
         case '/cart': return <CartDemoPage />
-        default: return <DashboardHome session={session} />
+        default: return <DashboardHome session={session} onNavigate={onNavigate} />
     }
 }
 
@@ -111,7 +111,7 @@ export default function Home({ session, onLogout, toastType, onToastShown })
                 </div>
 
                 <div className="dashboard-content">
-                    {renderContent(page, session)}
+                    {renderContent(page, session, handleNavigate)}
                 </div>
 
             </div>

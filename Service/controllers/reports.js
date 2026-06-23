@@ -498,6 +498,57 @@ async function getProductReport(req, res) {
   }
 }
 
+async function getStoreRangeReport(req, res) {
+  try {
+    const storeFilter = buildRequiredStoreFilter(req.query.storeId)
+    const { startDate, endDate } = req.query
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'startDate y endDate son requeridos (YYYY-MM-DD)' })
+    }
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
+      return res.status(400).json({ message: 'startDate y endDate deben ser formato YYYY-MM-DD' })
+    }
+
+    const rows = await db.sequelize.query(
+      `
+      WITH date_series AS (
+        SELECT generate_series(:startDate::date, :endDate::date, '1 day'::interval)::date AS day
+      )
+      SELECT
+        ds.day::text AS date,
+        COALESCE(SUM((COALESCE(bd.sell_price, 0) - COALESCE(p.buy_price, 0)) * COALESCE(bd.quantity, 0)), 0) AS "grossGain",
+        COALESCE(SUM(COALESCE(bd.total, COALESCE(bd.sell_price, 0) * COALESCE(bd.quantity, 0)) - (COALESCE(p.buy_price, 0) * COALESCE(bd.quantity, 0))), 0) AS "netGain"
+      FROM date_series ds
+      LEFT JOIN cd.bills b
+        ON date_trunc('day', b.created_at)::date = ds.day
+        AND b.store_id = :storeId
+        AND b.deleted_at IS NULL
+      LEFT JOIN cd.bill_details bd ON bd.bill_id = b.bill_id AND bd.deleted_at IS NULL
+      LEFT JOIN cd.products p ON p.product_id = bd.product_id
+      GROUP BY ds.day
+      ORDER BY ds.day ASC
+      `,
+      {
+        replacements: { startDate, endDate, storeId: storeFilter.normalizedStoreId },
+        type: db.Sequelize.QueryTypes.SELECT
+      }
+    )
+
+    res.json({
+      data: rows.map(r => ({
+        date: r.date,
+        grossGain: Number(r.grossGain),
+        netGain: Number(r.netGain)
+      }))
+    })
+  } catch (error) {
+    if (error.status) return res.status(error.status).json({ message: error.message })
+    res.status(500).json({ message: error.message })
+  }
+}
+
 async function getStoreReport(req, res) {
   try {
     const monthPeriod = buildCurrentMonthPeriod(req.query)
@@ -601,6 +652,7 @@ async function getCompanyReport(req, res) {
 
 module.exports = {
   getProductReport,
+  getStoreRangeReport,
   getStoreReport,
   getCompanyReport,
   buildMonthPeriod,
