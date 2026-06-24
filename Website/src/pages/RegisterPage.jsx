@@ -6,6 +6,7 @@ import FormField from "@/components/form/FormField";
 import BrandPanel from "@/components/BrandPanel";
 import{RegisterFormConfig}from '@/pages/constants/FormConfig'
 import{Get,Post}from '@/helpers/fetcher'
+import { toast } from 'react-toastify'
 
 
 export default function RegisterPage({ onRegister, onLogin })
@@ -73,7 +74,7 @@ export default function RegisterPage({ onRegister, onLogin })
 
             console.error(error);
 
-            alert(error.message);
+            toast.error(error.message);
 
         }finally{
 

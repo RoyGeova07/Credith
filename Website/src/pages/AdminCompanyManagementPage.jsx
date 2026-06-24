@@ -20,6 +20,8 @@ export default function AdminCompanyManagementPage() {
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
   const [refreshKey, setRefreshKey] = useState(0)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingCompany, setPendingCompany] = useState(null)
 
   const loadCompanies = useCallback(
     async (offset, limit) => {
@@ -94,10 +96,16 @@ export default function AdminCompanyManagementPage() {
     }
   }
 
-  const handleDelete = async (company) => {
-    if (!window.confirm(`¿Eliminar la compañía "${company.name}"?`)) {
-      return
-    }
+  const handleDelete = (company) => {
+    setPendingCompany(company)
+    setConfirmOpen(true)
+  }
+
+  const doDelete = async () => {
+    if (!pendingCompany) return
+    setConfirmOpen(false)
+    const company = pendingCompany
+    setPendingCompany(null)
 
     try {
       const res = await Delete(`/api/companies/${company.companyId}`)
@@ -208,6 +216,18 @@ export default function AdminCompanyManagementPage() {
             />
           </label>
         </form>
+      </FormDialog>
+
+      <FormDialog
+        title="Confirmar eliminación"
+        isOpen={confirmOpen}
+        setIsOpen={setConfirmOpen}
+        onAccept={doDelete}
+        acceptText="Eliminar"
+        onClose={() => { setConfirmOpen(false); setPendingCompany(null) }}
+        closeText="Cancelar"
+      >
+        <p>{`¿Eliminar la compañía "${pendingCompany?.name}"?`}</p>
       </FormDialog>
     </DataGrid>
     </div>
