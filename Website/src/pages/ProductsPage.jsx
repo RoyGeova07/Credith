@@ -2,14 +2,17 @@ import ProductFilters from "@/components/Products/ProductFilters"
 import ProductHeader from "@/components/Products/ProductHeader"
 import { useState, useEffect } from "react"
 import "./ProductsPage.css"
-import {DataTable,DataColumn,ActionColumn,UpdateAction,DeleteAction, RestoreAction,} from "@/components/dataGrid/DataTable"
+import {DataTable,DataColumn,ActionColumn,UpdateAction,DeleteAction,RestoreAction,CustomAction,} from "@/components/dataGrid/DataTable"
+import FormDialog from '@/components/dialogs/SubmitDialog'
 import ProductForm from "@/components/Products/Add-Products/ProductForm"
 import {deleteProduct, getProducts, restoreProduct} from "@/helpers/products"
 import { getCategories } from "@/helpers/categories"
 import defaultProductImage from "@/assets/image.png"
+import { BoxIcon } from "@/assets/icons"
 import { toast } from "react-toastify"
 import { getStores } from "@/helpers/store"
 import { getSession } from "@/helpers/session"
+import { Patch } from "@/helpers/fetcher"
 
 export default function ProductsPage()
 {
@@ -24,6 +27,14 @@ export default function ProductsPage()
     const[showArchived,setShowArchived]=useState(false)
     const[stores,setStores]=useState([])
     const[selectedStore,setSelectedStore]=useState("")
+    const[stockDialogOpen,setStockDialogOpen]=useState(false)
+    const[stockDialogProduct,setStockDialogProduct]=useState(null)
+    const[stockValue,setStockValue]=useState("")
+    const[transferDialogOpen,setTransferDialogOpen]=useState(false)
+    const[transferDialogProduct,setTransferDialogProduct]=useState(null)
+    const[transferFromStore,setTransferFromStore]=useState("")
+    const[transferQuantity,setTransferQuantity]=useState("")
+    const[transferToStore,setTransferToStore]=useState("")
     const session=getSession()
     const assginedStore=stores.find(store=>store.storeId===session?.storeId)//FILTRAR PARA LA TIENDA CON STOCK Y PRODUCTO PARA EL ADMIN LOGUEADO
     const isGeneralInventory=session?.role==="OWNER"&&!selectedStore
@@ -93,6 +104,129 @@ export default function ProductsPage()
         }
 
     }
+    function getRowStock(row)
+    {
+
+        return row.inventories?.reduce(
+
+            (total,inventory)=>total+(inventory?.inStock||0),
+
+            0
+
+        )||0
+
+    }
+
+    const handleOpenStockDialog=(product)=>
+    {
+
+        setStockDialogProduct(product)
+        setStockValue(String(getRowStock(product)))
+        setStockDialogOpen(true)
+
+    }
+
+    const handleUpdateStock=async()=>
+    {
+
+        if(!stockDialogProduct)return
+        const storeId=session?.storeId||selectedStore
+        if(!storeId)
+        {
+
+            toast.error("No hay tienda seleccionada")
+            return
+
+        }
+        try
+        {
+
+            const response=await Patch("/api/store-inventory/stock",{
+
+                productId:stockDialogProduct.productId,
+                storeId,
+                stock:Number(stockValue),
+
+            })
+            if(response.status!==200)
+            {
+
+                throw new Error(response.json.message||"Error al actualizar stock")
+
+            }
+            toast.success("Stock actualizado correctamente")
+            setStockDialogOpen(false)
+            setStockDialogProduct(null)
+            setReload(prev=>prev+1)
+
+        }catch(error)
+        {
+
+            toast.error(error.message)
+
+        }
+
+    }
+
+    const handleOpenTransferDialog=(product)=>
+    {
+
+        setTransferDialogProduct(product)
+        setTransferFromStore("")
+        setTransferQuantity("")
+        setTransferToStore("")
+        setTransferDialogOpen(true)
+
+    }
+
+    const handleTransferStock=async()=>
+    {
+
+        if(!transferDialogProduct||!transferFromStore||!transferToStore||!transferQuantity)
+        {
+
+            toast.error("Completa todos los campos")
+            return
+
+        }
+        if(transferFromStore===transferToStore)
+        {
+
+            toast.error("Las tiendas deben ser diferentes")
+            return
+
+        }
+        try
+        {
+
+            const response=await Patch("/api/store-inventory/transfer",{
+
+                productId:transferDialogProduct.productId,
+                fromStoreId:transferFromStore,
+                toStoreId:transferToStore,
+                quantity:Number(transferQuantity),
+
+            })
+            if(response.status!==200)
+            {
+
+                throw new Error(response.json.message||"Error al transferir existencias")
+
+            }
+            toast.success("Existencias transferidas correctamente")
+            setTransferDialogOpen(false)
+            setTransferDialogProduct(null)
+            setReload(prev=>prev+1)
+
+        }catch(error)
+        {
+
+            toast.error(error.message)
+
+        }
+
+    }
+
     const handleRestore=async(product)=>
     {
 
@@ -225,7 +359,7 @@ export default function ProductsPage()
 
                 <DataColumn
 
-                    title="Product Name"
+                    title="Producto"
 
                     render={(row) => 
                     (
@@ -281,7 +415,7 @@ export default function ProductsPage()
 
                     propertyName="buyPrice"
 
-                    title="Buy Price"
+                    title="Precio de compra"
 
                     render={(row) =>
 
@@ -295,7 +429,7 @@ export default function ProductsPage()
 
                     propertyName="sellPrice"
 
-                    title="Sell Price"
+                    title="Precio de venta"
 
                     render={(row) =>
 
@@ -307,31 +441,9 @@ export default function ProductsPage()
 
                 <DataColumn
 
-                    title="Minimum Sell Price"
-
-                    render={(row) =>
-                    {
-
-                        const percentage =
-                            row.minGainPercentage ??
-                            row.min_gain_percentage ??
-                            0
-
-                        const value =
-                            Number(row.buyPrice) *
-                            (1 + Number(percentage) / 100)
-
-                        return `L. ${value.toFixed(2)}`
-
-                    }}
-
-                />
-
-                <DataColumn
-
                     propertyName="inStock"
 
-                    title="In Stock"
+                    title="Existencias"
 
                     render={(row) =>
                     {
@@ -366,6 +478,48 @@ export default function ProductsPage()
                             <UpdateAction
 
                                 onClick={handleEdit}
+
+                            />
+
+                        )
+
+                    }
+
+                    {/**boton de actualizar stock — solo con tienda seleccionada */}
+
+                    {
+
+                        (session?.role==="ADMIN"||!isGeneralInventory)&&
+                        (
+
+                            <CustomAction
+
+                                backgroundColor="#1a6b4a"
+                                color="#ffffff"
+                                icon={BoxIcon}
+                                tooltip="Actualizar existencias"
+                                onClick={handleOpenStockDialog}
+
+                            />
+
+                        )
+
+                    }
+
+                    {/**boton de transferir stock — solo inventario general */}
+
+                    {
+
+                        isGeneralInventory&&
+                        (
+
+                            <CustomAction
+
+                                backgroundColor="#2563eb"
+                                color="#ffffff"
+                                icon={BoxIcon}
+                                tooltip="Transferir existencias"
+                                onClick={handleOpenTransferDialog}
 
                             />
 
@@ -416,6 +570,115 @@ export default function ProductsPage()
                 setSelectedProduct={setSelectedProduct}
 
             />
+
+            {/**dialogo de actualizar stock */}
+
+            <FormDialog
+
+                title={stockDialogProduct?`Actualizar existencias - ${stockDialogProduct.name}`:"Actualizar existencias"}
+                isOpen={stockDialogOpen}
+                setIsOpen={setStockDialogOpen}
+                onAccept={handleUpdateStock}
+                acceptText="Guardar"
+                onClose={()=>{setStockDialogOpen(false);setStockDialogProduct(null)}}
+                closeText="Cancelar"
+
+            >
+
+                <p>¿Cuántos {stockDialogProduct?.name} hay en existencia?</p>
+
+                <input
+
+                    type="number"
+                    min="0"
+                    value={stockValue}
+                    onChange={(e)=>setStockValue(e.target.value)}
+                    style={{width:"100%",padding:"11px 13px",border:"1.5px solid var(--gray-light)",borderRadius:"8px",fontFamily:"'Lato',sans-serif",fontSize:"0.95rem",marginTop:"8px"}}
+
+                />
+
+            </FormDialog>
+
+            {/**dialogo de transferir stock */}
+
+            <FormDialog
+
+                title={transferDialogProduct?`Transferir existencias - ${transferDialogProduct.name}`:"Transferir existencias"}
+                isOpen={transferDialogOpen}
+                setIsOpen={setTransferDialogOpen}
+                onAccept={handleTransferStock}
+                acceptText="Transferir"
+                onClose={()=>{setTransferDialogOpen(false);setTransferDialogProduct(null)}}
+                closeText="Cancelar"
+
+            >
+
+                <label style={{display:"grid",gap:"6px",fontWeight:800,fontSize:"0.78rem",textTransform:"uppercase",color:"var(--text-mid)",marginTop:"8px"}}>
+
+                    Tienda origen
+
+                    <select value={transferFromStore} onChange={(e)=>setTransferFromStore(e.target.value)} style={{width:"100%",padding:"11px 13px",border:"1.5px solid var(--gray-light)",borderRadius:"8px",fontFamily:"'Lato',sans-serif",fontSize:"0.95rem",background:"#f8fbf9"}}>
+
+                        <option value="">Seleccionar tienda</option>
+
+                        {transferDialogProduct?.inventories?.map((inv)=>(
+
+                            <option key={inv.storeId} value={inv.storeId}>
+
+                                {inv.store?.address||inv.storeId} — {inv.inStock} unidades
+
+                            </option>
+
+                        ))}
+
+                    </select>
+
+                </label>
+
+                <label style={{display:"grid",gap:"6px",fontWeight:800,fontSize:"0.78rem",textTransform:"uppercase",color:"var(--text-mid)",marginTop:"12px"}}>
+
+                    Cantidad
+
+                    <input
+
+                        type="number"
+                        min="0"
+                        max={
+                            transferDialogProduct?.inventories?.find(
+                                (inv)=>inv.storeId===transferFromStore
+                            )?.inStock||0
+                        }
+                        value={transferQuantity}
+                        onChange={(e)=>setTransferQuantity(e.target.value)}
+                        style={{width:"100%",padding:"11px 13px",border:"1.5px solid var(--gray-light)",borderRadius:"8px",fontFamily:"'Lato',sans-serif",fontSize:"0.95rem"}}
+
+                    />
+
+                </label>
+
+                <label style={{display:"grid",gap:"6px",fontWeight:800,fontSize:"0.78rem",textTransform:"uppercase",color:"var(--text-mid)",marginTop:"12px"}}>
+
+                    Tienda destino
+
+                    <select value={transferToStore} onChange={(e)=>setTransferToStore(e.target.value)} style={{width:"100%",padding:"11px 13px",border:"1.5px solid var(--gray-light)",borderRadius:"8px",fontFamily:"'Lato',sans-serif",fontSize:"0.95rem",background:"#f8fbf9"}}>
+
+                        <option value="">Seleccionar tienda</option>
+
+                        {stores.filter((s)=>s.storeId!==transferFromStore).map((store)=>(
+
+                            <option key={store.storeId} value={store.storeId}>
+
+                                {store.address||store.storeId}
+
+                            </option>
+
+                        ))}
+
+                    </select>
+
+                </label>
+
+            </FormDialog>
 
         </div>
 

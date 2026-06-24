@@ -11,7 +11,7 @@
 {
 
     font-size: 0.78rem;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-mid);
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -31,13 +31,13 @@
 {
 
     flex: 1;
-    padding: 11px 14px;
+    padding: 11px 13px;
     border: 1.5px solid var(--gray-light);
     border-radius: var(--radius-sm);
     font-family: 'Lato', sans-serif;
     font-size: 0.95rem;
     color: var(--text-dark);
-    background: var(--off-white);
+    background: #f8fbf9;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 

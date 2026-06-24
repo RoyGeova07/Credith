@@ -40,10 +40,10 @@ export function ActionColumn({ children, row }) {
     <td>
       <div className="actions-cell">
         {Children.map(children, (child) =>
-          child?.type?.name === 'CustomAction' ||
-          child?.type?.name === 'UpdateAction' ||
-          child?.type?.name === 'DeleteAction' ||
-          child?.type?.name === 'RestoreAction'
+          child?.type === CustomAction ||
+          child?.type === UpdateAction ||
+          child?.type === DeleteAction ||
+          child?.type === RestoreAction
             ? cloneElement(child, { row })
             : child
         )}
@@ -63,7 +63,7 @@ export function DataTable({ onLoad, children, rowTitle, onRowClick, rowsPerPage 
   for (const child of children) {
     if (!child || !child.type) continue
 
-    if (child.type.name === 'DataColumn') {
+    if (child.type === DataColumn) {
       const { title, propertyName, render } = child.props
 
       if (!title && !propertyName) continue
@@ -74,7 +74,7 @@ export function DataTable({ onLoad, children, rowTitle, onRowClick, rowsPerPage 
         propertyName: propertyName || title,
         render,
       })
-    } else if (child.type.name === 'ActionColumn') {
+    } else if (child.type === ActionColumn) {
       columns.push({
         type: 'action',
         element: child,

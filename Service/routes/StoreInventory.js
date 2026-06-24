@@ -1,7 +1,7 @@
 const router=require("express").Router()
 const authMiddleware=require("../middlewares/authMiddleware")
 
-const{/*addProductToStore,*/addStock,removeStock,getStoreInventory,getProductStock,getPagedStoresInventories,updateStock, getMyStoreInventory, getLowStockInventory}=require("../controllers/StoreInventory")
+const{/*addProductToStore,*/addStock,removeStock,getStoreInventory,getProductStock,getPagedStoresInventories,updateStock, getMyStoreInventory, getLowStockInventory,transferStock}=require("../controllers/StoreInventory")
 const roleMiddleware = require("../middlewares/roleMiddleware")
 const { ROLE } = require('../helper/roles')
 
@@ -182,6 +182,7 @@ router.get("/:storeId/:productId",authMiddleware,roleMiddleware(ROLE.OWNER),getP
  *       500:
  *         description: Error interno del servidor
  */
+router.post("/transfer",authMiddleware,roleMiddleware(ROLE.OWNER),transferStock)
 router.get("/low-stock", authMiddleware, roleMiddleware(ROLE.OWNER, ROLE.ADMIN), getLowStockInventory)
 router.get("/my-store",authMiddleware, getMyStoreInventory)
 
