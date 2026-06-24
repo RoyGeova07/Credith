@@ -9,7 +9,6 @@ export class ProductFormConfig
         description:"",
         buyPrice:"",
         sellPrice:"",
-        minGainPercentage:"",
         categories:[],
         storeId:"",
         storeName:"",
@@ -53,17 +52,6 @@ export class ProductFormConfig
 
         }
 
-        if(!form.minGainPercentage)
-        {
-
-            errors.minGainPercentage="El porcentaje minimo de ganancia es requerido"
-
-        }else if(form.minGainPercentage!==""&&(isNaN(form.minGainPercentage)||Number(form.minGainPercentage)<0||Number(form.minGainPercentage)>100)){
-
-            errors.minGainPercentage="Ingrese un porcentaje valido entre 0 y 100"
-
-        }
-
         if(!form.categories||form.categories.length===0)
         {
 
@@ -75,11 +63,7 @@ export class ProductFormConfig
             errors.storeId="La tienda es requerida"
 
         }
-        if(!form.initialStock){
-
-            errors.initialStock="El stock inicial es requerido"
-
-        }else if(Number(form.initialStock)<1){
+        if(form.initialStock&&Number(form.initialStock)<1){
 
             errors.initialStock="El stock debe ser mayor a cero"
 

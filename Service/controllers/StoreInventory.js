@@ -271,4 +271,66 @@ async function getLowStockInventory(req, res) {
     }
 }
 
-module.exports={/*addProductToStore*/updateStock,getStoreInventory,getProductStock,getPagedStoresInventories, getMyStoreInventory, getLowStockInventory}
+async function transferStock(req,res)
+{
+    try
+    {
+        const{productId,fromStoreId,toStoreId,quantity}=req.body
+
+        if(!productId||!fromStoreId||!toStoreId||!quantity||quantity<1)
+        {
+
+            return res.status(400).json({message:"Datos inválidos para la transferencia"})
+
+        }
+
+        if(fromStoreId===toStoreId)
+        {
+
+            return res.status(400).json({message:"Las tiendas deben ser diferentes"})
+
+        }
+
+        const fromInventory=await StoresInventories.findOne({where:{productId,storeId:fromStoreId}})
+
+        if(!fromInventory)
+        {
+
+            return res.status(404).json({message:"Inventario de origen no encontrado"})
+
+        }
+
+        if(fromInventory.inStock<quantity)
+        {
+
+            return res.status(400).json({message:`Stock insuficiente en origen. Disponible: ${fromInventory.inStock}`})
+
+        }
+
+        fromInventory.inStock-=quantity
+        await fromInventory.save()
+
+        const toInventory=await StoresInventories.findOne({where:{productId,storeId:toStoreId}})
+
+        if(toInventory)
+        {
+
+            toInventory.inStock+=quantity
+            await toInventory.save()
+
+        }else{
+
+            await StoresInventories.create({productId,storeId:toStoreId,inStock:quantity})
+
+        }
+
+        return res.status(200).json({message:"Transferencia exitosa"})
+
+    }catch(error){
+
+        return res.status(500).json({message:error.message})
+
+    }
+}
+
+module.exports={/*addProductToStore*/updateStock,getStoreInventory,getProductStock,getPagedStoresInventories, getMyStoreInventory, getLowStockInventory,transferStock}

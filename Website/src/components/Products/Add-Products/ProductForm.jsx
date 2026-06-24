@@ -85,7 +85,6 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
                 description:product.description,
                 buyPrice:Number(product.buyPrice),
                 sellPrice:Number(product.sellPrice),
-                minGainPercentage:product.minGainPercentage,
                 imageUrl:product.imageUrl,
                 storeId:product.storeId||session?.storeId||"",
                 storeName:product.storeId||(session?.storeAddress?`Sucursal ${session.storeAddress}`:""),
@@ -213,7 +212,7 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
                     description: form.description,
                     buyPrice: Number(form.buyPrice),
                     sellPrice: Number(form.sellPrice),
-                    minGainPercentage: Number(form.minGainPercentage),
+                    minGainPercentage: 0,
                     imageUrl: form.imageUrl,
                     categoryId: form.categories[0]?.value,
                     storeId:form.storeId,
@@ -231,7 +230,7 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
 
                     buyPrice:Number(form.buyPrice),
                     sellPrice:Number(form.sellPrice),
-                    minGainPercentage:Number(form.minGainPercentage),
+                    minGainPercentage:0,
 
                     imageUrl:form.imageUrl,
 
@@ -355,19 +354,23 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
 
                     }
 
-                    <FormField 
+                    {!product&&(
 
-                        inputName="initialStock"
-                        description="Stock Inicial"
-                        type="number"
-                        value={form.initialStock}
-                        onChange={handleChange("initialStock")}
-                        onBlur={handleBlur("initialStock")}
-                        error={errors.initialStock}
-                        touched={touched.initialStock}
-                        required
+                        <FormField 
 
-                    />
+                            inputName="initialStock"
+                            description="Stock Inicial"
+                            type="number"
+                            value={form.initialStock}
+                            onChange={handleChange("initialStock")}
+                            onBlur={handleBlur("initialStock")}
+                            error={errors.initialStock}
+                            touched={touched.initialStock}
+                            required
+
+                        />
+
+                    )}
 
                     {/* Descripcion — fila completa */}
                     <FormField
@@ -415,48 +418,6 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
                         required
 
                     />
-
-                    {/**porcentaje minimo de ganancia */}
-                    <div className="field-group full">
-
-                        <label htmlFor="minGainPercentage">
-
-                            Porcentaje minimo de ganancia
-
-                        </label>
-
-                        <div className="percent-wrapper">
-
-                            <input
-
-                                id="minGainPercentage"
-                                name="minGainPercentage"
-                                type="number"
-                                placeholder="ej. 25"
-                                value={form.minGainPercentage}
-                                onChange={handleChange('minGainPercentage')}
-                                onBlur={handleBlur('minGainPercentage')}
-                                className={touched.minGainPercentage?errors.minGainPercentage? 'input-error':'input-ok':''}
-
-                            />
-
-                            <span className="percent-suffix">%</span>
-
-                        </div>
-
-                        {touched.minGainPercentage&&errors.minGainPercentage&&(
-
-                            <span className="error-msg">
-
-                                ⚠ {errors.minGainPercentage}
-
-                            </span>
-
-
-
-                        )}
-
-                    </div>
 
                     {/**categorias */}
                     <div className="categories-field">

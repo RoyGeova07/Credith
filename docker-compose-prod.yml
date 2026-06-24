@@ -43,6 +43,8 @@ services:
       context: ./Website
       dockerfile: dockerfile
       args:
+        # VITE_CLOUDINARY_CLOUD_NAME: [NAME]
+        # VITE_CLOUDINARY_UPLOAD_PRESET: [PRESET] 
         VITE_BASE_ROUTE: http://localhost:3000
     container_name: credith_website
     ports:

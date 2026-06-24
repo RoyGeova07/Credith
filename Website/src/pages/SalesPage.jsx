@@ -8,26 +8,6 @@ import { Get } from '@/helpers/fetcher'
 import { toast } from 'react-toastify'
 import './SalesPage.css'
 
-const fallbackCategories = [
-  { categoryId: 'preview-1', name: 'electrodomesticos', description: 'Linea blanca y pequenos aparatos' },
-  { categoryId: 'preview-2', name: 'electronica', description: 'Audio, video y entretenimiento' },
-  { categoryId: 'preview-3', name: 'smart home', description: 'Automatizacion y confort conectado' },
-  { categoryId: 'preview-4', name: 'tecnologia', description: 'Computacion y accesorios' },
-  { categoryId: 'preview-5', name: 'deportes', description: 'Equipos y vida activa' },
-  { categoryId: 'preview-6', name: 'cocina', description: 'Preparacion y cuidado del hogar' },
-  { categoryId: 'preview-7', name: 'muebles', description: 'Salas, comedores y soluciones funcionales' },
-  { categoryId: 'preview-8', name: 'audio', description: 'Parlantes, barras y sonido envolvente' },
-]
-
-const fallbackProducts = [
-  { productId: 'preview-p1', name: 'Refrigeradora Inverter 18 pies', description: 'Frio uniforme, bajo consumo y diseno moderno.', sellPrice: 24999, imageUrl: 'https://picsum.photos/seed/refrigeradora-servicredith/560/420', categories: [{ name: 'electrodomesticos' }] },
-  { productId: 'preview-p2', name: 'Smart TV 55 pulgadas 4K', description: 'Streaming fluido y colores intensos para sala o dormitorio.', sellPrice: 15999, imageUrl: 'https://picsum.photos/seed/smarttv-servicredith/560/420', categories: [{ name: 'electronica' }] },
-  { productId: 'preview-p3', name: 'Aspiradora robot inteligente', description: 'Mapeo automatico y control desde el celular.', sellPrice: 8999, imageUrl: 'https://picsum.photos/seed/robot-servicredith/560/420', categories: [{ name: 'smart home' }] },
-  { productId: 'preview-p4', name: 'Laptop 15 pulgadas Ryzen', description: 'Ideal para estudio, trabajo y tareas del dia a dia.', sellPrice: 18999, imageUrl: 'https://picsum.photos/seed/laptop-servicredith/560/420', categories: [{ name: 'tecnologia' }] },
-  { productId: 'preview-p5', name: 'Bicicleta estatica compacta', description: 'Rutinas en casa con estructura robusta y silenciosa.', sellPrice: 6499, imageUrl: 'https://picsum.photos/seed/deporte-servicredith/560/420', categories: [{ name: 'deportes' }] },
-  { productId: 'preview-p6', name: 'Freidora de aire familiar', description: 'Coccion rapida con menos aceite y canasta de gran capacidad.', sellPrice: 3299, imageUrl: 'https://picsum.photos/seed/cocina-servicredith/560/420', categories: [{ name: 'cocina' }] },
-]
-
 const pageSizeOptions = [8, 12, 16, 20]
 
 function toCurrency(value) {
@@ -60,9 +40,9 @@ function normalizeProduct(product, index) {
 }
 
 export default function SalesPage({ session }) {
-  const [categories, setCategories] = useState(fallbackCategories.map(normalizeCategory))
+  const [categories, setCategories] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([])
-  const [products, setProducts] = useState(fallbackProducts.map(normalizeProduct))
+  const [products, setProducts] = useState([])
   const [search, setSearch] = useState('')
   const [visibleLimit, setVisibleLimit] = useState(pageSizeOptions[0])
   const [isLimitMenuOpen, setIsLimitMenuOpen] = useState(false)
