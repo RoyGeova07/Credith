@@ -88,7 +88,7 @@ export default function ProductForm({isOpen,setIsOpen,onCreated,product=null,set
                 imageUrl:product.imageUrl,
                 storeId:product.storeId||session?.storeId||"",
                 storeName:product.storeId||(session?.storeAddress?`Sucursal ${session.storeAddress}`:""),
-                initialStock:product.inStock||"",
+                initialStock:product.inventories?.reduce((total,inv)=>total+(inv.inStock||0),0)||"",
                 categories:product.categories.map(c=>({value:c.categoryId,label: c.name})),
 
             })
