@@ -90,6 +90,42 @@ Para el detalle completo de configuración de entorno, migraciones y datos semil
 
 ---
 
+## Variables de entorno
+
+El proyecto tiene dos `.env.example`, uno por cada parte. Cópialos y completa tus propios valores antes de levantar el proyecto:
+
+```bash
+cp Service/.env.example Service/.env
+cp Website/.env.example Website/.env
+```
+
+**`Service/.env`** — servidor, autenticación y base de datos:
+
+```env
+PORT=3000
+JWT_SECRET=your_jwt_secret_here
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=your_database_name
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_DIALECT=postgres
+DB_HOST_D=your_docker_database_host
+
+COOKIE_LIFETIME_HOURS=2
+```
+
+**`Website/.env`** — credenciales de Cloudinary para subida de imágenes de productos:
+
+```env
+VITE_CLOUDINARY_CLOUD_NAME=<your_cloud_name>
+VITE_CLOUDINARY_UPLOAD_PRESET=<your_upload_preset>
+```
+
+
+---
+
 ## Roles del sistema
 
 | Rol | Vista |
